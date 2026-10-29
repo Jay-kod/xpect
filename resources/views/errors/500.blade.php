@@ -11,3 +11,4 @@
     <span class="key">STATUS:</span>
     <span class="val">500 Server Error</span>
 @endsection
+

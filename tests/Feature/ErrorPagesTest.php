@@ -78,3 +78,4 @@ class ErrorPagesTest extends TestCase
         $response->assertSee('Engine Under Maintenance');
     }
 }
+

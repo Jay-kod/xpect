@@ -11,3 +11,4 @@
     <span class="key">SESSION LIFETIME:</span>
     <span class="val">{{ config('session.lifetime') }} minutes</span>
 @endsection
+

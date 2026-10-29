@@ -11,3 +11,4 @@
     <span class="key">URI:</span>
     <span class="val">{{ request()->path() }}</span>
 @endsection
+

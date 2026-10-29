@@ -11,3 +11,4 @@
     <span class="key">ENVIRONMENT:</span>
     <span class="val">{{ app()->environment() }} (Local Only)</span>
 @endsection
+
