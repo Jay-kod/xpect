@@ -31,12 +31,33 @@ class AiReasoningController extends Controller
      */
     public function index(Request $request): View
     {
+        $selectedDate = $request->filled('date') ? trim((string) $request->query('date')) : null;
+        $dateFilterInfo = null;
+
         // 1. Available matches with predictions for selector dropdown
-        $availableMatches = FootballMatch::whereHas('predictions')
+        $availableMatchesQuery = FootballMatch::whereHas('predictions')
             ->with(['homeTeam', 'awayTeam', 'competition'])
-            ->orderBy('kickoff_at', 'desc')
-            ->take(60)
-            ->get();
+            ->orderBy('kickoff_at', 'desc');
+
+        if ($selectedDate) {
+            try {
+                $parsedDate = \Carbon\CarbonImmutable::parse($selectedDate, 'UTC');
+                $selectedDate = $parsedDate->format('Y-m-d');
+                $availableMatchesQuery->whereBetween('kickoff_at', [
+                    $parsedDate->startOfDay(),
+                    $parsedDate->endOfDay(),
+                ]);
+                $dateFilterInfo = [
+                    'date_str' => $selectedDate,
+                    'formatted' => $parsedDate->format('l, d M Y'),
+                ];
+            } catch (\Throwable) {
+                $selectedDate = null;
+                $dateFilterInfo = null;
+            }
+        }
+
+        $availableMatches = $availableMatchesQuery->take(60)->get();
 
         // 2. Resolve selected match
         $selectedMatchId = $request->query('match_id') ? (int) $request->query('match_id') : null;
@@ -50,20 +71,8 @@ class AiReasoningController extends Controller
                 'predictions.previews' => fn ($q) => $q->latest(),
             ])->find($selectedMatchId);
         } else {
-            // Default to scheduled match with prediction first; fallback to any match with prediction
-            $selectedMatch = FootballMatch::whereHas('predictions')
-                ->where('status', 'scheduled')
-                ->with([
-                    'homeTeam',
-                    'awayTeam',
-                    'competition',
-                    'predictions' => fn ($q) => $q->latest(),
-                    'predictions.previews' => fn ($q) => $q->latest(),
-                ])
-                ->orderBy('kickoff_at', 'asc')
-                ->first();
-
-            if (!$selectedMatch && $availableMatches->isNotEmpty()) {
+            // Default to first match in available matches (which respects date filter) or scheduled match
+            if ($availableMatches->isNotEmpty()) {
                 $selectedMatch = FootballMatch::with([
                     'homeTeam',
                     'awayTeam',
@@ -71,6 +80,18 @@ class AiReasoningController extends Controller
                     'predictions' => fn ($q) => $q->latest(),
                     'predictions.previews' => fn ($q) => $q->latest(),
                 ])->find($availableMatches->first()->id);
+            } else {
+                $selectedMatch = FootballMatch::whereHas('predictions')
+                    ->where('status', 'scheduled')
+                    ->with([
+                        'homeTeam',
+                        'awayTeam',
+                        'competition',
+                        'predictions' => fn ($q) => $q->latest(),
+                        'predictions.previews' => fn ($q) => $q->latest(),
+                    ])
+                    ->orderBy('kickoff_at', 'asc')
+                    ->first();
             }
         }
 
@@ -127,6 +148,8 @@ class AiReasoningController extends Controller
             'guardResult' => $guardResult,
             'recentPreviews' => $recentPreviews,
             'hasAnthropicKey' => $hasAnthropicKey,
+            'selectedDate' => $selectedDate,
+            'dateFilterInfo' => $dateFilterInfo,
         ]);
     }
 

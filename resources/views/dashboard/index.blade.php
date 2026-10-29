@@ -674,9 +674,27 @@
                         </p>
                     </div>
 
-                    <!-- Filter Controls -->
+                    <!-- Filter Controls with Specific Date Selector -->
                     <form method="GET" action="{{ route('dashboard') }}" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                         <input type="hidden" name="competition" value="{{ $selectedComp }}">
+                        
+                        <!-- Date Selector Input -->
+                        <div style="display:flex;align-items:center;background:#0C0C0E;border:1px solid var(--xp-border);border-radius:6px;padding:2px 6px;gap:6px;">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--xp-orange);">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <input type="date" name="date" value="{{ $selectedDate }}" class="select-pill" style="border:none;background:transparent;padding:4px 2px;font-size:11px;color:var(--xp-text);outline:none;" title="Select specific match date" onchange="this.form.submit()">
+                        </div>
+
+                        @if ($selectedDate)
+                            <a href="{{ route('dashboard', ['competition' => $selectedComp, 'season' => $selectedSeason, 'status' => $statusFilter]) }}" class="btn btn-secondary btn-sm" style="padding:4px 8px;font-size:11px;color:var(--xp-orange);border-color:rgba(217,78,0,0.3);" title="Clear date and view all matches">
+                                ✕ Clear Date
+                            </a>
+                        @endif
+
                         <select name="season" class="select-pill" onchange="this.form.submit()">
                             @foreach ($seasons as $s)
                                 <option value="{{ $s }}" {{ $selectedSeason === $s ? 'selected' : '' }}>Season {{ $s }}/{{ substr((string)($s+1), -2) }}</option>
@@ -690,6 +708,32 @@
                         </select>
                     </form>
                 </div>
+
+                @if ($dateFilterInfo)
+                    <div style="background:rgba(217,78,0,0.08);border:1px solid rgba(217,78,0,0.25);border-radius:6px;padding:8px 12px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <span style="font-size:12px;color:var(--xp-orange);font-weight:700;">📅 Date Filter:</span>
+                            <span style="font-size:12px;color:#FFFFFF;font-weight:600;">{{ $dateFilterInfo['formatted'] }}</span>
+                            <span class="badge" style="background:#0C0C0E;border:1px solid var(--xp-border);font-size:10px;color:var(--xp-text);">
+                                {{ $matches->total() }} matches found
+                            </span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <a href="{{ route('dashboard', ['competition' => $selectedComp, 'date' => $dateFilterInfo['prev_date']]) }}" class="btn btn-secondary btn-sm" style="padding:3px 8px;font-size:11px;">
+                                &larr; Prev
+                            </a>
+                            <a href="{{ route('dashboard', ['competition' => $selectedComp, 'date' => \Carbon\CarbonImmutable::now('UTC')->format('Y-m-d')]) }}" class="btn btn-secondary btn-sm" style="padding:3px 8px;font-size:11px;{{ $dateFilterInfo['is_today'] ? 'border-color:var(--xp-orange);color:var(--xp-orange);' : '' }}">
+                                Today
+                            </a>
+                            <a href="{{ route('dashboard', ['competition' => $selectedComp, 'date' => $dateFilterInfo['next_date']]) }}" class="btn btn-secondary btn-sm" style="padding:3px 8px;font-size:11px;">
+                                Next &rarr;
+                            </a>
+                            <a href="{{ route('dashboard', ['competition' => $selectedComp]) }}" class="btn btn-secondary btn-sm" style="padding:3px 8px;font-size:11px;color:var(--xp-orange);">
+                                Reset
+                            </a>
+                        </div>
+                    </div>
+                @endif
 
                 @if ($matches->isEmpty())
                     @if ($statusFilter === 'today')

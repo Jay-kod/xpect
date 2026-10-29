@@ -29,3 +29,4 @@ return new class extends Migration
         Competition::where('slug', 'champions-league')->delete();
     }
 };
+

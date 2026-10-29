@@ -806,6 +806,25 @@
             </div>
 
             <div class="topbar-right">
+                <!-- Universal Date Filter -->
+                <form method="GET" action="{{ url()->current() }}" style="display:flex;align-items:center;gap:6px;margin:0;">
+                    @foreach (request()->except(['date', 'page']) as $k => $v)
+                        <input type="hidden" name="{{ $k }}" value="{{ $v }}">
+                    @endforeach
+                    <div style="display:flex;align-items:center;background:#0C0C0E;border:1px solid var(--xp-border);border-radius:6px;padding:3px 8px;gap:6px;" title="Filter current page by specific date">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--xp-orange);">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <input type="date" name="date" value="{{ request('date') }}" style="background:transparent;border:none;font-size:11px;color:var(--xp-text);outline:none;cursor:pointer;" onchange="this.form.submit()">
+                    </div>
+                    @if (request()->filled('date'))
+                        <a href="{{ url()->current() }}?{{ http_build_query(request()->except(['date', 'page'])) }}" class="btn btn-secondary btn-sm" style="padding:3px 6px;font-size:10px;color:var(--xp-orange);border-color:rgba(217,78,0,0.3);" title="Clear date filter">✕</a>
+                    @endif
+                </form>
+
                 <button class="topbar-btn" title="Notifications">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>

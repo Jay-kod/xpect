@@ -42,6 +42,33 @@ class DashboardController extends Controller
         $todayStart = $nowUtc->startOfDay();
         $todayEnd = $nowUtc->endOfDay();
 
+        $selectedDate = $request->filled('date') ? trim((string) $request->get('date')) : null;
+        $dateFilterInfo = null;
+        $dateStart = null;
+        $dateEnd = null;
+
+        if ($selectedDate) {
+            try {
+                $parsedDate = CarbonImmutable::parse($selectedDate, 'UTC');
+                $selectedDate = $parsedDate->format('Y-m-d');
+                $dateStart = $parsedDate->startOfDay();
+                $dateEnd = $parsedDate->endOfDay();
+
+                $dateFilterInfo = [
+                    'date_str' => $selectedDate,
+                    'formatted' => $parsedDate->format('l, d M Y'),
+                    'prev_date' => $parsedDate->subDay()->format('Y-m-d'),
+                    'next_date' => $parsedDate->addDay()->format('Y-m-d'),
+                    'is_today' => $selectedDate === $nowUtc->format('Y-m-d'),
+                    'is_yesterday' => $selectedDate === $nowUtc->subDay()->format('Y-m-d'),
+                    'is_tomorrow' => $selectedDate === $nowUtc->addDay()->format('Y-m-d'),
+                ];
+            } catch (Throwable) {
+                $selectedDate = null;
+                $dateFilterInfo = null;
+            }
+        }
+
         // 1. Single aggregate query for all competition statistics and status counts
         $statsRow = FootballMatch::where('competition_id', $competition?->id)
             ->where('season', $selectedSeason)
@@ -86,9 +113,9 @@ class DashboardController extends Controller
             'predictions.previews' => fn($q) => $q->latest(),
         ];
 
-        // 1. Next Day & Upcoming Matches spotlight — only when visible
+        // 1. Next Day & Upcoming Matches spotlight — only when visible (suppressed when date filter is active)
         $upcomingMatches = collect();
-        if (in_array($statusFilter, ['all', 'future'])) {
+        if (!$dateFilterInfo && in_array($statusFilter, ['all', 'future'])) {
             $upcomingMatches = FootballMatch::with($eagerLoad)
                 ->where('competition_id', $competition?->id)
                 ->where('status', 'scheduled')
@@ -121,17 +148,22 @@ class DashboardController extends Controller
 
         // 2. Main paginated query
         $query = FootballMatch::with($eagerLoad)
-        ->where('competition_id', $competition?->id)
-        ->where('season', $selectedSeason);
+            ->where('competition_id', $competition?->id);
 
-        if ($statusFilter === 'today') {
-            $query->whereBetween('kickoff_at', [$todayStart, $todayEnd])->orderBy('kickoff_at', 'asc');
-        } elseif ($statusFilter === 'future') {
-            $query->where('status', 'scheduled')->orderBy('kickoff_at', 'asc');
-        } elseif ($statusFilter === 'past') {
-            $query->where('status', 'finished')->orderBy('kickoff_at', 'desc');
+        if ($dateFilterInfo) {
+            $query->whereBetween('kickoff_at', [$dateStart, $dateEnd])->orderBy('kickoff_at', 'asc');
+            $currentViewLabel = "Fixtures on " . $dateFilterInfo['formatted'];
         } else {
-            $query->orderBy('kickoff_at', 'desc');
+            $query->where('season', $selectedSeason);
+            if ($statusFilter === 'today') {
+                $query->whereBetween('kickoff_at', [$todayStart, $todayEnd])->orderBy('kickoff_at', 'asc');
+            } elseif ($statusFilter === 'future') {
+                $query->where('status', 'scheduled')->orderBy('kickoff_at', 'asc');
+            } elseif ($statusFilter === 'past') {
+                $query->where('status', 'finished')->orderBy('kickoff_at', 'desc');
+            } else {
+                $query->orderBy('kickoff_at', 'desc');
+            }
         }
 
         $matches = $query->paginate(20)->withQueryString();
@@ -261,6 +293,8 @@ class DashboardController extends Controller
             'nextMatchdayInfo' => $nextMatchdayInfo,
             'matchCounts' => $matchCounts,
             'currentViewLabel' => $currentViewLabel,
+            'selectedDate' => $selectedDate,
+            'dateFilterInfo' => $dateFilterInfo,
             'compStats' => $compStats,
             'summary' => $summary,
         ]);

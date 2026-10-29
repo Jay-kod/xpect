@@ -551,16 +551,17 @@ Template:
   - Committed and pushed changes to `https://github.com/Jay-kod/xpect.git` on branch `main`.
 - Verified: All 98 unit and feature tests pass (499 assertions); `php artisan audit:data` clean across all 8 domains. GitHub remote `origin/main` fully synchronized.
 
-### Session 34: EPL & UEFA Champions League Integration (2026-10-29)
-- Done: Integrated EPL clarity and added UEFA Champions League to sidebar navigation and database:
-  - Created append-only migration `2026_10_29_170000_add_champions_league_to_competitions_table.php` registering UEFA Champions League (`champions-league`, Europe, code `CL`, ID `2001`, active `true`).
-  - Added Champions League to `CompetitionSeeder.php`.
-  - Updated primary sidebar navigation in `resources/views/components/layouts/app.blade.php`:
-    - Updated Premier League to `Premier League (EPL)` with highlighted `EPL` badge.
-    - Added `Champions League` with dedicated Starball SVG icon and highlighted `UCL` tag.
-  - Refactored `BackfillAndFromCacheTest.php` to dynamically query competition records, eliminating brittle hardcoded competition ID assumptions.
-  - Expanded `EuropeanLeaguesTest.php` to assert on both active `champions-league` slug and successful dashboard response rendering.
-- Verified: All 99 unit and feature tests pass (505 assertions); `php artisan audit:data` clean across 8/8 integrity domains. Server active at `http://127.0.0.1:8080`.
+### Session 35: Global and Page-Level Date Filtering Across All Analytics Hubs (2026-10-29)
+- Done: Implemented universal and page-level date filtering across all views per owner request:
+  - Created universal top-header date picker in `resources/views/components/layouts/app.blade.php`: preserves active league, season, and route parameters while filtering by date.
+  - Implemented date filtering in `DashboardController`: filters matches strictly by date, displays active date banner with `Prev Day`, `Today`, `Next Day`, and `✕ Clear Date` shortcuts, and suppresses generic upcoming spotlight during date filtering to focus cleanly on the selected date.
+  - Implemented date filtering in `ManOfTheMatchController` and `resources/views/motm/index.blade.php`: filters confirmed MOTM awards and evaluations strictly to the selected match date.
+  - Implemented date filtering in `AiReasoningController` and `resources/views/ai-reasoning/index.blade.php`: scopes available match selection dropdown to fixtures on the chosen date.
+  - Created comprehensive feature test suite `tests/Feature/DateFilterTest.php` (5 tests, 21 assertions) verifying date scoping across Dashboard, MOTM, AI Reasoning, and universal topbar date picker.
+  - Verified 100% clean test suite: 104 tests, 526 assertions passing.
+  - Verified zero data leakage: `php artisan audit:data` passes all 8 integrity domains.
+- Verified: All 104 unit and feature tests pass (526 assertions); `php artisan audit:data` clean across 8/8 domains in 252ms. Dev server running on `http://127.0.0.1:8080`.
+
 
 
 

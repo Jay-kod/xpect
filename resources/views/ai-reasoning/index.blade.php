@@ -30,16 +30,35 @@
                 </p>
             </div>
 
-            {{-- Match Selector Dropdown --}}
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <label for="matchSelect" style="font-size: 12px; color: var(--xp-muted); font-weight: 600;">Inspect Match:</label>
-                <form method="GET" action="{{ route('ai-reasoning') }}" style="display: flex; gap: 8px;">
-                    <select id="matchSelect" name="match_id" onchange="this.form.submit()" style="background: #101012; border: 1px solid var(--xp-border); color: #FFFFFF; padding: 8px 14px; border-radius: 6px; font-size: 13px; outline: none; cursor: pointer; max-width: 320px;">
-                        @foreach ($availableMatches as $m)
+            {{-- Date & Match Selector Controls --}}
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <form method="GET" action="{{ route('ai-reasoning') }}" style="display: flex; align-items: center; gap: 8px; margin: 0; flex-wrap: wrap;">
+                    <!-- Date Picker -->
+                    <div style="display: flex; align-items: center; background: #101012; border: 1px solid var(--xp-border); border-radius: 6px; padding: 4px 8px; gap: 6px;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--xp-orange);">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <input type="date" name="date" value="{{ $selectedDate }}" style="background: transparent; border: none; font-size: 12px; color: #FFFFFF; outline: none;" title="Filter matches by date" onchange="this.form.submit()">
+                    </div>
+
+                    @if ($selectedDate)
+                        <a href="{{ route('ai-reasoning') }}" class="btn btn-secondary btn-sm" style="padding: 4px 8px; font-size: 11px; color: var(--xp-orange);" title="Clear date filter">
+                            ✕ Clear
+                        </a>
+                    @endif
+
+                    <label for="matchSelect" style="font-size: 12px; color: var(--xp-muted); font-weight: 600;">Match:</label>
+                    <select id="matchSelect" name="match_id" onchange="this.form.submit()" style="background: #101012; border: 1px solid var(--xp-border); color: #FFFFFF; padding: 7px 12px; border-radius: 6px; font-size: 12px; outline: none; cursor: pointer; max-width: 320px;">
+                        @forelse ($availableMatches as $m)
                             <option value="{{ $m->id }}" {{ $selectedMatch && $selectedMatch->id === $m->id ? 'selected' : '' }}>
-                                {{ $m->homeTeam->short_name ?? $m->homeTeam->name }} vs {{ $m->awayTeam->short_name ?? $m->awayTeam->name }} ({{ $m->competition->name ?? 'League' }} &bull; MD {{ $m->matchday }})
+                                {{ $m->homeTeam->short_name ?? $m->homeTeam->name }} vs {{ $m->awayTeam->short_name ?? $m->awayTeam->name }} ({{ $m->competition->name ?? 'League' }} &bull; {{ $m->kickoff_at ? $m->kickoff_at->format('d M') : 'MD ' . $m->matchday }})
                             </option>
-                        @endforeach
+                        @empty
+                            <option value="">No matches available on this date</option>
+                        @endforelse
                     </select>
                 </form>
             </div>

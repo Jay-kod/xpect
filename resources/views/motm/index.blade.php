@@ -88,17 +88,46 @@
                 @endforeach
             </div>
 
-            {{-- Live Search Form --}}
-            <form method="GET" action="{{ route('motm') }}" style="display: flex; gap: 8px; min-width: 280px;">
-                @if ($selectedComp)
-                    <input type="hidden" name="competition" value="{{ $selectedComp->slug }}">
-                @endif
-                <input type="text" name="q" value="{{ $searchQuery }}" placeholder="Search player (e.g. Haaland, Saka, Salah) or club..." style="flex: 1; background: #101012; border: 1px solid var(--xp-border); border-radius: 6px; padding: 6px 12px; font-size: 12px; color: #FFFFFF; outline: none;">
-                <button type="submit" class="btn btn-secondary btn-sm" style="padding: 6px 12px;">Search</button>
-                @if ($searchQuery)
-                    <a href="{{ route('motm', ['competition' => $selectedComp?->slug]) }}" class="btn btn-secondary btn-sm" style="padding: 6px 10px; color: var(--xp-muted);">Clear</a>
-                @endif
-            </form>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                {{-- Date Selector Form --}}
+                <form method="GET" action="{{ route('motm') }}" style="display: flex; align-items: center; gap: 6px; margin: 0;">
+                    @if ($selectedComp)
+                        <input type="hidden" name="competition" value="{{ $selectedComp->slug }}">
+                    @endif
+                    @if ($searchQuery)
+                        <input type="hidden" name="q" value="{{ $searchQuery }}">
+                    @endif
+                    <div style="display: flex; align-items: center; background: #101012; border: 1px solid var(--xp-border); border-radius: 6px; padding: 3px 8px; gap: 6px;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--xp-orange);">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <input type="date" name="date" value="{{ $selectedDate }}" style="background: transparent; border: none; font-size: 12px; color: #FFFFFF; outline: none;" title="Select specific match date" onchange="this.form.submit()">
+                    </div>
+                    @if ($selectedDate)
+                        <a href="{{ route('motm', ['competition' => $selectedComp?->slug, 'q' => $searchQuery ?: null]) }}" class="btn btn-secondary btn-sm" style="padding: 4px 8px; font-size: 11px; color: var(--xp-orange);">
+                            ✕ Clear Date
+                        </a>
+                    @endif
+                </form>
+
+                {{-- Live Search Form --}}
+                <form method="GET" action="{{ route('motm') }}" style="display: flex; gap: 8px; min-width: 240px; margin: 0;">
+                    @if ($selectedComp)
+                        <input type="hidden" name="competition" value="{{ $selectedComp->slug }}">
+                    @endif
+                    @if ($selectedDate)
+                        <input type="hidden" name="date" value="{{ $selectedDate }}">
+                    @endif
+                    <input type="text" name="q" value="{{ $searchQuery }}" placeholder="Search player or club..." style="flex: 1; background: #101012; border: 1px solid var(--xp-border); border-radius: 6px; padding: 6px 12px; font-size: 12px; color: #FFFFFF; outline: none;">
+                    <button type="submit" class="btn btn-secondary btn-sm" style="padding: 6px 12px;">Search</button>
+                    @if ($searchQuery)
+                        <a href="{{ route('motm', ['competition' => $selectedComp?->slug, 'date' => $selectedDate ?: null]) }}" class="btn btn-secondary btn-sm" style="padding: 6px 10px; color: var(--xp-muted);">Clear</a>
+                    @endif
+                </form>
+            </div>
         </div>
 
         {{-- Top 4 KPI Metric Cards --}}
@@ -336,6 +365,29 @@
                     {{ $finishedMatches->count() }} Fixtures Listed
                 </span>
             </div>
+
+            @if ($dateFilterInfo)
+                <div style="background: rgba(217, 78, 0, 0.08); border: 1px solid rgba(217, 78, 0, 0.25); border-radius: 6px; padding: 10px 14px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 12px; color: var(--xp-orange); font-weight: 700;">📅 Date Filter Active:</span>
+                        <span style="font-size: 13px; color: #FFFFFF; font-weight: 600;">{{ $dateFilterInfo['formatted'] }}</span>
+                        <span class="badge" style="background: #101012; border: 1px solid var(--xp-border); font-size: 10px; color: var(--xp-text);">
+                            {{ $finishedMatches->count() }} matches found
+                        </span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <a href="{{ route('motm', ['competition' => $selectedComp?->slug, 'date' => $dateFilterInfo['prev_date']]) }}" class="btn btn-secondary btn-sm" style="padding: 3px 8px; font-size: 11px;">
+                            &larr; Prev Day
+                        </a>
+                        <a href="{{ route('motm', ['competition' => $selectedComp?->slug, 'date' => $dateFilterInfo['next_date']]) }}" class="btn btn-secondary btn-sm" style="padding: 3px 8px; font-size: 11px;">
+                            Next Day &rarr;
+                        </a>
+                        <a href="{{ route('motm', ['competition' => $selectedComp?->slug]) }}" class="btn btn-secondary btn-sm" style="padding: 3px 8px; font-size: 11px; color: var(--xp-orange);">
+                            Reset Date
+                        </a>
+                    </div>
+                </div>
+            @endif
 
             <div style="display: flex; flex-direction: column; gap: 14px;">
                 @forelse ($finishedMatches as $fm)

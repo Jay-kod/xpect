@@ -4,6 +4,27 @@ All notable changes to Xpect will be documented in this file.
 
 ## [Unreleased]
 
+### [Global & Page-Level Date Filtering Across All Hubs] - 2026-10-29
+#### Added
+- **Universal Top Header Bar Date Picker (`resources/views/components/layouts/app.blade.php`):**
+  - Integrated a sticky universal date-selection input widget into the global header bar.
+  - Automatically preserves active route query parameters (`competition`, `season`, `status`) while switching dates.
+  - One-click `✕` clear button resets to current view without losing filter state.
+- **Dashboard Date Filtering (`DashboardController.php`, `resources/views/dashboard/index.blade.php`):**
+  - Added strict date-filtering parameter `?date=YYYY-MM-DD` using `CarbonImmutable`.
+  - Added active date banner above fixtures with quick `Prev Day`, `Today`, `Next Day`, and `✕ Clear Date` controls.
+  - Automatically suppresses the generic upcoming spotlight when a date filter is selected so users exclusively see matches for their chosen date.
+- **Man of the Match Date Filtering (`ManOfTheMatchController.php`, `resources/views/motm/index.blade.php`):**
+  - Added inline date-picker input in the search/filter header.
+  - Scopes match evaluation feed and MOTM awards strictly to the selected match date.
+  - Displays interactive date indicator banner with prev/next day shortcuts.
+- **AI Reasoning Studio Date Filtering (`AiReasoningController.php`, `resources/views/ai-reasoning/index.blade.php`):**
+  - Added inline date filter above the match selector dropdown.
+  - Dynamically scopes the available matches list to fixtures played or scheduled on the selected date.
+- **Automated Feature Test Suite (`tests/Feature/DateFilterTest.php`):**
+  - 5 tests verifying dashboard date filtering, invalid date format fallback, MOTM date filtering, AI Reasoning studio date filtering, and universal header bar date input rendering.
+  - Full suite passes: 104 tests, 526 assertions (100% green).
+
 ### [EPL & UEFA Champions League Sidebar & Database Integration] - 2026-10-29
 #### Added
 - **UEFA Champions League (`champions-league`):**

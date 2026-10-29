@@ -8,10 +8,12 @@ use App\Models\Competition;
 use App\Models\FootballMatch;
 use App\Models\MotmEvaluation;
 use App\Services\Motm\MotmEvaluator;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Throwable;
 
 class ManOfTheMatchController extends Controller
 {
@@ -77,6 +79,30 @@ class ManOfTheMatchController extends Controller
             });
         }
 
+        $selectedDate = $request->filled('date') ? trim((string) $request->query('date')) : null;
+        $dateFilterInfo = null;
+
+        if ($selectedDate) {
+            try {
+                $parsedDate = CarbonImmutable::parse($selectedDate, 'UTC');
+                $selectedDate = $parsedDate->format('Y-m-d');
+                $dateStart = $parsedDate->startOfDay();
+                $dateEnd = $parsedDate->endOfDay();
+
+                $finishedMatchesQuery->whereBetween('kickoff_at', [$dateStart, $dateEnd]);
+
+                $dateFilterInfo = [
+                    'date_str' => $selectedDate,
+                    'formatted' => $parsedDate->format('l, d M Y'),
+                    'prev_date' => $parsedDate->subDay()->format('Y-m-d'),
+                    'next_date' => $parsedDate->addDay()->format('Y-m-d'),
+                ];
+            } catch (Throwable) {
+                $selectedDate = null;
+                $dateFilterInfo = null;
+            }
+        }
+
         $finishedMatches = $finishedMatchesQuery->take(50)->get();
 
         // Auto-evaluate up to 10 unevaluated finished matches on the fly so users always see confirmed MOTMs
@@ -126,6 +152,8 @@ class ManOfTheMatchController extends Controller
             'totalAwardsCount' => $totalAwardsCount,
             'totalEvaluationsCount' => $totalEvaluationsCount,
             'uniqueMatchesWithMotm' => $uniqueMatchesWithMotm,
+            'selectedDate' => $selectedDate,
+            'dateFilterInfo' => $dateFilterInfo,
         ]);
     }
 
