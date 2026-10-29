@@ -549,13 +549,16 @@
 
                                     <!-- Matchup Teams Display -->
                                     <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:center;margin-bottom:14px;background:#060608;padding:12px 16px;border-radius:6px;border:1px solid var(--xp-border-subtle);">
-                                        <div style="text-align:right;">
-                                            <div style="font-size:15px;font-weight:700;color:var(--xp-text);letter-spacing:-0.01em;">
-                                                {{ $match->homeTeam?->name }}
+                                        <div style="text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:12px;">
+                                            <div>
+                                                <div style="font-size:15px;font-weight:700;color:var(--xp-text);letter-spacing:-0.01em;">
+                                                    {{ $match->homeTeam?->name }}
+                                                </div>
+                                                <div style="font-size:11px;color:var(--xp-orange);margin-top:1px;font-weight:600;">
+                                                    Home &bull; {{ $match->homeTeam?->short_name }}
+                                                </div>
                                             </div>
-                                            <div style="font-size:11px;color:var(--xp-orange);margin-top:1px;font-weight:600;">
-                                                Home &bull; {{ $match->homeTeam?->short_name }}
-                                            </div>
+                                            <x-team-badge :team="$match->homeTeam" size="30" />
                                         </div>
 
                                         <div style="text-align:center;padding:0 8px;">
@@ -564,12 +567,15 @@
                                             </div>
                                         </div>
 
-                                        <div style="text-align:left;">
-                                            <div style="font-size:15px;font-weight:700;color:var(--xp-text);letter-spacing:-0.01em;">
-                                                {{ $match->awayTeam?->name }}
-                                            </div>
-                                            <div style="font-size:11px;color:var(--xp-away);margin-top:1px;font-weight:600;">
-                                                Away &bull; {{ $match->awayTeam?->short_name }}
+                                        <div style="text-align:left;display:flex;align-items:center;justify-content:flex-start;gap:12px;">
+                                            <x-team-badge :team="$match->awayTeam" size="30" />
+                                            <div>
+                                                <div style="font-size:15px;font-weight:700;color:var(--xp-text);letter-spacing:-0.01em;">
+                                                    {{ $match->awayTeam?->name }}
+                                                </div>
+                                                <div style="font-size:11px;color:var(--xp-away);margin-top:1px;font-weight:600;">
+                                                    Away &bull; {{ $match->awayTeam?->short_name }}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -830,17 +836,23 @@
                                 </div>
 
                                 <!-- Teams Display -->
-                                <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;margin-bottom:12px;">
-                                    <div style="text-align:right;">
-                                        <div style="font-size:14px;font-weight:700;color:var(--xp-text);">{{ $match->homeTeam?->name }}</div>
-                                        <div style="font-size:11px;color:var(--xp-away);">Home &bull; {{ $match->homeTeam?->short_name }}</div>
+                                <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center;margin-bottom:12px;">
+                                    <div style="text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:10px;">
+                                        <div>
+                                            <div style="font-size:14px;font-weight:700;color:var(--xp-text);">{{ $match->homeTeam?->name }}</div>
+                                            <div style="font-size:11px;color:var(--xp-away);">Home &bull; {{ $match->homeTeam?->short_name }}</div>
+                                        </div>
+                                        <x-team-badge :team="$match->homeTeam" size="24" />
                                     </div>
-                                    <div style="text-align:center;padding:0 8px;">
+                                    <div style="text-align:center;padding:0 6px;">
                                         <span style="font-size:11px;font-weight:700;color:var(--xp-away);text-transform:uppercase;">vs</span>
                                     </div>
-                                    <div style="text-align:left;">
-                                        <div style="font-size:14px;font-weight:700;color:var(--xp-text);">{{ $match->awayTeam?->name }}</div>
-                                        <div style="font-size:11px;color:var(--xp-away);">Away &bull; {{ $match->awayTeam?->short_name }}</div>
+                                    <div style="text-align:left;display:flex;align-items:center;justify-content:flex-start;gap:10px;">
+                                        <x-team-badge :team="$match->awayTeam" size="24" />
+                                        <div>
+                                            <div style="font-size:14px;font-weight:700;color:var(--xp-text);">{{ $match->awayTeam?->name }}</div>
+                                            <div style="font-size:11px;color:var(--xp-away);">Away &bull; {{ $match->awayTeam?->short_name }}</div>
+                                        </div>
                                     </div>
                                 </div>
 

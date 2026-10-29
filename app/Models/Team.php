@@ -37,5 +37,26 @@ class Team extends Model
     {
         return $this->hasMany(Injury::class, 'team_id');
     }
+
+    /**
+     * Compute clean 2-3 letter initials for the fallback badge shield.
+     */
+    public function getInitialsAttribute(): string
+    {
+        if (!empty($this->short_name)) {
+            $words = array_values(array_filter(explode(' ', trim($this->short_name))));
+            if (count($words) >= 2) {
+                return strtoupper(substr($words[0], 0, 1) . substr($words[1], 0, 1));
+            }
+            return strtoupper(substr($this->short_name, 0, min(3, strlen($this->short_name))));
+        }
+
+        $clean = preg_replace('/\b(FC|AFC|CF|SC|SSC|SV|VfB|VfL|AS)\b/i', '', $this->name ?? '');
+        $words = array_values(array_filter(explode(' ', trim((string) $clean))));
+        if (count($words) >= 2) {
+            return strtoupper(substr($words[0], 0, 1) . substr($words[1], 0, 1));
+        }
+        return strtoupper(substr(trim((string) $clean), 0, min(3, strlen(trim((string) $clean)))));
+    }
 }
 

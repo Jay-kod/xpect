@@ -4,6 +4,37 @@ All notable changes to Xpect will be documented in this file.
 
 ## [Unreleased]
 
+### [Team Badges, Persistent Crest Database Storage & Sync System] - 2026-10-29
+#### Added
+- **Database Schema Migration (`2026_10_29_195000_add_crest_url_to_teams_table.php`):**
+  - Added nullable `crest_url` column to the `teams` table via an append-only migration (Hard Rule 9 compliant).
+  - Enables persistent local caching of official club crests, ensuring instantaneous page reloads with 0ms added external network latency.
+- **Team Model Badging Enhancements (`App\Models\Team`):**
+  - Added `crest_url` to `$fillable`.
+  - Implemented `getInitialsAttribute(): string` computing clean 2-3 letter initials for dynamic fallback shields.
+- **Team Badge Registry (`App\Services\Teams\TeamBadgeRegistry`):**
+  - Exhaustive dictionary mapping all clubs across the Premier League, UEFA Champions League, La Liga, Bundesliga, Serie A, and Ligue 1 to verified CDN crest URLs.
+  - Built-in accent/diacritic-tolerant normalizer (`normalize()`) and fuzzy alias resolver.
+- **Team Badge Synchronization Service (`App\Services\Teams\TeamBadgeService`):**
+  - Resolves team crests from registry, model aliases, and local JSON test fixtures (`tests/Fixtures/`) without spending third-party API quota.
+  - Implemented `syncBadges(bool $force = false): int` updating all clubs in the SQLite database.
+- **Artisan CLI Command (`app/Console/Commands/SyncTeamBadgesCommand.php`):**
+  - `php artisan sync:badges {--force} {--show-missing}` synchronizes team crest URLs into the database with a formatted summary table.
+  - Successfully synced 143/143 clubs (100% database coverage).
+- **Reusable Blade Component (`<x-team-badge>`):**
+  - Created `resources/views/components/team-badge.blade.php` supporting `:team`, `crest`, `name`, `size`, and `class`.
+  - Uses native `loading="lazy"` and `decoding="async"` for smooth browser rendering.
+  - Robust `onerror` fallback gracefully displays a dark geometric badge with the club's initials if offline or if an image fails to load.
+- **Cross-Hub UI Integration:**
+  - **Dashboard (`resources/views/dashboard/index.blade.php`):** Added dual club crests to Next Matchday Spotlight and all upcoming/finished fixture cards.
+  - **Today's Fixtures Hub (`resources/views/today/index.blade.php`):** Integrated inline team crests for both home and away clubs across all match cards.
+  - **Man of the Match (`resources/views/motm/index.blade.php`):** Enhanced Hero Spotlight match banner, official award winner card, match feed cards, player leaderboard, and top clubs tally cards.
+  - **AI Reasoning Studio (`resources/views/ai-reasoning/index.blade.php`):** Enhanced active match spotlight banner and historical AI preview list.
+- **Testing & Integrity:**
+  - Added `tests/Unit/TeamBadgeServiceTest.php` (5 tests covering registry resolution, normalization, initials generation, database syncing, and alias fallbacks).
+  - Added `tests/Feature/TeamBadgeTest.php` (2 feature tests covering Dashboard badge markup and Artisan command execution).
+  - All 118 unit and feature tests pass (590 assertions). Zero data leakage verified via `php artisan audit:data`.
+
 ### [Universal Temporal Control & Kickoff Time Filtering Engine] - 2026-10-29
 #### Added
 - **Temporal Filter Service (`App\Services\Temporal\TemporalFilterService`):**

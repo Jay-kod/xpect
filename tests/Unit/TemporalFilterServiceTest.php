@@ -90,3 +90,4 @@ class TemporalFilterServiceTest extends TestCase
         $this->assertNull($result['dateFilterInfo']);
     }
 }
+

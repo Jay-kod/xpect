@@ -564,6 +564,17 @@ Template:
   - Added unit test suite `tests/Unit/TemporalFilterServiceTest.php` and expanded feature tests in `tests/Feature/DateFilterTest.php`.
 - Verified: All 111 unit and feature tests pass (563 assertions); `php artisan audit:data` clean across 8/8 domains in 535ms. Dev server running on `http://127.0.0.1:8080`.
 
+### Session 37: Team Crest & Badge Display System with Database Persistence (2026-10-29)
+- Done: Implemented persistent team badge/crest rendering across all hubs per owner request:
+  - Created append-only database migration `database/migrations/2026_10_29_195000_add_crest_url_to_teams_table.php` adding nullable `crest_url` to `teams` table (Hard Rule 9).
+  - Updated `App\Models\Team` with `crest_url` fillable property and `initials` attribute for fallback badge rendering.
+  - Built `App\Services\Teams\TeamBadgeRegistry` mapping European clubs across all top 5 leagues to official verified CDN crest URLs.
+  - Built `App\Services\Teams\TeamBadgeService` and Artisan command `php artisan sync:badges` populating crest URLs into SQLite with 100% database coverage (143/143 teams verified, 0ms reload latency).
+  - Built reusable Blade component `<x-team-badge>` (`resources/views/components/team-badge.blade.php`) with lazy loading, async decoding, and graceful SVG initial-shield fallback on `onerror`.
+  - Integrated badges cleanly into Dashboard (`/`), Today's Hub (`/today`), Man of the Match (`/motm`), and AI Reasoning Studio (`/ai-reasoning`).
+  - Added unit test suite `tests/Unit/TeamBadgeServiceTest.php` and feature test suite `tests/Feature/TeamBadgeTest.php`.
+- Verified: All 118 unit and feature tests pass (590 assertions); `php artisan audit:data` clean across all 8 domains (0 warnings, 0 failures, zero data leakage). Dev server running at `http://127.0.0.1:8080`.
+
 
 
 

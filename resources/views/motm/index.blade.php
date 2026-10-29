@@ -180,8 +180,12 @@
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 14px;">
-                        <div style="font-size: 18px; font-weight: 700; color: #FFFFFF;">
-                            {{ $selectedMatch->homeTeam->name }} <span style="color:var(--xp-orange); margin: 0 4px; font-family: monospace;">{{ $homeScore }} - {{ $awayScore }}</span> {{ $selectedMatch->awayTeam->name }}
+                        <div style="font-size: 18px; font-weight: 700; color: #FFFFFF; display: flex; align-items: center; gap: 8px;">
+                            <x-team-badge :team="$selectedMatch->homeTeam" size="22" />
+                            <span>{{ $selectedMatch->homeTeam->name }}</span>
+                            <span style="color:var(--xp-orange); margin: 0 4px; font-family: monospace;">{{ $homeScore }} - {{ $awayScore }}</span>
+                            <x-team-badge :team="$selectedMatch->awayTeam" size="22" />
+                            <span>{{ $selectedMatch->awayTeam->name }}</span>
                         </div>
                         <form method="POST" action="{{ route('motm.evaluate', $selectedMatch->id) }}">
                             @csrf
@@ -215,7 +219,8 @@
                                                 <span style="font-size: 15px; color: var(--xp-muted); font-weight: 400; margin-left: 4px;">#{{ $motmWinner->player_number }}</span>
                                             @endif
                                         </div>
-                                        <div style="font-size: 13px; color: var(--xp-muted); margin-top: 2px;">
+                                        <div style="font-size: 13px; color: var(--xp-muted); margin-top: 2px; display: flex; align-items: center; gap: 6px;">
+                                            <x-team-badge :team="$motmWinner->team" size="18" />
                                             <strong style="color:#FFFFFF;">{{ $motmWinner->team->name }}</strong> &bull; Position: <span class="badge" style="background:rgba(255,255,255,0.08);color:#FFFFFF;">{{ $motmWinner->position ?? 'Starter' }}</span>
                                         </div>
                                     </div>
@@ -410,10 +415,12 @@
                             </div>
 
                             <div style="display: flex; align-items: center; gap: 12px;">
-                                <div style="font-size: 15px; font-weight: 700; color: #FFFFFF;">
-                                    {{ $fm->homeTeam->short_name ?? $fm->homeTeam->name }}
+                                <div style="font-size: 15px; font-weight: 700; color: #FFFFFF; display: flex; align-items: center; gap: 6px;">
+                                    <x-team-badge :team="$fm->homeTeam" size="18" />
+                                    <span>{{ $fm->homeTeam->short_name ?? $fm->homeTeam->name }}</span>
                                     <span style="color:var(--xp-orange); margin: 0 4px; font-family: monospace;">{{ $fm->home_goals ?? 0 }} - {{ $fm->away_goals ?? 0 }}</span>
-                                    {{ $fm->awayTeam->short_name ?? $fm->awayTeam->name }}
+                                    <x-team-badge :team="$fm->awayTeam" size="18" />
+                                    <span>{{ $fm->awayTeam->short_name ?? $fm->awayTeam->name }}</span>
                                 </div>
                                 <a href="{{ route('motm', ['match_id' => $fm->id, 'competition' => $selectedComp?->slug, 'q' => $searchQuery ?: null]) }}" class="btn btn-secondary btn-sm" style="padding: 4px 10px; font-size: 11px;">
                                     {{ $isCurrent ? 'Viewing in Spotlight ✓' : 'Inspect Full Match &rarr;' }}
@@ -523,7 +530,10 @@
                                         {{ $pl->player_name }}
                                     </td>
                                     <td style="font-size: 12px; color: var(--xp-muted);">
-                                        {{ $pl->team->short_name ?? $pl->team->name ?? 'Team' }}
+                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                            <x-team-badge :team="$pl->team" size="16" />
+                                            <span>{{ $pl->team->short_name ?? $pl->team->name ?? 'Team' }}</span>
+                                        </div>
                                     </td>
                                     <td style="text-align: center;">
                                         <span class="badge" style="background: rgba(255,107,0,0.2); color: var(--xp-orange); font-weight: 800;">
@@ -557,8 +567,9 @@
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
                     @forelse ($teamLeaderboard as $tl)
                         <div style="background: #101012; border: 1px solid var(--xp-border); border-radius: 6px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center;">
-                            <div style="font-size: 13px; font-weight: 600; color: #FFFFFF;">
-                                {{ $tl->team->short_name ?? $tl->team->name ?? 'Club' }}
+                            <div style="font-size: 13px; font-weight: 600; color: #FFFFFF; display: flex; align-items: center; gap: 8px;">
+                                <x-team-badge :team="$tl->team" size="18" />
+                                <span>{{ $tl->team->short_name ?? $tl->team->name ?? 'Club' }}</span>
                             </div>
                             <span class="badge" style="background: rgba(255,107,0,0.18); color: var(--xp-orange); font-weight: 800;">
                                 {{ $tl->motm_count }} MOTMs

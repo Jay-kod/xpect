@@ -177,15 +177,21 @@
                                 <!-- Row 2: Team Matchup & Score / Prediction Bar -->
                                 <div style="display:grid;grid-template-columns:minmax(200px, 1.5fr) minmax(260px, 2fr) auto;gap:20px;align-items:center;">
                                     <!-- Teams -->
-                                    <div>
-                                        <div style="font-size:15px;font-weight:700;color:var(--xp-text);margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;">
-                                            <span>{{ $match->homeTeam?->name }}</span>
+                                    <div style="display:flex;flex-direction:column;gap:6px;">
+                                        <div style="font-size:15px;font-weight:700;color:var(--xp-text);display:flex;justify-content:space-between;align-items:center;">
+                                            <div style="display:flex;align-items:center;gap:8px;">
+                                                <x-team-badge :team="$match->homeTeam" size="20" />
+                                                <span>{{ $match->homeTeam?->name }}</span>
+                                            </div>
                                             @if ($match->status === 'finished')
                                                 <strong style="color:var(--xp-orange);font-size:16px;">{{ $match->home_goals }}</strong>
                                             @endif
                                         </div>
                                         <div style="font-size:15px;font-weight:700;color:var(--xp-text);display:flex;justify-content:space-between;align-items:center;">
-                                            <span>{{ $match->awayTeam?->name }}</span>
+                                            <div style="display:flex;align-items:center;gap:8px;">
+                                                <x-team-badge :team="$match->awayTeam" size="20" />
+                                                <span>{{ $match->awayTeam?->name }}</span>
+                                            </div>
                                             @if ($match->status === 'finished')
                                                 <strong style="color:var(--xp-orange);font-size:16px;">{{ $match->away_goals }}</strong>
                                             @endif

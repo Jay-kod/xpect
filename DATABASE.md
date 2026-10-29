@@ -25,6 +25,7 @@ the fact, (4) backtests can never see the future.
 | name | string | canonical name |
 | short_name | string null | |
 | country | string null | |
+| crest_url | string null | official team badge / crest CDN URL |
 | timestamps | | |
 
 ## team_aliases  (the name-mapping fix)

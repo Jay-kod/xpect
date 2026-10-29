@@ -106,8 +106,12 @@
                     <span class="badge" style="background: rgba(255,107,0,0.15); color: var(--xp-orange); font-size: 12px; padding: 4px 8px;">
                         {{ $selectedMatch->competition->name ?? 'League' }}
                     </span>
-                    <div style="font-size: 15px; font-weight: 700; color: #FFFFFF;">
-                        {{ $selectedMatch->homeTeam->name }} <span style="color:var(--xp-muted);font-weight:400;margin:0 4px;">vs</span> {{ $selectedMatch->awayTeam->name }}
+                    <div style="font-size: 15px; font-weight: 700; color: #FFFFFF; display: flex; align-items: center; gap: 8px;">
+                        <x-team-badge :team="$selectedMatch->homeTeam" size="20" />
+                        <span>{{ $selectedMatch->homeTeam->name }}</span>
+                        <span style="color:var(--xp-muted);font-weight:400;margin:0 4px;">vs</span>
+                        <x-team-badge :team="$selectedMatch->awayTeam" size="20" />
+                        <span>{{ $selectedMatch->awayTeam->name }}</span>
                     </div>
                     <span style="font-size: 12px; color: var(--xp-muted);">
                         Kickoff: {{ $selectedMatch->kickoff_at ? $selectedMatch->kickoff_at->format('D, d M Y &bull; H:i') : 'TBD' }} UTC
@@ -454,8 +458,12 @@
                             <tr>
                                 <td>
                                     @if ($m)
-                                        <div style="font-weight: 600; color: #FFFFFF;">
-                                            {{ $m->homeTeam->short_name ?? $m->homeTeam->name }} vs {{ $m->awayTeam->short_name ?? $m->awayTeam->name }}
+                                        <div style="font-weight: 600; color: #FFFFFF; display: flex; align-items: center; gap: 6px;">
+                                            <x-team-badge :team="$m->homeTeam" size="16" />
+                                            <span>{{ $m->homeTeam->short_name ?? $m->homeTeam->name }}</span>
+                                            <span style="color:var(--xp-muted);font-weight:400;margin:0 2px;">vs</span>
+                                            <x-team-badge :team="$m->awayTeam" size="16" />
+                                            <span>{{ $m->awayTeam->short_name ?? $m->awayTeam->name }}</span>
                                         </div>
                                         <div style="font-size: 11px; color: var(--xp-muted);">
                                             {{ $m->competition->name ?? 'League' }} &bull; MD {{ $m->matchday }}
