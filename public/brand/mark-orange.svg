@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 116" fill="none">
+    <!-- Hexagon Container in Deep Dark Orange (#D94E00) -->
+    <path d="M50 3 L95.5 29.3 L95.5 86.7 L50 113 L4.5 86.7 L4.5 29.3 Z" fill="#D94E00" stroke="#D94E00" stroke-width="4" stroke-linejoin="round"/>
+    
+    <!-- Analytics Histogram Bars -->
+    <!-- Bar 1 (Medium-low) -->
+    <rect x="21" y="48" width="9.5" height="40" rx="2.5" fill="#612403"/>
+    <!-- Bar 2 (Tallest / Peak - Pure Pitch Black) -->
+    <rect x="36.5" y="27" width="9.5" height="61" rx="2.5" fill="#000000"/>
+    <!-- Bar 3 (Medium) -->
+    <rect x="52" y="42" width="9.5" height="46" rx="2.5" fill="#612403"/>
+    <!-- Bar 4 (Short) -->
+    <rect x="67.5" y="66" width="9.5" height="22" rx="2.5" fill="#612403"/>
+    
+    <!-- Baseline in Pure Pitch Black -->
+    <line x1="17" y1="90" x2="81" y2="90" stroke="#000000" stroke-width="2.5" stroke-linecap="round"/>
+</svg>
