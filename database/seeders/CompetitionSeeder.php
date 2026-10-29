@@ -72,6 +72,17 @@ class CompetitionSeeder extends Seeder
                 ],
                 'is_active' => true,
             ],
+            [
+                'slug' => 'champions-league',
+                'name' => 'UEFA Champions League',
+                'country' => 'Europe',
+                'source_ids' => [
+                    'football_data' => 'CL',
+                    'football_data_id' => 2001,
+                    'api_football' => 2,
+                ],
+                'is_active' => true,
+            ],
         ];
 
         foreach ($competitions as $comp) {

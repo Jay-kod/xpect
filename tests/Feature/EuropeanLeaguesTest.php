@@ -35,6 +35,17 @@ class EuropeanLeaguesTest extends TestCase
         $this->assertContains('bundesliga', $activeSlugs);
         $this->assertContains('serie-a', $activeSlugs);
         $this->assertContains('ligue-1', $activeSlugs);
+        $this->assertContains('champions-league', $activeSlugs);
+    }
+
+    public function test_champions_league_and_epl_render_in_sidebar_and_dashboard(): void
+    {
+        $response = $this->get('/?competition=champions-league');
+        $response->assertStatus(200);
+        $response->assertSee('Champions League');
+        $response->assertSee('Premier League (EPL)');
+        $response->assertSee('UCL');
+        $response->assertSee('EPL');
     }
 
     public function test_team_resolver_resolves_teams_across_all_leagues_via_csv_aliases(): void

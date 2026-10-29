@@ -64,10 +64,11 @@ class BackfillAndFromCacheTest extends TestCase
         ])->assertSuccessful();
 
         // Verify matches were imported with provenance linked
-        $count = FootballMatch::where('competition_id', 1)->where('season', 2026)->count();
+        $comp = Competition::where('slug', 'premier-league')->first();
+        $count = FootballMatch::where('competition_id', $comp->id)->where('season', 2026)->count();
         $this->assertEquals(380, $count);
 
-        $sampleMatch = FootballMatch::where('competition_id', 1)->where('season', 2026)->first();
+        $sampleMatch = FootballMatch::where('competition_id', $comp->id)->where('season', 2026)->first();
         $this->assertEquals($storedCall->id, $sampleMatch->source_api_call_id);
     }
 

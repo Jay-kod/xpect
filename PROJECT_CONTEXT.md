@@ -551,6 +551,18 @@ Template:
   - Committed and pushed changes to `https://github.com/Jay-kod/xpect.git` on branch `main`.
 - Verified: All 98 unit and feature tests pass (499 assertions); `php artisan audit:data` clean across all 8 domains. GitHub remote `origin/main` fully synchronized.
 
+### Session 34: EPL & UEFA Champions League Integration (2026-10-29)
+- Done: Integrated EPL clarity and added UEFA Champions League to sidebar navigation and database:
+  - Created append-only migration `2026_10_29_170000_add_champions_league_to_competitions_table.php` registering UEFA Champions League (`champions-league`, Europe, code `CL`, ID `2001`, active `true`).
+  - Added Champions League to `CompetitionSeeder.php`.
+  - Updated primary sidebar navigation in `resources/views/components/layouts/app.blade.php`:
+    - Updated Premier League to `Premier League (EPL)` with highlighted `EPL` badge.
+    - Added `Champions League` with dedicated Starball SVG icon and highlighted `UCL` tag.
+  - Refactored `BackfillAndFromCacheTest.php` to dynamically query competition records, eliminating brittle hardcoded competition ID assumptions.
+  - Expanded `EuropeanLeaguesTest.php` to assert on both active `champions-league` slug and successful dashboard response rendering.
+- Verified: All 99 unit and feature tests pass (505 assertions); `php artisan audit:data` clean across 8/8 integrity domains. Server active at `http://127.0.0.1:8080`.
+
+
 
 
 

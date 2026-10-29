@@ -4,6 +4,20 @@ All notable changes to Xpect will be documented in this file.
 
 ## [Unreleased]
 
+### [EPL & UEFA Champions League Sidebar & Database Integration] - 2026-10-29
+#### Added
+- **UEFA Champions League (`champions-league`):**
+  - Created append-only migration `2026_10_29_170000_add_champions_league_to_competitions_table.php` registering UEFA Champions League (code `CL`, ID `2001`, country `Europe`, active `true`).
+  - Updated `database/seeders/CompetitionSeeder.php` with the new competition definition.
+  - Added dedicated sidebar item with Starball/trophy SVG icon and bright `UCL` tag.
+- **Enhanced EPL Labeling:**
+  - Renamed Premier League in the sidebar navigation to `Premier League (EPL)` with high-contrast highlighted `EPL` badge.
+#### Enhanced
+- **Tests & Robustness:**
+  - Updated `tests/Feature/EuropeanLeaguesTest.php` with assertions verifying active `champions-league` slug and dashboard rendering for both EPL and UCL.
+  - Refactored `tests/Feature/BackfillAndFromCacheTest.php` to dynamically resolve competition ID instead of relying on fragile hardcoded indexes.
+- **Remote Push:** Synchronized code and migrations to `https://github.com/Jay-kod/xpect.git`.
+
 ### [Comprehensive Production README] - 2026-10-29
 #### Added
 - **Production-Grade Project Documentation (`README.md`):**

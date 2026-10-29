@@ -651,9 +651,20 @@
                             <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
                             <path d="M2 12h20"></path>
                         </svg>
-                        <span>Premier League</span>
+                        <span>Premier League (EPL)</span>
                     </div>
-                    <span class="nav-tag">EPL</span>
+                    <span class="nav-tag" style="color:var(--xp-orange);border-color:rgba(217,78,0,0.3);font-weight:700;">EPL</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('dashboard', ['competition' => 'champions-league']) }}" class="sidebar-link {{ request()->get('competition') === 'champions-league' ? 'active' : '' }}">
+                    <div class="sidebar-link-content">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg>
+                        <span>Champions League</span>
+                    </div>
+                    <span class="nav-tag" style="color:var(--xp-orange);border-color:rgba(217,78,0,0.3);font-weight:700;">UCL</span>
                 </a>
             </li>
             <li>
