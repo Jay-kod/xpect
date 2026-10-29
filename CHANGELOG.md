@@ -4,6 +4,20 @@ All notable changes to Xpect will be documented in this file.
 
 ## [Unreleased]
 
+### [Error Pages, Environment Template & GitHub Push] - 2026-10-29
+#### Added
+- **Custom Branded Error Page Views (`resources/views/errors/`):**
+  - **Shared Error Layout (`layout.blade.php`):** Dark theme (`#0C0C0E` / `#000000`), radial orange glow, hexagon logo mark, dynamic error code badges, and accessible return navigation.
+  - **`404.blade.php`:** Fixture or resource not found in local database.
+  - **`500.blade.php`:** Internal engine calculation error.
+  - **`403.blade.php`:** Access restricted / boundary security guard.
+  - **`419.blade.php`:** CSRF session token expired.
+  - **`429.blade.php`:** External quota guard throttle.
+  - **`503.blade.php`:** Engine under maintenance or migration.
+- **Automated Error Page Test Suite (`tests/Feature/ErrorPagesTest.php`):** 6 tests verifying HTTP 404, 500, 403, 419, 429, and 503 render correct status codes, brand wordmark, and action buttons.
+- **Comprehensive `.env.example`:** Full documentation of all application keys, SQLite connection, API provider keys, Claude AI preview configuration, and model hyperparameters (rolling window, decay, shrinkage, Dixon-Coles rho).
+- **GitHub Remote Push:** Cleaned throwaway probe script, set up repository tracking, and pushed all 248 source files to `https://github.com/Jay-kod/xpect.git` on branch `main`.
+
 ### [Sidebar Actions Streamlining & Top Action Button Removal] - 2026-10-29
 #### Removed
 - **Sidebar Action & Search Bar (`.sidebar-actions`):** Removed the orange `+ Predict match` button (`.btn-add-action`) and adjacent search icon button (`.btn-search-action`) from the primary sidebar navigation header per owner request.

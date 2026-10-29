@@ -527,6 +527,16 @@ Template:
   - Added regression test assertions in `tests/Feature/DashboardUiTest.php` ensuring `.btn-add-action` and `Predict match` are not rendered.
 - Verified: All 92 unit and feature tests pass (477 assertions); `php artisan audit:data` clean across all 8 domains (0 warnings, 0 failures, zero data leakage). Dev server running at `http://127.0.0.1:8080`.
 
+### Session 32: Error Pages, Comprehensive .env.example & GitHub Push (2026-10-29)
+- Done: Implemented branded error pages, updated .env.example, and pushed all codebase to GitHub:
+  - Created bespoke dark-themed error views in `resources/views/errors/` (404, 500, 403, 419, 429, 503) using a shared responsive layout (`layout.blade.php`) matching `UI_GUIDELINES.md`.
+  - Added feature test suite `tests/Feature/ErrorPagesTest.php` verifying all 6 HTTP error codes render clean brand typography, status codes, and return navigation.
+  - Rewrote `.env.example` with full documentation of all core settings, database options, football API keys, Claude model parameters, and feature hyperparameters.
+  - Removed throwaway `probe.php` script and added `/scratch` to `.gitignore`.
+  - Committed all 248 source files to `main` and pushed cleanly to remote repository `https://github.com/Jay-kod/xpect.git`.
+- Verified: All 98 unit and feature tests pass (499 assertions); `php artisan audit:data` passes across 8/8 integrity domains. Git working tree clean and up to date with `origin/main`.
+
+
 
 
 
