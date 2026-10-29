@@ -4,6 +4,23 @@ All notable changes to Xpect will be documented in this file.
 
 ## [Unreleased]
 
+### [Comprehensive Production README] - 2026-10-29
+#### Added
+- **Production-Grade Project Documentation (`README.md`):**
+  - Replaced the default Laravel template with a detailed architectural guide.
+  - Comprehensive documentation covering:
+    1. Core Philosophy & Invariants (Zero Leakage, Math Decides / AI Explains, Immutability).
+    2. League & Dataset Coverage (2020–2027 timeline across Big 5 leagues with 3,800+ xG records).
+    3. The 5-Stage Mathematical Prediction Pipeline (Form decay, ratings, rate parameters, Dixon-Coles bivariate correction matrix, probability aggregation).
+    4. Man of the Match (MOTM) Stats vs. Story Engine with 22-player squads.
+    5. AI Reasoning Studio & deterministic `NumberCheckGuard`.
+    6. System Architecture & Data Flow Mermaid Diagram.
+    7. Artisan CLI Command Reference.
+    8. UI Guidelines & Design System tokens.
+    9. Custom Error Pages (404, 500, 403, 419, 429, 503).
+    10. Installation & Quickstart walkthrough.
+- **Remote Push:** Pushed commit `9151670` directly to `https://github.com/Jay-kod/xpect.git`.
+
 ### [Error Pages, Environment Template & GitHub Push] - 2026-10-29
 #### Added
 - **Custom Branded Error Page Views (`resources/views/errors/`):**
