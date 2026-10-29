@@ -806,24 +806,204 @@
             </div>
 
             <div class="topbar-right">
-                <!-- Universal Date Filter -->
-                <form method="GET" action="{{ url()->current() }}" style="display:flex;align-items:center;gap:6px;margin:0;">
-                    @foreach (request()->except(['date', 'page']) as $k => $v)
-                        <input type="hidden" name="{{ $k }}" value="{{ $v }}">
-                    @endforeach
-                    <div style="display:flex;align-items:center;background:#0C0C0E;border:1px solid var(--xp-border);border-radius:6px;padding:3px 8px;gap:6px;" title="Filter current page by specific date">
+                <!-- Universal Temporal (Date & Time) Control Widget -->
+                @php
+                    $rawDate = request('date');
+                    $rawTimeSlot = request('time_slot');
+                    $rawTime = request('time');
+                    $rawPreset = request('preset');
+                    $isFiltered = request()->filled('date') || request()->filled('time_slot') || request()->filled('time') || request()->filled('preset');
+
+                    $parsedNow = \Carbon\CarbonImmutable::now('UTC');
+                    $activeDateStr = $rawDate ?? ($rawPreset === 'today' ? $parsedNow->format('Y-m-d') : null);
+
+                    try {
+                        $activeCarbon = $activeDateStr ? \Carbon\CarbonImmutable::parse($activeDateStr, 'UTC') : $parsedNow;
+                    } catch (\Throwable) {
+                        $activeCarbon = $parsedNow;
+                    }
+
+                    $prevDayUrl = url()->current() . '?' . http_build_query(array_merge(request()->except(['page', 'preset']), ['date' => $activeCarbon->subDay()->format('Y-m-d')]));
+                    $nextDayUrl = url()->current() . '?' . http_build_query(array_merge(request()->except(['page', 'preset']), ['date' => $activeCarbon->addDay()->format('Y-m-d')]));
+
+                    $slotBadge = match ($rawTimeSlot) {
+                        'early' => '12:30 Early',
+                        'afternoon' => '15:00 Prime',
+                        'evening' => '17:30+ Night',
+                        default => $rawTime ? $rawTime . ' UTC' : null,
+                    };
+
+                    $btnDisplayLabel = $activeDateStr 
+                        ? ($activeDateStr === $parsedNow->format('Y-m-d') ? 'Today, ' . $activeCarbon->format('d M') : $activeCarbon->format('D, d M Y')) 
+                        : 'Select Date & Time';
+                @endphp
+
+                <div class="temporal-widget-container" style="position:relative;display:flex;align-items:center;gap:4px;">
+                    <!-- Prev Day Button -->
+                    <a href="{{ $prevDayUrl }}" 
+                       class="btn btn-secondary btn-sm" 
+                       style="padding:3px 7px;font-size:10px;color:var(--xp-muted);border-color:var(--xp-border);background:#0C0C0E;display:flex;align-items:center;justify-content:center;height:28px;" 
+                       title="Step to previous day ({{ $activeCarbon->subDay()->format('D, d M') }})">
+                        &larr;
+                    </a>
+
+                    <!-- Popover Toggle Button -->
+                    <button type="button" 
+                            id="temporal-toggle-btn"
+                            onclick="const p = document.getElementById('temporal-dropdown-panel'); p.style.display = p.style.display === 'block' ? 'none' : 'block';"
+                            style="display:flex;align-items:center;gap:6px;background:{{ $isFiltered ? 'rgba(217,78,0,0.12)' : '#0C0C0E' }};border:1px solid {{ $isFiltered ? 'var(--xp-orange)' : 'var(--xp-border)' }};border-radius:6px;padding:3px 10px;cursor:pointer;color:var(--xp-text);font-size:11px;font-weight:600;height:28px;transition:all 0.15s ease;"
+                            title="Open Date & Kickoff Time Filter">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--xp-orange);">
                             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                             <line x1="16" y1="2" x2="16" y2="6"></line>
                             <line x1="8" y1="2" x2="8" y2="6"></line>
                             <line x1="3" y1="10" x2="21" y2="10"></line>
                         </svg>
-                        <input type="date" name="date" value="{{ request('date') }}" style="background:transparent;border:none;font-size:11px;color:var(--xp-text);outline:none;cursor:pointer;" onchange="this.form.submit()">
-                    </div>
-                    @if (request()->filled('date'))
-                        <a href="{{ url()->current() }}?{{ http_build_query(request()->except(['date', 'page'])) }}" class="btn btn-secondary btn-sm" style="padding:3px 6px;font-size:10px;color:var(--xp-orange);border-color:rgba(217,78,0,0.3);" title="Clear date filter">✕</a>
+                        <span style="color:{{ $isFiltered ? 'var(--xp-orange)' : 'var(--xp-text)' }};">
+                            {{ $btnDisplayLabel }}
+                            @if ($slotBadge)
+                                &bull; <span style="background:var(--xp-orange);color:#000000;font-size:9.5px;padding:1px 5px;border-radius:3px;font-weight:700;">{{ $slotBadge }}</span>
+                            @endif
+                        </span>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--xp-away);margin-left:2px;">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+
+                    <!-- Next Day Button -->
+                    <a href="{{ $nextDayUrl }}" 
+                       class="btn btn-secondary btn-sm" 
+                       style="padding:3px 7px;font-size:10px;color:var(--xp-muted);border-color:var(--xp-border);background:#0C0C0E;display:flex;align-items:center;justify-content:center;height:28px;" 
+                       title="Step to next day ({{ $activeCarbon->addDay()->format('D, d M') }})">
+                        &rarr;
+                    </a>
+
+                    @if ($isFiltered)
+                        <!-- One-click Reset Button -->
+                        <a href="{{ url()->current() }}?{{ http_build_query(request()->except(['date', 'time_slot', 'time', 'preset', 'page'])) }}" 
+                           class="btn btn-secondary btn-sm" 
+                           style="padding:3px 7px;font-size:10px;color:var(--xp-orange);border-color:rgba(217,78,0,0.4);background:#0C0C0E;height:28px;display:flex;align-items:center;" 
+                           title="Clear date and time filters (show all)">
+                            ✕
+                        </a>
                     @endif
-                </form>
+
+                    <!-- Temporal Popover Panel -->
+                    <div id="temporal-dropdown-panel" 
+                         style="display:none;position:absolute;top:calc(100% + 8px);right:0;width:340px;background:#0C0C0E;border:1px solid var(--xp-border);box-shadow:0 12px 36px rgba(0,0,0,0.9);border-radius:8px;padding:16px;z-index:9999;">
+                        
+                        <!-- Panel Header -->
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--xp-border-subtle);padding-bottom:8px;">
+                            <div style="display:flex;align-items:center;gap:6px;">
+                                <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--xp-orange);"></span>
+                                <span style="font-size:12px;font-weight:700;color:var(--xp-text);letter-spacing:-0.01em;">Date &amp; Kickoff Time Selector</span>
+                            </div>
+                            <button type="button" 
+                                    onclick="document.getElementById('temporal-dropdown-panel').style.display='none'"
+                                    style="background:transparent;border:none;color:var(--xp-away);font-size:14px;cursor:pointer;padding:0 4px;"
+                                    title="Close panel">✕</button>
+                        </div>
+
+                        <!-- 1. Quick Presets -->
+                        <div style="font-size:10px;font-weight:700;color:var(--xp-away);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;">
+                            Quick Presets
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:14px;">
+                            <a href="{{ url()->current() }}?{{ http_build_query(array_merge(request()->except(['page', 'date', 'time', 'time_slot']), ['preset' => 'today'])) }}" 
+                               style="text-align:center;padding:5px 4px;font-size:11px;font-weight:600;border-radius:4px;text-decoration:none;border:1px solid {{ request('preset') === 'today' || $activeDateStr === $parsedNow->format('Y-m-d') ? 'var(--xp-orange)' : 'var(--xp-border)' }};background:{{ request('preset') === 'today' || $activeDateStr === $parsedNow->format('Y-m-d') ? 'rgba(217,78,0,0.15)' : '#141417' }};color:var(--xp-text);">
+                                Today
+                            </a>
+                            <a href="{{ url()->current() }}?{{ http_build_query(array_merge(request()->except(['page', 'date', 'time', 'time_slot']), ['preset' => 'yesterday'])) }}" 
+                               style="text-align:center;padding:5px 4px;font-size:11px;font-weight:600;border-radius:4px;text-decoration:none;border:1px solid var(--xp-border);background:#141417;color:var(--xp-text);">
+                                Yesterday
+                            </a>
+                            <a href="{{ url()->current() }}?{{ http_build_query(array_merge(request()->except(['page', 'date', 'time', 'time_slot']), ['preset' => 'tomorrow'])) }}" 
+                               style="text-align:center;padding:5px 4px;font-size:11px;font-weight:600;border-radius:4px;text-decoration:none;border:1px solid var(--xp-border);background:#141417;color:var(--xp-text);">
+                                Tomorrow
+                            </a>
+                            <a href="{{ url()->current() }}?{{ http_build_query(array_merge(request()->except(['page', 'date', 'time', 'time_slot']), ['preset' => 'weekend'])) }}" 
+                               style="text-align:center;padding:5px 4px;font-size:11px;font-weight:600;border-radius:4px;text-decoration:none;border:1px solid var(--xp-border);background:#141417;color:var(--xp-text);">
+                                Weekend
+                            </a>
+                            <a href="{{ url()->current() }}?{{ http_build_query(array_merge(request()->except(['page', 'date', 'time', 'time_slot']), ['preset' => 'next_matchday'])) }}" 
+                               style="text-align:center;padding:5px 4px;font-size:11px;font-weight:600;border-radius:4px;text-decoration:none;border:1px solid rgba(217,78,0,0.3);background:rgba(217,78,0,0.08);color:var(--xp-orange);" 
+                               title="Jump to next upcoming fixture date">
+                                Next Round
+                            </a>
+                            <a href="{{ url()->current() }}?{{ http_build_query(array_merge(request()->except(['page', 'date', 'time', 'time_slot']), ['preset' => 'last_matchday'])) }}" 
+                               style="text-align:center;padding:5px 4px;font-size:11px;font-weight:600;border-radius:4px;text-decoration:none;border:1px solid var(--xp-border);background:#141417;color:var(--xp-text);" 
+                               title="Jump to latest finished fixture date">
+                                Last Round
+                            </a>
+                        </div>
+
+                        <!-- 2. Kickoff Time Window -->
+                        <div style="font-size:10px;font-weight:700;color:var(--xp-away);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;">
+                            Kickoff Time Window (UTC)
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:14px;">
+                            <a href="{{ url()->current() }}?{{ http_build_query(array_merge(request()->except(['page', 'time', 'time_slot']), ['time_slot' => 'all'])) }}" 
+                               style="text-align:center;padding:5px 6px;font-size:10.5px;font-weight:600;border-radius:4px;text-decoration:none;border:1px solid {{ !$rawTimeSlot && !$rawTime ? 'var(--xp-orange)' : 'var(--xp-border)' }};background:{{ !$rawTimeSlot && !$rawTime ? 'rgba(217,78,0,0.15)' : '#141417' }};color:var(--xp-text);">
+                                ⚡ All Times
+                            </a>
+                            <a href="{{ url()->current() }}?{{ http_build_query(array_merge(request()->except(['page', 'time', 'time_slot']), ['time_slot' => 'early'])) }}" 
+                               style="text-align:center;padding:5px 6px;font-size:10.5px;font-weight:600;border-radius:4px;text-decoration:none;border:1px solid {{ $rawTimeSlot === 'early' ? 'var(--xp-orange)' : 'var(--xp-border)' }};background:{{ $rawTimeSlot === 'early' ? 'rgba(217,78,0,0.15)' : '#141417' }};color:var(--xp-text);">
+                                🌤 Early (12:30)
+                            </a>
+                            <a href="{{ url()->current() }}?{{ http_build_query(array_merge(request()->except(['page', 'time', 'time_slot']), ['time_slot' => 'afternoon'])) }}" 
+                               style="text-align:center;padding:5px 6px;font-size:10.5px;font-weight:600;border-radius:4px;text-decoration:none;border:1px solid {{ $rawTimeSlot === 'afternoon' ? 'var(--xp-orange)' : 'var(--xp-border)' }};background:{{ $rawTimeSlot === 'afternoon' ? 'rgba(217,78,0,0.15)' : '#141417' }};color:var(--xp-text);">
+                                ⚽ Prime (15:00)
+                            </a>
+                            <a href="{{ url()->current() }}?{{ http_build_query(array_merge(request()->except(['page', 'time', 'time_slot']), ['time_slot' => 'evening'])) }}" 
+                               style="text-align:center;padding:5px 6px;font-size:10.5px;font-weight:600;border-radius:4px;text-decoration:none;border:1px solid {{ $rawTimeSlot === 'evening' ? 'var(--xp-orange)' : 'var(--xp-border)' }};background:{{ $rawTimeSlot === 'evening' ? 'rgba(217,78,0,0.15)' : '#141417' }};color:var(--xp-text);">
+                                🌙 Night (17:30+)
+                            </a>
+                        </div>
+
+                        <!-- 3. Custom Date & Time Form -->
+                        <div style="font-size:10px;font-weight:700;color:var(--xp-away);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;">
+                            Specific Date &amp; Kickoff Time
+                        </div>
+                        <form method="GET" action="{{ url()->current() }}" style="margin:0;">
+                            @foreach (request()->except(['date', 'time', 'time_slot', 'preset', 'page']) as $k => $v)
+                                <input type="hidden" name="{{ $k }}" value="{{ $v }}">
+                            @endforeach
+                            <div style="display:flex;gap:6px;margin-bottom:8px;">
+                                <div style="flex:1;">
+                                    <label style="display:block;font-size:9.5px;color:var(--xp-muted);margin-bottom:2px;">Match Date</label>
+                                    <input type="date" name="date" value="{{ $activeDateStr }}" 
+                                           style="width:100%;padding:6px 8px;font-size:11px;background:#141417;border:1px solid var(--xp-border);border-radius:4px;color:var(--xp-text);outline:none;">
+                                </div>
+                                <div style="width:105px;">
+                                    <label style="display:block;font-size:9.5px;color:var(--xp-muted);margin-bottom:2px;">Kickoff (UTC)</label>
+                                    <input type="time" name="time" value="{{ request('time') }}" 
+                                           style="width:100%;padding:6px 8px;font-size:11px;background:#141417;border:1px solid var(--xp-border);border-radius:4px;color:var(--xp-text);outline:none;">
+                                </div>
+                            </div>
+                            <div style="display:flex;gap:6px;">
+                                <button type="submit" class="btn btn-primary btn-sm" style="flex:1;padding:6px 0;font-size:11px;font-weight:700;display:flex;justify-content:center;align-items:center;">
+                                    Apply Filter
+                                </button>
+                                @if ($isFiltered)
+                                    <a href="{{ url()->current() }}?{{ http_build_query(request()->except(['date', 'time', 'time_slot', 'preset', 'page'])) }}" 
+                                       class="btn btn-secondary btn-sm" style="padding:6px 10px;font-size:11px;text-decoration:none;">
+                                        Reset
+                                    </a>
+                                @endif
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <script>
+                    document.addEventListener('click', function(e) {
+                        const container = e.target.closest('.temporal-widget-container');
+                        const panel = document.getElementById('temporal-dropdown-panel');
+                        if (!container && panel) {
+                            panel.style.display = 'none';
+                        }
+                    });
+                </script>
 
                 <button class="topbar-btn" title="Notifications">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

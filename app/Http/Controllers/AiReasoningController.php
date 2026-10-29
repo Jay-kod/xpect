@@ -11,6 +11,7 @@ use App\Models\Preview;
 use App\Services\Previews\NumberCheckGuard;
 use App\Services\Previews\PreviewGenerator;
 use App\Services\Previews\PromptBuilder;
+use App\Services\Temporal\TemporalFilterService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -29,32 +30,25 @@ class AiReasoningController extends Controller
     /**
      * Display the AI Reasoning Studio and Permutation Explainer.
      */
-    public function index(Request $request): View
+    public function index(Request $request, TemporalFilterService $temporalService): View
     {
-        $selectedDate = $request->filled('date') ? trim((string) $request->query('date')) : null;
-        $dateFilterInfo = null;
+        $temporal = $temporalService->resolve($request);
+        $selectedDate = $temporal['selectedDate'];
+        $selectedTimeSlot = $temporal['selectedTimeSlot'];
+        $selectedTime = $temporal['selectedTime'];
+        $dateFilterInfo = $temporal['dateFilterInfo'];
+        $availableMatchDates = $temporal['availableMatchDates'];
 
         // 1. Available matches with predictions for selector dropdown
         $availableMatchesQuery = FootballMatch::whereHas('predictions')
             ->with(['homeTeam', 'awayTeam', 'competition'])
             ->orderBy('kickoff_at', 'desc');
 
-        if ($selectedDate) {
-            try {
-                $parsedDate = \Carbon\CarbonImmutable::parse($selectedDate, 'UTC');
-                $selectedDate = $parsedDate->format('Y-m-d');
-                $availableMatchesQuery->whereBetween('kickoff_at', [
-                    $parsedDate->startOfDay(),
-                    $parsedDate->endOfDay(),
-                ]);
-                $dateFilterInfo = [
-                    'date_str' => $selectedDate,
-                    'formatted' => $parsedDate->format('l, d M Y'),
-                ];
-            } catch (\Throwable) {
-                $selectedDate = null;
-                $dateFilterInfo = null;
-            }
+        if ($dateFilterInfo) {
+            $availableMatchesQuery->whereBetween('kickoff_at', [
+                $temporal['dateStart'],
+                $temporal['dateEnd'],
+            ]);
         }
 
         $availableMatches = $availableMatchesQuery->take(60)->get();
@@ -149,7 +143,10 @@ class AiReasoningController extends Controller
             'recentPreviews' => $recentPreviews,
             'hasAnthropicKey' => $hasAnthropicKey,
             'selectedDate' => $selectedDate,
+            'selectedTimeSlot' => $selectedTimeSlot,
+            'selectedTime' => $selectedTime,
             'dateFilterInfo' => $dateFilterInfo,
+            'availableMatchDates' => $availableMatchDates,
         ]);
     }
 

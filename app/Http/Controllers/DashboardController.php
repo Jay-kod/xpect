@@ -10,6 +10,7 @@ use App\Models\Prediction;
 use App\Models\Preview;
 use App\Services\Predictions\PredictionService;
 use App\Services\Previews\PreviewGenerator;
+use App\Services\Temporal\TemporalFilterService;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,7 +19,7 @@ use Throwable;
 
 class DashboardController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request, TemporalFilterService $temporalService): View
     {
         $competitions = Competition::where('is_active', true)->get();
         $selectedComp = $request->get('competition', 'premier-league');
@@ -42,32 +43,15 @@ class DashboardController extends Controller
         $todayStart = $nowUtc->startOfDay();
         $todayEnd = $nowUtc->endOfDay();
 
-        $selectedDate = $request->filled('date') ? trim((string) $request->get('date')) : null;
-        $dateFilterInfo = null;
-        $dateStart = null;
-        $dateEnd = null;
-
-        if ($selectedDate) {
-            try {
-                $parsedDate = CarbonImmutable::parse($selectedDate, 'UTC');
-                $selectedDate = $parsedDate->format('Y-m-d');
-                $dateStart = $parsedDate->startOfDay();
-                $dateEnd = $parsedDate->endOfDay();
-
-                $dateFilterInfo = [
-                    'date_str' => $selectedDate,
-                    'formatted' => $parsedDate->format('l, d M Y'),
-                    'prev_date' => $parsedDate->subDay()->format('Y-m-d'),
-                    'next_date' => $parsedDate->addDay()->format('Y-m-d'),
-                    'is_today' => $selectedDate === $nowUtc->format('Y-m-d'),
-                    'is_yesterday' => $selectedDate === $nowUtc->subDay()->format('Y-m-d'),
-                    'is_tomorrow' => $selectedDate === $nowUtc->addDay()->format('Y-m-d'),
-                ];
-            } catch (Throwable) {
-                $selectedDate = null;
-                $dateFilterInfo = null;
-            }
-        }
+        // Resolve temporal filter (date, time slot, time, presets, available dates)
+        $temporal = $temporalService->resolve($request, $competition?->id, $selectedSeason);
+        $selectedDate = $temporal['selectedDate'];
+        $selectedTimeSlot = $temporal['selectedTimeSlot'];
+        $selectedTime = $temporal['selectedTime'];
+        $dateStart = $temporal['dateStart'];
+        $dateEnd = $temporal['dateEnd'];
+        $dateFilterInfo = $temporal['dateFilterInfo'];
+        $availableMatchDates = $temporal['availableMatchDates'];
 
         // 1. Single aggregate query for all competition statistics and status counts
         $statsRow = FootballMatch::where('competition_id', $competition?->id)
@@ -152,7 +136,7 @@ class DashboardController extends Controller
 
         if ($dateFilterInfo) {
             $query->whereBetween('kickoff_at', [$dateStart, $dateEnd])->orderBy('kickoff_at', 'asc');
-            $currentViewLabel = "Fixtures on " . $dateFilterInfo['formatted'];
+            $currentViewLabel = "Fixtures on " . $dateFilterInfo['label'];
         } else {
             $query->where('season', $selectedSeason);
             if ($statusFilter === 'today') {
@@ -294,7 +278,10 @@ class DashboardController extends Controller
             'matchCounts' => $matchCounts,
             'currentViewLabel' => $currentViewLabel,
             'selectedDate' => $selectedDate,
+            'selectedTimeSlot' => $selectedTimeSlot,
+            'selectedTime' => $selectedTime,
             'dateFilterInfo' => $dateFilterInfo,
+            'availableMatchDates' => $availableMatchDates,
             'compStats' => $compStats,
             'summary' => $summary,
         ]);

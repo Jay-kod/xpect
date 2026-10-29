@@ -678,6 +678,18 @@
                     <form method="GET" action="{{ route('dashboard') }}" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                         <input type="hidden" name="competition" value="{{ $selectedComp }}">
                         
+                        <!-- Quick Matchday Dates Jump -->
+                        @if (!empty($availableMatchDates) && $availableMatchDates->isNotEmpty())
+                            <select class="select-pill" onchange="if(this.value) window.location.href=this.value;" title="Jump directly to dates with confirmed fixtures">
+                                <option value="">📅 Matchdays ({{ $availableMatchDates->count() }} rounds)...</option>
+                                @foreach ($availableMatchDates as $amd)
+                                    <option value="{{ route('dashboard', array_merge(request()->except(['page', 'preset']), ['competition' => $selectedComp, 'date' => $amd->match_date])) }}" {{ $selectedDate === $amd->match_date ? 'selected' : '' }}>
+                                        {{ \Carbon\CarbonImmutable::parse($amd->match_date)->format('D, d M Y') }} ({{ $amd->count }} {{ $amd->count === 1 ? 'match' : 'matches' }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        @endif
+
                         <!-- Date Selector Input -->
                         <div style="display:flex;align-items:center;background:#0C0C0E;border:1px solid var(--xp-border);border-radius:6px;padding:2px 6px;gap:6px;">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--xp-orange);">
@@ -689,9 +701,9 @@
                             <input type="date" name="date" value="{{ $selectedDate }}" class="select-pill" style="border:none;background:transparent;padding:4px 2px;font-size:11px;color:var(--xp-text);outline:none;" title="Select specific match date" onchange="this.form.submit()">
                         </div>
 
-                        @if ($selectedDate)
+                        @if ($selectedDate || !empty($selectedTimeSlot) || !empty($selectedTime))
                             <a href="{{ route('dashboard', ['competition' => $selectedComp, 'season' => $selectedSeason, 'status' => $statusFilter]) }}" class="btn btn-secondary btn-sm" style="padding:4px 8px;font-size:11px;color:var(--xp-orange);border-color:rgba(217,78,0,0.3);" title="Clear date and view all matches">
-                                ✕ Clear Date
+                                ✕ Clear
                             </a>
                         @endif
 
@@ -710,26 +722,54 @@
                 </div>
 
                 @if ($dateFilterInfo)
-                    <div style="background:rgba(217,78,0,0.08);border:1px solid rgba(217,78,0,0.25);border-radius:6px;padding:8px 12px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-                        <div style="display:flex;align-items:center;gap:8px;">
-                            <span style="font-size:12px;color:var(--xp-orange);font-weight:700;">📅 Date Filter:</span>
-                            <span style="font-size:12px;color:#FFFFFF;font-weight:600;">{{ $dateFilterInfo['formatted'] }}</span>
-                            <span class="badge" style="background:#0C0C0E;border:1px solid var(--xp-border);font-size:10px;color:var(--xp-text);">
-                                {{ $matches->total() }} matches found
-                            </span>
+                    <div style="background:rgba(217,78,0,0.08);border:1px solid rgba(217,78,0,0.25);border-radius:6px;padding:10px 14px;margin-bottom:14px;display:flex;flex-direction:column;gap:8px;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <span style="font-size:12px;color:var(--xp-orange);font-weight:700;">📅 Date Filter:</span>
+                                <span style="font-size:12px;color:#FFFFFF;font-weight:600;">{{ $dateFilterInfo['formatted'] }}</span>
+                                @if (!empty($dateFilterInfo['time_slot_label']))
+                                    <span class="badge" style="background:var(--xp-orange);color:#000000;font-size:10px;font-weight:700;">
+                                        {{ $dateFilterInfo['time_slot_label'] }}
+                                    </span>
+                                @endif
+                                <span class="badge" style="background:#0C0C0E;border:1px solid var(--xp-border);font-size:10px;color:var(--xp-text);">
+                                    {{ $matches->total() }} matches found
+                                </span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:6px;">
+                                <a href="{{ route('dashboard', array_merge(request()->except(['page']), ['competition' => $selectedComp, 'date' => $dateFilterInfo['prev_date']])) }}" class="btn btn-secondary btn-sm" style="padding:3px 8px;font-size:11px;">
+                                    &larr; Prev
+                                </a>
+                                <a href="{{ route('dashboard', array_merge(request()->except(['page']), ['competition' => $selectedComp, 'date' => \Carbon\CarbonImmutable::now('UTC')->format('Y-m-d')])) }}" class="btn btn-secondary btn-sm" style="padding:3px 8px;font-size:11px;{{ $dateFilterInfo['is_today'] ? 'border-color:var(--xp-orange);color:var(--xp-orange);' : '' }}">
+                                    Today
+                                </a>
+                                <a href="{{ route('dashboard', array_merge(request()->except(['page']), ['competition' => $selectedComp, 'date' => $dateFilterInfo['next_date']])) }}" class="btn btn-secondary btn-sm" style="padding:3px 8px;font-size:11px;">
+                                    Next &rarr;
+                                </a>
+                                <a href="{{ route('dashboard', array_merge(request()->except(['date', 'time', 'time_slot', 'preset', 'page']), ['competition' => $selectedComp])) }}" class="btn btn-secondary btn-sm" style="padding:3px 8px;font-size:11px;color:var(--xp-orange);">
+                                    ✕ Reset
+                                </a>
+                            </div>
                         </div>
-                        <div style="display:flex;align-items:center;gap:6px;">
-                            <a href="{{ route('dashboard', ['competition' => $selectedComp, 'date' => $dateFilterInfo['prev_date']]) }}" class="btn btn-secondary btn-sm" style="padding:3px 8px;font-size:11px;">
-                                &larr; Prev
+
+                        <!-- Kickoff Time Slot Pills -->
+                        <div style="display:flex;align-items:center;gap:6px;border-top:1px solid rgba(217,78,0,0.15);padding-top:8px;font-size:11px;flex-wrap:wrap;">
+                            <span style="color:var(--xp-away);font-weight:600;font-size:10.5px;">Kickoff Time Window:</span>
+                            <a href="{{ route('dashboard', array_merge(request()->except(['page', 'time', 'time_slot']), ['competition' => $selectedComp, 'date' => $selectedDate, 'time_slot' => 'all'])) }}"
+                               style="padding:2px 8px;border-radius:4px;text-decoration:none;font-size:10.5px;font-weight:600;border:1px solid {{ !$selectedTimeSlot && !$selectedTime ? 'var(--xp-orange)' : 'var(--xp-border)' }};background:{{ !$selectedTimeSlot && !$selectedTime ? 'var(--xp-orange)' : '#101014' }};color:{{ !$selectedTimeSlot && !$selectedTime ? '#000000' : 'var(--xp-text)' }};">
+                                All Kickoffs
                             </a>
-                            <a href="{{ route('dashboard', ['competition' => $selectedComp, 'date' => \Carbon\CarbonImmutable::now('UTC')->format('Y-m-d')]) }}" class="btn btn-secondary btn-sm" style="padding:3px 8px;font-size:11px;{{ $dateFilterInfo['is_today'] ? 'border-color:var(--xp-orange);color:var(--xp-orange);' : '' }}">
-                                Today
+                            <a href="{{ route('dashboard', array_merge(request()->except(['page', 'time', 'time_slot']), ['competition' => $selectedComp, 'date' => $selectedDate, 'time_slot' => 'early'])) }}"
+                               style="padding:2px 8px;border-radius:4px;text-decoration:none;font-size:10.5px;font-weight:600;border:1px solid {{ $selectedTimeSlot === 'early' ? 'var(--xp-orange)' : 'var(--xp-border)' }};background:{{ $selectedTimeSlot === 'early' ? 'var(--xp-orange)' : '#101014' }};color:{{ $selectedTimeSlot === 'early' ? '#000000' : 'var(--xp-text)' }};">
+                                🌤 Early (12:30)
                             </a>
-                            <a href="{{ route('dashboard', ['competition' => $selectedComp, 'date' => $dateFilterInfo['next_date']]) }}" class="btn btn-secondary btn-sm" style="padding:3px 8px;font-size:11px;">
-                                Next &rarr;
+                            <a href="{{ route('dashboard', array_merge(request()->except(['page', 'time', 'time_slot']), ['competition' => $selectedComp, 'date' => $selectedDate, 'time_slot' => 'afternoon'])) }}"
+                               style="padding:2px 8px;border-radius:4px;text-decoration:none;font-size:10.5px;font-weight:600;border:1px solid {{ $selectedTimeSlot === 'afternoon' ? 'var(--xp-orange)' : 'var(--xp-border)' }};background:{{ $selectedTimeSlot === 'afternoon' ? 'var(--xp-orange)' : '#101014' }};color:{{ $selectedTimeSlot === 'afternoon' ? '#000000' : 'var(--xp-text)' }};">
+                                ⚽ Prime (15:00)
                             </a>
-                            <a href="{{ route('dashboard', ['competition' => $selectedComp]) }}" class="btn btn-secondary btn-sm" style="padding:3px 8px;font-size:11px;color:var(--xp-orange);">
-                                Reset
+                            <a href="{{ route('dashboard', array_merge(request()->except(['page', 'time', 'time_slot']), ['competition' => $selectedComp, 'date' => $selectedDate, 'time_slot' => 'evening'])) }}"
+                               style="padding:2px 8px;border-radius:4px;text-decoration:none;font-size:10.5px;font-weight:600;border:1px solid {{ $selectedTimeSlot === 'evening' ? 'var(--xp-orange)' : 'var(--xp-border)' }};background:{{ $selectedTimeSlot === 'evening' ? 'var(--xp-orange)' : '#101014' }};color:{{ $selectedTimeSlot === 'evening' ? '#000000' : 'var(--xp-text)' }};">
+                                🌙 Night (17:30+)
                             </a>
                         </div>
                     </div>

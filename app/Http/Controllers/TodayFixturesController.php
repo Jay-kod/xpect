@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\FootballMatch;
 use App\Services\Predictions\PredictionService;
+use App\Services\Temporal\TemporalFilterService;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,11 +15,13 @@ use Throwable;
 
 class TodayFixturesController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request, TemporalFilterService $temporalService): View
     {
         $nowUtc = CarbonImmutable::now('UTC');
         $todayStr = $nowUtc->format('Y-m-d');
-        $targetDateStr = (string) $request->get('date', $todayStr);
+
+        $temporal = $temporalService->resolve($request);
+        $targetDateStr = $temporal['selectedDate'] ?? $todayStr;
 
         try {
             $parsedDate = CarbonImmutable::parse($targetDateStr, 'UTC');
@@ -27,8 +30,8 @@ class TodayFixturesController extends Controller
             $targetDateStr = $todayStr;
         }
 
-        $startOfDay = $parsedDate->startOfDay();
-        $endOfDay = $parsedDate->endOfDay();
+        $startOfDay = $temporal['dateStart'] ?? $parsedDate->startOfDay();
+        $endOfDay = $temporal['dateEnd'] ?? $parsedDate->endOfDay();
 
         // Multi-league query with eager loading
         $matches = FootballMatch::with([
@@ -82,6 +85,7 @@ class TodayFixturesController extends Controller
             'groupedMatches' => $groupedMatches,
             'nextUpcomingFixture' => $nextUpcomingFixture,
             'summary' => $summary,
+            'temporal' => $temporal,
         ]);
     }
 

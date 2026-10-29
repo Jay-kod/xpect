@@ -184,11 +184,73 @@ class DateFilterTest extends TestCase
         $response->assertSee('2026-08-17');
     }
 
+    public function test_dashboard_filters_by_kickoff_time_slot(): void
+    {
+        // Early match: 12:30 UTC
+        FootballMatch::create([
+            'competition_id' => $this->comp->id,
+            'home_team_id' => $this->teamA->id,
+            'away_team_id' => $this->teamB->id,
+            'season' => 2026,
+            'matchday' => 1,
+            'kickoff_at' => CarbonImmutable::parse('2026-08-17 12:30:00', 'UTC'),
+            'status' => 'scheduled',
+        ]);
+
+        // Afternoon match: 15:00 UTC
+        FootballMatch::create([
+            'competition_id' => $this->comp->id,
+            'home_team_id' => $this->teamC->id,
+            'away_team_id' => $this->teamD->id,
+            'season' => 2026,
+            'matchday' => 1,
+            'kickoff_at' => CarbonImmutable::parse('2026-08-17 15:00:00', 'UTC'),
+            'status' => 'scheduled',
+        ]);
+
+        // Filter by afternoon slot
+        $response = $this->get(route('dashboard', [
+            'date' => '2026-08-17',
+            'time_slot' => 'afternoon',
+        ]));
+
+        $response->assertStatus(200);
+        $response->assertSee('Liverpool FC');
+        $response->assertSee('Manchester City FC');
+        $response->assertDontSee('Arsenal FC');
+        $response->assertSee('Prime Afternoon');
+
+        // Filter by early slot
+        $responseEarly = $this->get(route('dashboard', [
+            'date' => '2026-08-17',
+            'time_slot' => 'early',
+        ]));
+
+        $responseEarly->assertStatus(200);
+        $responseEarly->assertSee('Arsenal FC');
+        $responseEarly->assertSee('Chelsea FC');
+        $responseEarly->assertDontSee('Liverpool FC');
+        $responseEarly->assertSee('Early Kickoff');
+    }
+
+    public function test_dashboard_filters_by_preset(): void
+    {
+        $responseToday = $this->get(route('dashboard', ['preset' => 'today']));
+        $responseToday->assertStatus(200);
+
+        $responseYesterday = $this->get(route('dashboard', ['preset' => 'yesterday']));
+        $responseYesterday->assertStatus(200);
+    }
+
     public function test_topbar_renders_universal_date_filter_input(): void
     {
         $response = $this->get(route('dashboard'));
 
         $response->assertStatus(200);
+        $response->assertSee('temporal-widget-container');
+        $response->assertSee('temporal-dropdown-panel');
+        $response->assertSee('Quick Presets');
+        $response->assertSee('Kickoff Time Window');
         $response->assertSee('<input type="date" name="date"', false);
     }
 }

@@ -4,6 +4,29 @@ All notable changes to Xpect will be documented in this file.
 
 ## [Unreleased]
 
+### [Universal Temporal Control & Kickoff Time Filtering Engine] - 2026-10-29
+#### Added
+- **Temporal Filter Service (`App\Services\Temporal\TemporalFilterService`):**
+  - Centralized single-purpose temporal resolver handling dates, kickoff times, time windows, and smart presets.
+  - Supports quick presets: `today`, `yesterday`, `tomorrow`, `weekend`, `next_matchday`, and `last_matchday`.
+  - Supports kickoff time slot filtering:
+    - `early`: 11:00 to 14:00 UTC (classic 12:30 kickoff window)
+    - `afternoon`: 14:00 to 17:00 UTC (classic 15:00 Saturday window)
+    - `evening`: 17:00 to 23:59 UTC (17:30+ night games)
+  - Supports exact kickoff time filtering (`time=HH:MM`).
+  - Queries dynamic list of confirmed fixture matchdays per competition for instant 1-click jumps.
+- **Universal Topbar Temporal Control Widget (`resources/views/components/layouts/app.blade.php`):**
+  - Upgraded header bar with 1-click day-steppers (`◀` Previous Day, `▶` Next Day).
+  - Built sleek interactive popover dropdown featuring Quick Presets, Kickoff Time Slot grid, and custom Date & Time pickers.
+  - Added one-click `✕` reset button that clears temporal filters without losing active competition or league selection.
+- **Dashboard Kickoff Time Filter Pills & Matchday Jumps (`resources/views/dashboard/index.blade.php`):**
+  - Added dedicated matchday round dropdown showing actual dates with fixture counts.
+  - Added inline Kickoff Time Window pills (`All Kickoffs`, `Early 12:30`, `Prime 15:00`, `Night 17:30+`) directly inside the active date banner.
+- **Unit and Feature Test Suites:**
+  - Added `tests/Unit/TemporalFilterServiceTest.php` (5 tests verifying dates, time slots, exact times, presets, and error handling).
+  - Expanded `tests/Feature/DateFilterTest.php` to verify time slot filtering, preset filtering, and universal widget rendering.
+  - Full suite passes: 111 tests, 563 assertions (100% green).
+
 ### [Global & Page-Level Date Filtering Across All Hubs] - 2026-10-29
 #### Added
 - **Universal Top Header Bar Date Picker (`resources/views/components/layouts/app.blade.php`):**

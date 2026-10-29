@@ -8,6 +8,7 @@ use App\Models\Competition;
 use App\Models\FootballMatch;
 use App\Models\MotmEvaluation;
 use App\Services\Motm\MotmEvaluator;
+use App\Services\Temporal\TemporalFilterService;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,7 +26,7 @@ class ManOfTheMatchController extends Controller
     /**
      * Display the Man of the Match (MOTM) Hub & Player Performance Ratings.
      */
-    public function index(Request $request): View
+    public function index(Request $request, TemporalFilterService $temporalService): View
     {
         $compSlug = $request->query('competition');
         $competitions = Competition::where('is_active', true)->get();
@@ -79,28 +80,15 @@ class ManOfTheMatchController extends Controller
             });
         }
 
-        $selectedDate = $request->filled('date') ? trim((string) $request->query('date')) : null;
-        $dateFilterInfo = null;
+        $temporal = $temporalService->resolve($request, $selectedComp?->id);
+        $selectedDate = $temporal['selectedDate'];
+        $selectedTimeSlot = $temporal['selectedTimeSlot'];
+        $selectedTime = $temporal['selectedTime'];
+        $dateFilterInfo = $temporal['dateFilterInfo'];
+        $availableMatchDates = $temporal['availableMatchDates'];
 
-        if ($selectedDate) {
-            try {
-                $parsedDate = CarbonImmutable::parse($selectedDate, 'UTC');
-                $selectedDate = $parsedDate->format('Y-m-d');
-                $dateStart = $parsedDate->startOfDay();
-                $dateEnd = $parsedDate->endOfDay();
-
-                $finishedMatchesQuery->whereBetween('kickoff_at', [$dateStart, $dateEnd]);
-
-                $dateFilterInfo = [
-                    'date_str' => $selectedDate,
-                    'formatted' => $parsedDate->format('l, d M Y'),
-                    'prev_date' => $parsedDate->subDay()->format('Y-m-d'),
-                    'next_date' => $parsedDate->addDay()->format('Y-m-d'),
-                ];
-            } catch (Throwable) {
-                $selectedDate = null;
-                $dateFilterInfo = null;
-            }
+        if ($dateFilterInfo) {
+            $finishedMatchesQuery->whereBetween('kickoff_at', [$temporal['dateStart'], $temporal['dateEnd']]);
         }
 
         $finishedMatches = $finishedMatchesQuery->take(50)->get();
@@ -153,7 +141,10 @@ class ManOfTheMatchController extends Controller
             'totalEvaluationsCount' => $totalEvaluationsCount,
             'uniqueMatchesWithMotm' => $uniqueMatchesWithMotm,
             'selectedDate' => $selectedDate,
+            'selectedTimeSlot' => $selectedTimeSlot,
+            'selectedTime' => $selectedTime,
             'dateFilterInfo' => $dateFilterInfo,
+            'availableMatchDates' => $availableMatchDates,
         ]);
     }
 

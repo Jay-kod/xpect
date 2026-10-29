@@ -551,16 +551,19 @@ Template:
   - Committed and pushed changes to `https://github.com/Jay-kod/xpect.git` on branch `main`.
 - Verified: All 98 unit and feature tests pass (499 assertions); `php artisan audit:data` clean across all 8 domains. GitHub remote `origin/main` fully synchronized.
 
-### Session 35: Global and Page-Level Date Filtering Across All Analytics Hubs (2026-10-29)
-- Done: Implemented universal and page-level date filtering across all views per owner request:
-  - Created universal top-header date picker in `resources/views/components/layouts/app.blade.php`: preserves active league, season, and route parameters while filtering by date.
-  - Implemented date filtering in `DashboardController`: filters matches strictly by date, displays active date banner with `Prev Day`, `Today`, `Next Day`, and `✕ Clear Date` shortcuts, and suppresses generic upcoming spotlight during date filtering to focus cleanly on the selected date.
-  - Implemented date filtering in `ManOfTheMatchController` and `resources/views/motm/index.blade.php`: filters confirmed MOTM awards and evaluations strictly to the selected match date.
-  - Implemented date filtering in `AiReasoningController` and `resources/views/ai-reasoning/index.blade.php`: scopes available match selection dropdown to fixtures on the chosen date.
-  - Created comprehensive feature test suite `tests/Feature/DateFilterTest.php` (5 tests, 21 assertions) verifying date scoping across Dashboard, MOTM, AI Reasoning, and universal topbar date picker.
-  - Verified 100% clean test suite: 104 tests, 526 assertions passing.
-  - Verified zero data leakage: `php artisan audit:data` passes all 8 integrity domains.
-- Verified: All 104 unit and feature tests pass (526 assertions); `php artisan audit:data` clean across 8/8 domains in 252ms. Dev server running on `http://127.0.0.1:8080`.
+### Session 36: Universal Temporal Control & Kickoff Time Filtering Engine (2026-10-29)
+- Done: Re-engineered date and kickoff time selection across all views per owner request:
+  - Created single-purpose service `App\Services\Temporal\TemporalFilterService` handling date parsing, presets (`today`, `yesterday`, `tomorrow`, `weekend`, `next_matchday`, `last_matchday`), kickoff time slots (`early`, `afternoon`, `evening`), exact times, and querying dynamic confirmed fixture matchday rounds.
+  - Replaced native date input in global header bar (`resources/views/components/layouts/app.blade.php`) with a complete Temporal Control Center:
+    - 1-click day-steppers (`◀` Previous Day, `▶` Next Day).
+    - Status pill displaying active date and kickoff window badge.
+    - Interactive popover panel with Quick Presets, Kickoff Time Slot grid, and direct Date & Time forms.
+    - 1-click `✕` reset button.
+  - Upgraded Dashboard (`resources/views/dashboard/index.blade.php`) with matchday rounds jump dropdown and inline Kickoff Time Slot pills (`All Kickoffs`, `Early 12:30`, `Prime 15:00`, `Night 17:30+`) in the active date banner.
+  - Connected `TemporalFilterService` to `TodayFixturesController`, `ManOfTheMatchController`, and `AiReasoningController`.
+  - Added unit test suite `tests/Unit/TemporalFilterServiceTest.php` and expanded feature tests in `tests/Feature/DateFilterTest.php`.
+- Verified: All 111 unit and feature tests pass (563 assertions); `php artisan audit:data` clean across 8/8 domains in 535ms. Dev server running on `http://127.0.0.1:8080`.
+
 
 
 
