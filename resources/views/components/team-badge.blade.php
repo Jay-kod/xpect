@@ -47,3 +47,4 @@
         {{ $initials }}
     </span>
 </span>
+

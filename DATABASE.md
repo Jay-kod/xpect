@@ -60,6 +60,7 @@ Only `TeamResolver` reads this table. Never match team names elsewhere.
 | timestamps | | |
 
 Indexes: (competition_id, season, kickoff_at), (competition_id, season, status),
+(competition_id, kickoff_at), (competition_id, season, status, matchday),
 (home_team_id, kickoff_at), (away_team_id, kickoff_at), (status, kickoff_at).
 Constraint: home_team_id != away_team_id.
 
@@ -161,6 +162,8 @@ headers via QuotaGuard to prevent timezone reset drift).
 | low_confidence | bool | e.g. promoted team, little history |
 | created_at | datetime | |
 | unique | (match_id, model_version, is_backtest, stage) | |
+
+Indexes: (match_id, is_backtest, created_at), (is_backtest, created_at).
 
 Application rule: no UPDATE/DELETE. Enforce with a model guard (and a DB trigger
 if practical). A match can have an early `pre_match` prediction, a `matchday` prediction (incorporating injuries), and a `final` prediction (with confirmed lineups).
@@ -276,7 +279,7 @@ Stores objective starting XI player performance ratings, match contributions, an
 | performance_summary | text | objective performance explanation |
 | model | string | default `algorithmic-v1` |
 | source_api_call_id | fk api_calls null | provenance from lineups call |
-| timestamps | datetime | index on `(match_id, is_motm)` |
+| timestamps | datetime | index on `(match_id, is_motm)`, `(is_motm, player_name)`, `(is_motm, team_id)`, `(is_motm, rating)`, `(match_id, rating)` |
 
 ## Relationships (summary)
 

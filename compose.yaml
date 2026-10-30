@@ -1,0 +1,47 @@
+services:
+  app:
+    build: .
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+      - ./vendor:/var/www/html/vendor
+      - sqlite_data:/data
+    environment:
+      APP_URL: http://127.0.0.1:8081
+      DB_CONNECTION: sqlite
+      DB_DATABASE: /data/xpect.sqlite
+      DB_FOREIGN_KEYS: "true"
+      DB_URL: ""
+    ports:
+      - "127.0.0.1:8081:8080"
+    command: ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
+
+  test:
+    build: .
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+      - ./vendor:/var/www/html/vendor
+    environment:
+      APP_ENV: testing
+      DB_CONNECTION: sqlite
+      DB_DATABASE: ":memory:"
+      DB_FOREIGN_KEYS: "true"
+      DB_URL: ""
+      CACHE_STORE: array
+      MAIL_MAILER: array
+      QUEUE_CONNECTION: sync
+      SESSION_DRIVER: array
+    command: ["php", "artisan", "test"]
+
+  assets:
+    image: node:20-alpine
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+      - node_modules:/var/www/html/node_modules
+    command: ["sh", "-c", "if [ ! -x node_modules/.bin/vite ]; then npm install --no-package-lock; fi && npm run build"]
+
+volumes:
+  sqlite_data:
+  node_modules:

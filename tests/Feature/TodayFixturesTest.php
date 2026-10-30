@@ -69,7 +69,7 @@ class TodayFixturesTest extends TestCase
         $real = Team::create(['name' => 'Real Madrid CF', 'short_name' => 'Real Madrid']);
         $barca = Team::create(['name' => 'FC Barcelona', 'short_name' => 'Barcelona']);
 
-        $now = CarbonImmutable::now('UTC');
+        $todayStart = CarbonImmutable::now('UTC')->startOfDay();
 
         // EPL match kicking off today
         $m1 = FootballMatch::create([
@@ -78,7 +78,7 @@ class TodayFixturesTest extends TestCase
             'away_team_id' => $chelsea->id,
             'season' => 2026,
             'matchday' => 9,
-            'kickoff_at' => $now->addHours(2),
+            'kickoff_at' => $todayStart->addHours(14),
             'status' => 'scheduled',
         ]);
 
@@ -89,7 +89,7 @@ class TodayFixturesTest extends TestCase
             'away_team_id' => $barca->id,
             'season' => 2026,
             'matchday' => 11,
-            'kickoff_at' => $now->addHours(4),
+            'kickoff_at' => $todayStart->addHours(16),
             'status' => 'scheduled',
         ]);
 
@@ -134,7 +134,7 @@ class TodayFixturesTest extends TestCase
         $home = Team::create(['name' => 'Arsenal FC', 'short_name' => 'Arsenal']);
         $away = Team::create(['name' => 'Chelsea FC', 'short_name' => 'Chelsea']);
 
-        $now = CarbonImmutable::now('UTC');
+        $todayStart = CarbonImmutable::now('UTC')->startOfDay();
 
         $match = FootballMatch::create([
             'competition_id' => $comp->id,
@@ -142,11 +142,11 @@ class TodayFixturesTest extends TestCase
             'away_team_id' => $away->id,
             'season' => 2026,
             'matchday' => 9,
-            'kickoff_at' => $now->addHours(3),
+            'kickoff_at' => $todayStart->addHours(15),
             'status' => 'scheduled',
         ]);
 
-        $todayDate = $now->format('Y-m-d');
+        $todayDate = $todayStart->format('Y-m-d');
 
         $response = $this->post(route('today.predict-all'), ['date' => $todayDate]);
 

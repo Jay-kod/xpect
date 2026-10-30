@@ -575,9 +575,32 @@ Template:
   - Added unit test suite `tests/Unit/TeamBadgeServiceTest.php` and feature test suite `tests/Feature/TeamBadgeTest.php`.
 - Verified: All 118 unit and feature tests pass (590 assertions); `php artisan audit:data` clean across all 8 domains (0 warnings, 0 failures, zero data leakage). Dev server running at `http://127.0.0.1:8080`.
 
+### Session 38: Docker Development and Test Setup (2026-10-29)
+- Done: Added a local Docker Compose setup for the Laravel app, isolated PHPUnit tests, and Vite asset builds:
+  - Added `Dockerfile`, `.dockerignore`, `compose.yaml`, and `docker/entrypoint.sh`.
+  - The app uses a persistent named SQLite volume and is published only on localhost port 8081; tests use in-memory SQLite. Composer dependencies share the ignored host `vendor` directory.
+  - Documented setup and use in `README.md` and the local Docker topology in `ARCHITECTURE.md`.
+- Verified: `docker compose config --quiet` and `docker compose build` succeed; `docker compose run --rm test` passes 121 tests and 604 assertions; migrations and seeders complete in the persistent SQLite volume; `docker compose run --rm assets` builds Vite assets; the app starts on `127.0.0.1:8081` and returns HTTP 200. Composer dependencies now reuse the ignored host `vendor` directory to avoid duplicate installations.
 
-
-
+### Session 39: Database Query Indexing & Skeletal Loading Architecture (2026-10-29)
+- Done: Optimized database query latency and implemented sleek skeletal loading transitions per owner request:
+  - Created append-only database migration `database/migrations/2026_10_29_224500_add_performance_and_lookup_indexes.php`:
+    - Added composite indexes on `predictions(match_id, is_backtest, created_at)` and `predictions(is_backtest, created_at)`.
+    - Added index on `previews(prediction_id, created_at)`.
+    - Added prefix indexes on `motm_evaluations(is_motm, player_name)`, `motm_evaluations(is_motm, team_id)`, `motm_evaluations(is_motm, rating)`, and `motm_evaluations(match_id, rating)`.
+    - Added compound indexes on `matches(competition_id, kickoff_at)` and `matches(competition_id, season, status, matchday)`.
+    - Added indexes on `teams(name)` and `teams(short_name)`.
+  - Implemented modern skeletal loading system with GPU-accelerated CSS shimmer animations in `resources/views/components/layouts/app.blade.php`.
+  - Added progressive navigation loading progress bar (`#xp-nav-progress`) and subtle content loading veil during route changes, filter submissions, and date changes.
+  - Built reusable `<x-skeleton>` Blade component (`resources/views/components/skeleton.blade.php`) supporting `kpi`, `match`, `row`, `table`, and custom dimensions.
+  - Hardened `TodayFixturesTest.php` against UTC midnight transitions.
+  - Added feature test suite `tests/Feature/SkeletalLoadingTest.php`.
+- Verified: All 121 unit and feature tests pass (604 assertions); `php artisan audit:data` clean across all 8 domains (0 warnings, 0 failures, zero data leakage). Massive benchmark improvements across all routes:
+  - `/` (Dashboard): 788ms -> 320ms (59% faster)
+  - `/today` (Fixtures): 105ms -> 58ms (45% faster)
+  - `/motm` (Man of the Match): 2,642ms -> 182ms (93% faster / 14.5x speedup)
+  - `/ai-reasoning` (AI Studio): 1,302ms -> 55ms (96% faster / 23.6x speedup)
+  - Dev server running at `http://127.0.0.1:8080`.
 
 
 

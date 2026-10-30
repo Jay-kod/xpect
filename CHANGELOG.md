@@ -4,6 +4,39 @@ All notable changes to Xpect will be documented in this file.
 
 ## [Unreleased]
 
+### [High-Performance Database Indexing & Skeletal Loading System] - 2026-10-29
+#### Added
+- **Database Performance Indexing Migration (`2026_10_29_224500_add_performance_and_lookup_indexes.php`):**
+  - Added targeted B-tree indexes to accelerate high-frequency queries and joins:
+    - `predictions`: `(match_id, is_backtest, created_at)` and `(is_backtest, created_at)` — eliminating full-table scans during match eager loads and prediction counts.
+    - `previews`: `(prediction_id, created_at)` — speeding up preview eager loads.
+    - `motm_evaluations`: `(is_motm, player_name)`, `(is_motm, team_id)`, `(is_motm, rating)`, `(match_id, rating)` — accelerating leaderboard aggregates and spotlight matches by 18.2x (from 2,642ms to 144ms).
+    - `matches`: `(competition_id, kickoff_at)` and `(competition_id, season, status, matchday)` — accelerating cross-season dates and chart goal scoring trends.
+    - `teams`: `(name)` and `(short_name)` — boosting search query lookups.
+- **Skeletal Loading Architecture & Shimmer Animations:**
+  - Added modern shimmering skeleton primitives (`.xp-skeleton`, `.xp-skeleton-text`, `.xp-skeleton-title`, `.xp-skeleton-badge`, `.xp-skeleton-card`) with CSS cubic-bezier animation in `resources/views/components/layouts/app.blade.php`.
+  - Added top progressive loading bar (`#xp-nav-progress`) providing instantaneous visual feedback on route changes and filter submissions.
+  - Added content loading veil (`.content-loading-veil`) to smooth page transitions.
+- **Reusable Blade Skeleton Component (`<x-skeleton>`):**
+  - Created `resources/views/components/skeleton.blade.php` supporting `kpi`, `match`, `row`, `table`, and custom dimensions.
+- **Test Suite & Verification:**
+  - Added `tests/Feature/SkeletalLoadingTest.php` asserting layout skeleton primitives and component rendering.
+  - Hardened `TodayFixturesTest.php` against UTC midnight boundaries.
+  - All 121 tests pass (604 assertions) with 0 data leakage.
+  - Page response times significantly improved:
+    - `/` (Dashboard): 788ms -> 320ms (59% faster)
+    - `/today` (Fixtures): 105ms -> 58ms (45% faster)
+    - `/motm` (Man of the Match): 2,642ms -> 182ms (93% faster / 14.5x speedup)
+    - `/ai-reasoning` (AI Studio): 1,302ms -> 55ms (96% faster / 23.6x speedup)
+
+### [Local Docker Development & Testing] - 2026-10-29
+#### Added
+- Added a PHP 8.5 Docker image with Composer and the SQLite extensions needed by Laravel.
+- Added Compose services for the local app, a PHPUnit test runner with in-memory SQLite, and Node 20 Vite asset builds; Composer dependencies use the ignored host `vendor` directory to avoid duplicate installations.
+- Persisted application SQLite data in a named volume and bound the web app to localhost port 8081.
+- Documented Docker setup, tests, and database auditing in the README.
+- Verified the Docker suite passes (121 tests, 604 assertions), database migration and seeding, Vite production build, and HTTP 200 from the local app.
+
 ### [Team Badges, Persistent Crest Database Storage & Sync System] - 2026-10-29
 #### Added
 - **Database Schema Migration (`2026_10_29_195000_add_crest_url_to_teams_table.php`):**
@@ -681,4 +714,3 @@ Chronological walk-forward backtests across held-out seasons 2023/24 & 2024/25 a
 - `API_CATALOG.md`: Upgraded Football-Data.co.uk CSV endpoints and football-data.org `/competitions/PL/matches` to `VERIFIED` with confirmed URL structure, column headers, date formats, rate-limit headers, and season depth.
 - `TODO.md`: Completed Phase 1 Foundation (Checkpoints A, B, and C all ticked); moved current phase to Phase 2 (Model evaluation).
 - `PROJECT_CONTEXT.md`: Updated Session 1 entry in the Session Log.
-

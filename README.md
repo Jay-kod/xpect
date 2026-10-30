@@ -288,6 +288,37 @@ Xpect includes custom, brand-aligned HTTP error pages in [`resources/views/error
 - **PHP 8.2+** with `sqlite3`, `curl`, `mbstring`, and `xml` extensions enabled
 - **Composer 2.x**
 - **Node.js 18+** & NPM
+- Or use **Docker Desktop** with Docker Compose to run the application and tests in containers.
+
+### Docker setup (Windows / PowerShell)
+
+The Docker setup uses SQLite, matching the application's documented v1 database.
+The app's database persists in a Docker volume; the test service uses an isolated
+in-memory database and never touches that data. Composer dependencies are installed
+into the ignored `vendor` directory, shared with the host for quick startup. The
+app binds to `127.0.0.1:8081` to avoid conflicting with the existing local
+development server on port 8080.
+
+```powershell
+# Keep an existing .env; create one only for a fresh checkout.
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+
+docker compose build
+docker compose run --rm app php artisan key:generate
+docker compose run --rm app php artisan migrate --seed
+docker compose run --rm assets
+docker compose up -d app
+
+# Run the full PHPUnit suite in its separate, in-memory test container.
+docker compose run --rm test
+
+# Audit the app's persistent local database.
+docker compose exec app php artisan audit:data
+```
+
+Open **`http://127.0.0.1:8081`**. Run `docker compose run --rm assets` again
+after frontend changes. `docker compose down` stops the services but preserves
+the app database and dependency volumes.
 
 ### Setup Instructions
 
@@ -319,6 +350,9 @@ Open your browser and navigate to **`http://127.0.0.1:8080`**.
 ## 🧪 Testing & Integrity Auditing
 
 Xpect ships with a comprehensive automated test suite and an independent data integrity auditor:
+
+For the isolated Docker test environment, run `docker compose run --rm test`.
+It uses `DB_DATABASE=:memory:` and a separate Composer volume from the app.
 
 ```bash
 # Run the complete PHPUnit test suite (98 tests, 499 assertions)

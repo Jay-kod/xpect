@@ -11,6 +11,18 @@ No microservices, no queue server, no Redis in v1.
   Phase 1. The full UI waits until the model is proven (Phase 4).
 - Claude API for previews (model name from `.env`).
 
+## Local Docker development
+
+- `compose.yaml` runs the Laravel app, an isolated PHPUnit test service, and an
+  optional Vite asset builder.
+- The app uses SQLite in a named Docker volume at `/data/xpect.sqlite`; tests
+  use an in-memory SQLite database. Composer dependencies are installed into
+  the ignored host `vendor` directory and shared with the containers.
+- The app is published only on `127.0.0.1:8081`. The container listens on port
+  8080 internally, so it does not interfere with a host development server.
+- `.env` remains local and is excluded from the Docker build context. It is
+  mounted only into the local app/test containers.
+
 ## 2. Data flow
 
 ```

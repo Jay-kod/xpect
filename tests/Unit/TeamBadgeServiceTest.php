@@ -90,3 +90,4 @@ class TeamBadgeServiceTest extends TestCase
         $this->assertEquals('https://crests.football-data.org/57.png', $resolved);
     }
 }
+

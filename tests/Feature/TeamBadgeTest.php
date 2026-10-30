@@ -74,3 +74,4 @@ class TeamBadgeTest extends TestCase
         ]);
     }
 }
+

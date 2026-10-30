@@ -553,9 +553,85 @@
             background: var(--xp-surface);
             margin-top: auto;
         }
+
+        /* ==========================================================================
+           SKELETAL LOADING SYSTEM (Shimmer Animations & Skeleton Primitives)
+           ========================================================================== */
+        @keyframes xp-shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .xp-skeleton {
+            background: linear-gradient(90deg, #101014 25%, #1d1d26 37%, #101014 63%);
+            background-size: 400% 100%;
+            animation: xp-shimmer 1.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            border-radius: 4px;
+            display: block;
+        }
+
+        .xp-skeleton-text {
+            height: 12px;
+            margin-bottom: 6px;
+            border-radius: 3px;
+        }
+
+        .xp-skeleton-title {
+            height: 22px;
+            width: 60%;
+            margin-bottom: 8px;
+            border-radius: 4px;
+        }
+
+        .xp-skeleton-badge {
+            border-radius: 50%;
+        }
+
+        .xp-skeleton-card {
+            background: var(--xp-surface);
+            border: 1px solid var(--xp-border);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        /* Fast page-transition skeleton progress line */
+        #xp-nav-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 2.5px;
+            background: var(--xp-orange);
+            box-shadow: 0 0 10px rgba(217, 78, 0, 0.8), 0 0 4px var(--xp-orange);
+            z-index: 99999;
+            transition: width 0.2s ease, opacity 0.2s ease;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        #xp-nav-progress.active {
+            opacity: 1;
+            width: 80%;
+            transition: width 0.35s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        #xp-nav-progress.done {
+            width: 100%;
+            opacity: 0;
+            transition: width 0.15s ease, opacity 0.2s ease 0.1s;
+        }
+
+        .content-loading-veil {
+            opacity: 0.65;
+            filter: blur(0.3px);
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+        }
     </style>
 </head>
 <body>
+    <!-- Top Progress Bar for Skeletal Page Transitions -->
+    <div id="xp-nav-progress"></div>
     <!-- Sidebar -->
     <aside class="sidebar">
         <!-- Brand -->
@@ -1049,5 +1125,42 @@
             Xpect &bull; Poisson Probability Model &bull; Leakage-Safe Strict Data Flow &bull; Single-User Local Tool
         </footer>
     </div>
+
+    <!-- Progressive Skeletal Loading Transitions -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const progressBar = document.getElementById('xp-nav-progress');
+            const mainContent = document.querySelector('.content-container');
+
+            if (progressBar) {
+                progressBar.classList.add('done');
+                setTimeout(() => {
+                    progressBar.classList.remove('active', 'done');
+                    progressBar.style.width = '0%';
+                }, 300);
+            }
+
+            // Intercept internal navigation clicks for instant skeletal feedback
+            document.addEventListener('click', function (e) {
+                const link = e.target.closest('a');
+                if (!link) return;
+                const href = link.getAttribute('href');
+                if (!href || href.startsWith('#') || href.startsWith('javascript:') || link.target === '_blank') return;
+                if (href.startsWith(window.location.origin) || href.startsWith('/')) {
+                    if (progressBar) progressBar.classList.add('active');
+                    if (mainContent) mainContent.classList.add('content-loading-veil');
+                }
+            });
+
+            // Intercept filter form submissions (dates, seasons, search)
+            document.addEventListener('submit', function (e) {
+                const form = e.target;
+                if (form && !form.target) {
+                    if (progressBar) progressBar.classList.add('active');
+                    if (mainContent) mainContent.classList.add('content-loading-veil');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
