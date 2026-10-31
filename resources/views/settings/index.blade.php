@@ -251,7 +251,10 @@
                 <!-- 1. Anthropic Claude API Key -->
                 <div id="key-group-claude" class="form-row" style="transition:opacity 0.2s ease;">
                     <label>
-                        <span>Anthropic Claude API Key</span>
+                        <span style="display:flex;align-items:center;gap:6px;">
+                            <span>Anthropic Claude API Key</span>
+                            <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener noreferrer" style="font-size:10.5px;color:var(--xp-orange);text-decoration:none;font-weight:600;" title="Get Anthropic Claude API Key">Get Key ↗</a>
+                        </span>
                         @if ($keys['anthropic_has_key'])
                             <span class="badge" style="background:rgba(61,220,132,0.15);color:var(--xp-ok);border:1px solid rgba(61,220,132,0.3);font-size:10px;">
                                 Configured ({{ $keys['anthropic_key'] }})
@@ -271,7 +274,10 @@
                 <!-- 2. OpenAI ChatGPT API Key -->
                 <div id="key-group-chatgpt" class="form-row" style="transition:opacity 0.2s ease;">
                     <label>
-                        <span>OpenAI ChatGPT API Key</span>
+                        <span style="display:flex;align-items:center;gap:6px;">
+                            <span>OpenAI ChatGPT API Key</span>
+                            <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" style="font-size:10.5px;color:var(--xp-orange);text-decoration:none;font-weight:600;" title="Get OpenAI API Key">Get Key ↗</a>
+                        </span>
                         @if ($keys['openai_has_key'])
                             <span class="badge" style="background:rgba(61,220,132,0.15);color:var(--xp-ok);border:1px solid rgba(61,220,132,0.3);font-size:10px;">
                                 Configured ({{ $keys['openai_key'] }})
@@ -291,7 +297,10 @@
                 <!-- 3. Google Gemini API Key -->
                 <div id="key-group-gemini" class="form-row" style="transition:opacity 0.2s ease;">
                     <label>
-                        <span>Google Gemini API Key</span>
+                        <span style="display:flex;align-items:center;gap:6px;">
+                            <span>Google Gemini API Key</span>
+                            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" style="font-size:10.5px;color:var(--xp-orange);text-decoration:none;font-weight:600;" title="Get Google Gemini API Key">Get Key ↗</a>
+                        </span>
                         @if ($keys['gemini_has_key'])
                             <span class="badge" style="background:rgba(61,220,132,0.15);color:var(--xp-ok);border:1px solid rgba(61,220,132,0.3);font-size:10px;">
                                 Configured ({{ $keys['gemini_key'] }})
@@ -313,7 +322,10 @@
                 <!-- Football Data Providers -->
                 <div class="form-row">
                     <label>
-                        <span>football-data.org API Key</span>
+                        <span style="display:flex;align-items:center;gap:6px;">
+                            <span>football-data.org API Key</span>
+                            <a href="https://www.football-data.org/client/register" target="_blank" rel="noopener noreferrer" style="font-size:10.5px;color:var(--xp-orange);text-decoration:none;font-weight:600;" title="Get Free football-data.org API Key">Get Key ↗</a>
+                        </span>
                         @if ($keys['football_data_has_key'])
                             <span class="badge" style="background:rgba(61,220,132,0.15);color:var(--xp-ok);border:1px solid rgba(61,220,132,0.3);font-size:10px;">
                                 Configured ({{ $keys['football_data_key'] }})
@@ -332,7 +344,10 @@
 
                 <div class="form-row">
                     <label>
-                        <span>API-Football Key (api-sports)</span>
+                        <span style="display:flex;align-items:center;gap:6px;">
+                            <span>API-Football Key (api-sports)</span>
+                            <a href="https://dashboard.api-football.com/register" target="_blank" rel="noopener noreferrer" style="font-size:10.5px;color:var(--xp-orange);text-decoration:none;font-weight:600;" title="Get API-Football Key">Get Key ↗</a>
+                        </span>
                         @if ($keys['api_football_has_key'])
                             <span class="badge" style="background:rgba(61,220,132,0.15);color:var(--xp-ok);border:1px solid rgba(61,220,132,0.3);font-size:10px;">
                                 Configured ({{ $keys['api_football_key'] }})

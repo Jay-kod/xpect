@@ -582,6 +582,26 @@ Template:
   - Documented setup and use in `README.md` and the local Docker topology in `ARCHITECTURE.md`.
 - Verified: `docker compose config --quiet` and `docker compose build` succeed; `docker compose run --rm test` passes 121 tests and 604 assertions; migrations and seeders complete in the persistent SQLite volume; `docker compose run --rm assets` builds Vite assets; the app starts on `127.0.0.1:8081` and returns HTTP 200. Composer dependencies now reuse the ignored host `vendor` directory to avoid duplicate installations.
 
+### Session 39: Database Query Indexing & Skeletal Loading Architecture (2026-10-29)
+- Done: Optimized database query latency and implemented sleek skeletal loading transitions per owner request:
+  - Created append-only database migration `database/migrations/2026_10_29_224500_add_performance_and_lookup_indexes.php`:
+    - Added composite indexes on `predictions(match_id, is_backtest, created_at)` and `predictions(is_backtest, created_at)`.
+    - Added index on `previews(prediction_id, created_at)`.
+    - Added prefix indexes on `motm_evaluations(is_motm, player_name)`, `motm_evaluations(is_motm, team_id)`, `motm_evaluations(is_motm, rating)`, and `motm_evaluations(match_id, rating)`.
+    - Added compound indexes on `matches(competition_id, kickoff_at)` and `matches(competition_id, season, status, matchday)`.
+    - Added indexes on `teams(name)` and `teams(short_name)`.
+  - Implemented modern skeletal loading system with GPU-accelerated CSS shimmer animations in `resources/views/components/layouts/app.blade.php`.
+  - Added progressive navigation loading progress bar (`#xp-nav-progress`) and subtle content loading veil during route changes, filter submissions, and date changes.
+  - Built reusable `<x-skeleton>` Blade component (`resources/views/components/skeleton.blade.php`) supporting `kpi`, `match`, `row`, `table`, and custom dimensions.
+  - Hardened `TodayFixturesTest.php` against UTC midnight transitions.
+  - Added feature test suite `tests/Feature/SkeletalLoadingTest.php`.
+- Verified: All 121 unit and feature tests pass (604 assertions); `php artisan audit:data` clean across all 8 domains (0 warnings, 0 failures, zero data leakage). Massive benchmark improvements across all routes:
+  - `/` (Dashboard): 788ms -> 320ms (59% faster)
+  - `/today` (Fixtures): 105ms -> 58ms (45% faster)
+  - `/motm` (Man of the Match): 2,642ms -> 182ms (93% faster / 14.5x speedup)
+  - `/ai-reasoning` (AI Studio): 1,302ms -> 55ms (96% faster / 23.6x speedup)
+  - Dev server running at `http://127.0.0.1:8080`.
+
 ### Session 40: Reliable Docker Startup (2026-10-30)
 - Done: Simplified starting Xpect on Windows and made the Docker service resilient:
   - Added `start-xpect.ps1` for first-run environment/key setup, migrations, one-time database seeding, missing frontend assets, app startup, and HTTP readiness confirmation.
@@ -607,26 +627,16 @@ Template:
     - Updated `tests/Feature/SettingsUiTest.php` with clean test isolation and .env preservation.
 - Verified: All 125 unit and feature tests pass (632 assertions); `php artisan audit:data` clean across all 8 domains (zero data leakage). Dev server running at `http://127.0.0.1:8080`.
 
-
-
-### Session 39: Database Query Indexing & Skeletal Loading Architecture (2026-10-29)
-- Done: Optimized database query latency and implemented sleek skeletal loading transitions per owner request:
-  - Created append-only database migration `database/migrations/2026_10_29_224500_add_performance_and_lookup_indexes.php`:
-    - Added composite indexes on `predictions(match_id, is_backtest, created_at)` and `predictions(is_backtest, created_at)`.
-    - Added index on `previews(prediction_id, created_at)`.
-    - Added prefix indexes on `motm_evaluations(is_motm, player_name)`, `motm_evaluations(is_motm, team_id)`, `motm_evaluations(is_motm, rating)`, and `motm_evaluations(match_id, rating)`.
-    - Added compound indexes on `matches(competition_id, kickoff_at)` and `matches(competition_id, season, status, matchday)`.
-    - Added indexes on `teams(name)` and `teams(short_name)`.
-  - Implemented modern skeletal loading system with GPU-accelerated CSS shimmer animations in `resources/views/components/layouts/app.blade.php`.
-  - Added progressive navigation loading progress bar (`#xp-nav-progress`) and subtle content loading veil during route changes, filter submissions, and date changes.
-  - Built reusable `<x-skeleton>` Blade component (`resources/views/components/skeleton.blade.php`) supporting `kpi`, `match`, `row`, `table`, and custom dimensions.
-  - Hardened `TodayFixturesTest.php` against UTC midnight transitions.
-  - Added feature test suite `tests/Feature/SkeletalLoadingTest.php`.
-- Verified: All 121 unit and feature tests pass (604 assertions); `php artisan audit:data` clean across all 8 domains (0 warnings, 0 failures, zero data leakage). Massive benchmark improvements across all routes:
-  - `/` (Dashboard): 788ms -> 320ms (59% faster)
-  - `/today` (Fixtures): 105ms -> 58ms (45% faster)
-  - `/motm` (Man of the Match): 2,642ms -> 182ms (93% faster / 14.5x speedup)
-  - `/ai-reasoning` (AI Studio): 1,302ms -> 55ms (96% faster / 23.6x speedup)
-  - Dev server running at `http://127.0.0.1:8080`.
+### Session 44: Direct API Key Portal Links & Verification (2026-10-31)
+- Done: Added canonical direct portal links and detailed registration guide for all external API providers:
+  - Verified exact direct developer console URLs:
+    - Anthropic Claude: `https://console.anthropic.com/settings/keys`
+    - OpenAI ChatGPT: `https://platform.openai.com/api-keys`
+    - Google Gemini (Google AI Studio): `https://aistudio.google.com/app/apikey` (Immediate free tier)
+    - football-data.org: `https://www.football-data.org/client/register` (Free tier, 10 calls/min)
+    - API-Football (api-sports): `https://dashboard.api-football.com/register` (Free tier, 100 calls/day)
+  - Embedded direct "Get Key ↗" pill links directly into `resources/views/settings/index.blade.php` alongside each credential label.
+  - Expanded `tests/Feature/SettingsUiTest.php` to verify all 5 direct portal links render in the view.
+- Verified: All 125 unit and feature tests pass (637 assertions); `php artisan audit:data` clean across all 8 domains (zero data leakage). Dev server running at `http://127.0.0.1:8080`.
 
 

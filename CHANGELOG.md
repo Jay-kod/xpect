@@ -17,13 +17,13 @@ All notable changes to Xpect will be documented in this file.
 - **Settings Page Redesign (`resources/views/settings/index.blade.php`):**
   - Completely redesigned `/settings` to adhere to `UI_GUIDELINES.md` dark luxury design tokens.
   - Implemented dynamic AI Provider dropdown (`Claude`, `ChatGPT`, `Gemini`) with live badge updates and instant model dropdown switching.
-  - Added dedicated credential sections with masked previews and visual "Configured" / "Not Configured" status indicators.
+  - Added dedicated credential sections with masked previews, visual "Configured" / "Not Configured" status indicators, and direct 1-click external portal links ("Get Key ↗") for all 5 providers (Anthropic Claude, OpenAI ChatGPT, Google AI Studio Gemini, football-data.org, and API-Football).
   - Streamlined system operations (Sync Fixtures, Rebuild Standings, Evaluate Predictions, Backup SQLite Database).
   - Added Security & Privacy card detailing local-only storage, zero data leakage, and `NumberCheckGuard` anti-hallucination verification.
 - **Test Suite & Verification:**
   - Added `tests/Feature/MultiModelPreviewTest.php` asserting OpenAI ChatGPT and Google Gemini preview generation with token counting and header redaction.
-  - Expanded `tests/Feature/SettingsUiTest.php` verifying provider selection, model dropdowns, and `.env` credential updates.
-  - All 125 tests passing (632 assertions). `php artisan audit:data` clean across 8/8 domains.
+  - Expanded `tests/Feature/SettingsUiTest.php` verifying provider selection, model dropdowns, direct API key portal links, and `.env` credential updates.
+  - All 125 tests passing (637 assertions). `php artisan audit:data` clean across 8/8 domains.
 
 ### [Dashboard Decluttering & Layout Streamlining] - 2026-10-31
 #### Changed

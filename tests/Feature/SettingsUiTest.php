@@ -38,6 +38,13 @@ class SettingsUiTest extends TestCase
         $response->assertSee('football-data.org API Key');
         $response->assertSee('Anthropic Claude API Key');
         $response->assertSee('Local System Operations');
+
+        // Direct API portal links
+        $response->assertSee('https://console.anthropic.com/settings/keys');
+        $response->assertSee('https://platform.openai.com/api-keys');
+        $response->assertSee('https://aistudio.google.com/app/apikey');
+        $response->assertSee('https://www.football-data.org/client/register');
+        $response->assertSee('https://dashboard.api-football.com/register');
     }
 
     public function test_settings_page_renders_multi_llm_providers_and_dropdowns(): void
