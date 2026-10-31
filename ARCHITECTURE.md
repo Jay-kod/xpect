@@ -20,6 +20,14 @@ No microservices, no queue server, no Redis in v1.
   the ignored host `vendor` directory and shared with the containers.
 - The app is published only on `127.0.0.1:8081`. The container listens on port
   8080 internally, so it does not interfere with a host development server.
+- Only the app starts with default `docker compose up`; the test and asset
+  services use the `tools` profile. The app has an HTTP health check and
+  `always` restart policy so it starts whenever the Docker engine starts.
+- `start-xpect.ps1` initializes local environment settings, applies migrations,
+  seeds only a newly initialized SQLite volume, builds missing frontend assets,
+  and waits for HTTP readiness. `stop-xpect.ps1` stops only the app container.
+  The app starts again on the next Docker engine start, even if it had been
+  manually stopped before Docker shut down.
 - `.env` remains local and is excluded from the Docker build context. It is
   mounted only into the local app/test containers.
 

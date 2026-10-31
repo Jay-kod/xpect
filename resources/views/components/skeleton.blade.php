@@ -66,3 +66,4 @@
         <div class="xp-skeleton {{ $class }}" style="width: {{ $width ?? '100%' }}; height: {{ $height ?? '20px' }};"></div>
     @endif
 @endfor
+

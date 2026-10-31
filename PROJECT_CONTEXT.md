@@ -582,6 +582,22 @@ Template:
   - Documented setup and use in `README.md` and the local Docker topology in `ARCHITECTURE.md`.
 - Verified: `docker compose config --quiet` and `docker compose build` succeed; `docker compose run --rm test` passes 121 tests and 604 assertions; migrations and seeders complete in the persistent SQLite volume; `docker compose run --rm assets` builds Vite assets; the app starts on `127.0.0.1:8081` and returns HTTP 200. Composer dependencies now reuse the ignored host `vendor` directory to avoid duplicate installations.
 
+### Session 40: Reliable Docker Startup (2026-10-30)
+- Done: Simplified starting Xpect on Windows and made the Docker service resilient:
+  - Added `start-xpect.ps1` for first-run environment/key setup, migrations, one-time database seeding, missing frontend assets, app startup, and HTTP readiness confirmation.
+  - Added `stop-xpect.ps1` to stop only Xpect without deleting its persistent SQLite volume.
+  - Added an app health check and `always` restart policy; test and asset services no longer start during a plain `docker compose up`.
+- Verified: `.\start-xpect.ps1` completed and reported Xpect ready at `http://127.0.0.1:8081`; `.\stop-xpect.ps1` stopped only the Xpect app; plain `docker compose up -d` restarted only Xpect, which reached healthy status and returned HTTP 200. `docker compose run --rm test` passes 121 tests and 604 assertions.
+
+### Session 42: Dashboard Decluttering and Information Hierarchy Streamlining (2026-10-31)
+- Done: Streamlined and decluttered the main Dashboard (`resources/views/dashboard/index.blade.php`) per owner request:
+  - Unified League Analytics ("League Pulse & Dynamics"): Consolidated the standalone Goal Intensity SVG trendline and the secondary 3-card grid (Match Dynamics, Outcome Distribution Donut, Competition Operations) into a single cohesive card container, reducing chart height from 190px to 115px and saving over 350px of vertical scrolling before fixtures.
+  - Marquee Upcoming Spotlight: Streamlined `#upcoming-spotlight` to feature the primary marquee match with full prediction details, scorelines, and the model feature breakdown accordion, and rendered remaining round matches in a compact secondary grid instead of repeating a massive 10-card wall of duplicate breakdown accordions.
+  - Fixtures Feed: Consolidated filter controls into a single unified row (date picker, round jump, season, status), and simplified individual fixture cards with compact Poisson probability splits, expected goals badges, and team crest badges.
+  - Retained strict compliance with UI design tokens (`UI_GUIDELINES.md`) and preserved all required model provenance tags, changelog links, and route links.
+- Verified: All 121 unit and feature tests pass (604 assertions); `php artisan audit:data` clean across all 8 domains (zero data leakage). Dev server running at `http://127.0.0.1:8080`.
+
+
 ### Session 39: Database Query Indexing & Skeletal Loading Architecture (2026-10-29)
 - Done: Optimized database query latency and implemented sleek skeletal loading transitions per owner request:
   - Created append-only database migration `database/migrations/2026_10_29_224500_add_performance_and_lookup_indexes.php`:
@@ -601,9 +617,5 @@ Template:
   - `/motm` (Man of the Match): 2,642ms -> 182ms (93% faster / 14.5x speedup)
   - `/ai-reasoning` (AI Studio): 1,302ms -> 55ms (96% faster / 23.6x speedup)
   - Dev server running at `http://127.0.0.1:8080`.
-
-
-
-
 
 

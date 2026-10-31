@@ -4,6 +4,26 @@ All notable changes to Xpect will be documented in this file.
 
 ## [Unreleased]
 
+### [Dashboard Decluttering & Layout Streamlining] - 2026-10-31
+#### Changed
+- **Unified League Analytics ("League Pulse & Dynamics"):**
+  - Consolidated the standalone Goal Intensity SVG trendline and the secondary 3-card grid (Match Dynamics, Outcome Distribution Donut, Competition Operations) into a single unified card container.
+  - Reduced SVG chart vertical height from 190px to 115px and integrated Match Dynamics, Donut, and Competition Operations into a clean 3-part subgrid, reclaiming over 350px of vertical space before fixtures.
+- **Marquee Upcoming Spotlight Streamlining:**
+  - Refactored `#upcoming-spotlight` to spotlight the primary marquee match with full prediction details, scorelines, and the model feature breakdown accordion.
+  - Replaced repetitive 10-match wall of duplicate breakdown accordions with a compact, elegant secondary grid for remaining round fixtures.
+- **Fixtures Feed & Filter De-duplication:**
+  - Streamlined `#fixtures-section` header controls into a single unified filter row (date picker, round jump, season, status).
+  - Streamlined individual fixture cards with compact Poisson probability splits, expected goals badges, and team crest badges without redundant clutter.
+- **All 121 Tests Passing & Zero Leakage:**
+  - Full suite verified: 121 tests, 604 assertions passing. `audit:data` verified 100% clean state across 8 domains.
+
+### [Reliable Docker Startup] - 2026-10-30
+#### Added
+- Added Windows PowerShell start/stop scripts; startup handles Docker availability, first-run `.env` and key setup, migrations, one-time seeding, missing frontend assets, and HTTP readiness checks.
+- Configured the Xpect app container with a health check and `always` restart policy so it starts whenever Docker starts.
+- Made app the only default Compose service; test and asset services are opt-in tools.
+
 ### [High-Performance Database Indexing & Skeletal Loading System] - 2026-10-29
 #### Added
 - **Database Performance Indexing Migration (`2026_10_29_224500_add_performance_and_lookup_indexes.php`):**
