@@ -4,6 +4,27 @@ All notable changes to Xpect will be documented in this file.
 
 ## [Unreleased]
 
+### [Settings Redesign & Multi-LLM Provider Architecture] - 2026-10-31
+#### Added
+- **Multi-LLM Provider Architecture (Claude, ChatGPT, Gemini):**
+  - Expanded `PreviewGenerator` to support multiple AI providers:
+    - **Anthropic Claude:** `claude-3-5-sonnet-latest`, `claude-3-5-haiku-latest`, `claude-3-opus-latest` (via `POST https://api.anthropic.com/v1/messages`).
+    - **OpenAI ChatGPT:** `gpt-4o`, `gpt-4o-mini`, `o1-preview`, `o1-mini` (via `POST https://api.openai.com/v1/chat/completions`).
+    - **Google Gemini:** `gemini-1.5-pro`, `gemini-1.5-flash`, `gemini-2.0-flash` (via `POST https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent`).
+  - Added token count tracking and provider error detection in `LoggedHttpClient` for all three providers.
+  - Added `x-goog-api-key` to `config/football.php` secrets list to ensure Google Gemini keys are strictly redacted in `api_calls`.
+  - Registered OpenAI and Google Gemini endpoints in `config/api_catalog.php` and `API_CATALOG.md` (Hard Rule 13 compliant).
+- **Settings Page Redesign (`resources/views/settings/index.blade.php`):**
+  - Completely redesigned `/settings` to adhere to `UI_GUIDELINES.md` dark luxury design tokens.
+  - Implemented dynamic AI Provider dropdown (`Claude`, `ChatGPT`, `Gemini`) with live badge updates and instant model dropdown switching.
+  - Added dedicated credential sections with masked previews and visual "Configured" / "Not Configured" status indicators.
+  - Streamlined system operations (Sync Fixtures, Rebuild Standings, Evaluate Predictions, Backup SQLite Database).
+  - Added Security & Privacy card detailing local-only storage, zero data leakage, and `NumberCheckGuard` anti-hallucination verification.
+- **Test Suite & Verification:**
+  - Added `tests/Feature/MultiModelPreviewTest.php` asserting OpenAI ChatGPT and Google Gemini preview generation with token counting and header redaction.
+  - Expanded `tests/Feature/SettingsUiTest.php` verifying provider selection, model dropdowns, and `.env` credential updates.
+  - All 125 tests passing (632 assertions). `php artisan audit:data` clean across 8/8 domains.
+
 ### [Dashboard Decluttering & Layout Streamlining] - 2026-10-31
 #### Changed
 - **Unified League Analytics ("League Pulse & Dynamics"):**

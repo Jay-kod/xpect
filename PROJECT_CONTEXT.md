@@ -589,13 +589,24 @@ Template:
   - Added an app health check and `always` restart policy; test and asset services no longer start during a plain `docker compose up`.
 - Verified: `.\start-xpect.ps1` completed and reported Xpect ready at `http://127.0.0.1:8081`; `.\stop-xpect.ps1` stopped only the Xpect app; plain `docker compose up -d` restarted only Xpect, which reached healthy status and returned HTTP 200. `docker compose run --rm test` passes 121 tests and 604 assertions.
 
-### Session 42: Dashboard Decluttering and Information Hierarchy Streamlining (2026-10-31)
-- Done: Streamlined and decluttered the main Dashboard (`resources/views/dashboard/index.blade.php`) per owner request:
-  - Unified League Analytics ("League Pulse & Dynamics"): Consolidated the standalone Goal Intensity SVG trendline and the secondary 3-card grid (Match Dynamics, Outcome Distribution Donut, Competition Operations) into a single cohesive card container, reducing chart height from 190px to 115px and saving over 350px of vertical scrolling before fixtures.
-  - Marquee Upcoming Spotlight: Streamlined `#upcoming-spotlight` to feature the primary marquee match with full prediction details, scorelines, and the model feature breakdown accordion, and rendered remaining round matches in a compact secondary grid instead of repeating a massive 10-card wall of duplicate breakdown accordions.
-  - Fixtures Feed: Consolidated filter controls into a single unified row (date picker, round jump, season, status), and simplified individual fixture cards with compact Poisson probability splits, expected goals badges, and team crest badges.
-  - Retained strict compliance with UI design tokens (`UI_GUIDELINES.md`) and preserved all required model provenance tags, changelog links, and route links.
-- Verified: All 121 unit and feature tests pass (604 assertions); `php artisan audit:data` clean across all 8 domains (zero data leakage). Dev server running at `http://127.0.0.1:8080`.
+### Session 43: Settings Redesign & Multi-LLM Provider Architecture (2026-10-31)
+- Done: Redesigned the Settings & Credentials hub (`/settings`) and implemented multi-LLM provider support (Claude, ChatGPT, Gemini) per owner request:
+  - Multi-LLM Provider Support:
+    - Updated `PreviewGenerator` to support `claude` (Anthropic), `chatgpt` (OpenAI), and `gemini` (Google) via `LoggedHttpClient` with full audit persistence, key redaction, and `NumberCheckGuard` validation.
+    - Updated `LoggedHttpClient` to track token usage (input/output tokens) and detect provider error envelopes for OpenAI and Google Gemini.
+    - Added `x-goog-api-key` to `config/football.php` secret redaction list.
+    - Registered OpenAI and Google Gemini in `config/api_catalog.php` and `API_CATALOG.md` (Hard Rule 13).
+  - Clean Professional Settings Redesign (`resources/views/settings/index.blade.php`):
+    - Completely refreshed page to dark luxury theme adhering to `UI_GUIDELINES.md` color tokens.
+    - Added interactive AI Provider dropdown (`Claude`, `ChatGPT`, `Gemini`) with live badge updates and instant model dropdown switching.
+    - Added dedicated masked credential inputs for Anthropic, OpenAI, and Gemini with "Configured" / "Not Configured" visual status badges.
+    - Streamlined system operations (Sync Fixtures, Rebuild Standings, Evaluate Predictions, Backup SQLite Database).
+    - Added Security & Privacy architecture card.
+  - Tests & Verification:
+    - Added `tests/Feature/MultiModelPreviewTest.php` testing OpenAI and Gemini preview generation.
+    - Updated `tests/Feature/SettingsUiTest.php` with clean test isolation and .env preservation.
+- Verified: All 125 unit and feature tests pass (632 assertions); `php artisan audit:data` clean across all 8 domains (zero data leakage). Dev server running at `http://127.0.0.1:8080`.
+
 
 
 ### Session 39: Database Query Indexing & Skeletal Loading Architecture (2026-10-29)

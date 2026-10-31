@@ -78,11 +78,26 @@ Premier League id `39` (MEM).
 - Static files, no key. Results, and usually bookmaker odds columns (VERIFIED: confirmed date DD/MM/YYYY, goals FTHG/FTAG, UTF-8 BOM on header)
 - Be polite: download each file once and store the raw file via `LoggedHttpClient`
 
-## 4. Anthropic Claude API (previews)
+## 4. AI Reasoning & Preview APIs (Claude, ChatGPT, Gemini)
 
-- Called only by `PreviewGenerator`, through `LoggedHttpClient`
-- Model name from `.env` (`ANTHROPIC_MODEL`), never hard-coded
-- Key in `.env` only. Full prompt and response saved in `api_calls`
+- Called only by `PreviewGenerator`, through `LoggedHttpClient`.
+- Provider and model name configured in `.env` (`AI_PROVIDER`, `AI_MODEL`, `ANTHROPIC_MODEL`, `OPENAI_MODEL`, `GEMINI_MODEL`), never hard-coded.
+- Keys stored in `.env` only. Full prompts and raw responses saved in `api_calls` with keys redacted.
+
+### Anthropic Claude
+- Base URL: `https://api.anthropic.com/v1`
+- Auth: `x-api-key: <key>`
+- Endpoint: `POST /messages` (Status: DOC)
+
+### OpenAI ChatGPT
+- Base URL: `https://api.openai.com/v1`
+- Auth: `Authorization: Bearer <key>`
+- Endpoint: `POST /chat/completions` (Status: DOC)
+
+### Google Gemini
+- Base URL: `https://generativelanguage.googleapis.com/v1beta`
+- Auth: `x-goog-api-key: <key>`
+- Endpoint: `POST /models/{model}:generateContent` (Status: DOC)
 
 ## 5. Understat (xG for Top 5 European Leagues)
 

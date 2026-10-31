@@ -40,4 +40,19 @@ return [
         'model' => env('ANTHROPIC_MODEL', 'claude-3-5-sonnet-20241022'),
     ],
 
+    'openai' => [
+        'key' => env('OPENAI_API_KEY'),
+        'model' => env('OPENAI_MODEL', 'gpt-4o'),
+    ],
+
+    'gemini' => [
+        'key' => env('GEMINI_API_KEY'),
+        'model' => env('GEMINI_MODEL', 'gemini-1.5-pro'),
+    ],
+
+    'ai' => [
+        'provider' => env('AI_PROVIDER', 'claude'),
+        'model' => env('AI_MODEL'),
+    ],
+
 ];

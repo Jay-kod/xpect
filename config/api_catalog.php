@@ -148,6 +148,34 @@ return [
             ],
         ],
 
+        'openai' => [
+            'name' => 'OpenAI ChatGPT API',
+            'base_url' => 'https://api.openai.com/v1',
+            'auth_header' => 'Authorization',
+            'endpoints' => [
+                [
+                    'method' => 'POST',
+                    'path' => '/chat/completions',
+                    'purpose' => 'Generate AI match preview via ChatGPT (gpt-4o, o1, etc.)',
+                    'status' => 'DOC',
+                ],
+            ],
+        ],
+
+        'gemini' => [
+            'name' => 'Google Gemini API',
+            'base_url' => 'https://generativelanguage.googleapis.com/v1beta',
+            'auth_header' => 'x-goog-api-key',
+            'endpoints' => [
+                [
+                    'method' => 'POST',
+                    'path' => '/models/{model}:generateContent',
+                    'purpose' => 'Generate AI match preview via Gemini (1.5 Pro, Flash, 2.0)',
+                    'status' => 'DOC',
+                ],
+            ],
+        ],
+
         'understat' => [
             'name' => 'Understat (xG for Top 5 Leagues)',
             'base_url' => 'https://understat.com',

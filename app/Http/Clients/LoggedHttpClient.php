@@ -109,10 +109,18 @@ class LoggedHttpClient
             $errorMessage = $this->detectProviderErrors($source, $responseStatus, $responseBody);
 
             // 5. LLM Token Counting
-            if ($source === 'anthropic' && $responseStatus === 200) {
+            if ($responseStatus === 200) {
                 $decoded = json_decode($responseBody, true);
-                $inputTokens = $decoded['usage']['input_tokens'] ?? null;
-                $outputTokens = $decoded['usage']['output_tokens'] ?? null;
+                if ($source === 'anthropic') {
+                    $inputTokens = $decoded['usage']['input_tokens'] ?? null;
+                    $outputTokens = $decoded['usage']['output_tokens'] ?? null;
+                } elseif ($source === 'openai') {
+                    $inputTokens = $decoded['usage']['prompt_tokens'] ?? null;
+                    $outputTokens = $decoded['usage']['completion_tokens'] ?? null;
+                } elseif ($source === 'gemini') {
+                    $inputTokens = $decoded['usageMetadata']['promptTokenCount'] ?? null;
+                    $outputTokens = $decoded['usageMetadata']['candidatesTokenCount'] ?? null;
+                }
             }
         } catch (Throwable $e) {
             $durationMs = (int) round((hrtime(true) - $startTime) / 1e6);
@@ -201,7 +209,7 @@ class LoggedHttpClient
             }
         }
 
-        if ($source === 'anthropic') {
+        if ($source === 'anthropic' || $source === 'openai' || $source === 'gemini') {
             $data = json_decode($body, true);
             if (!empty($data['error'])) {
                 return is_array($data['error']) ? ($data['error']['message'] ?? json_encode($data['error'])) : (string) $data['error'];

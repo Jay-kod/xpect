@@ -70,6 +70,7 @@ return [
         'X-Auth-Token',
         'x-apisports-key',
         'x-api-key',
+        'x-goog-api-key',
         'api_key',
         'token',
         'secret',

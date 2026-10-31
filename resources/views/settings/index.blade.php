@@ -1,154 +1,507 @@
-<x-layouts.app title="Settings & Keys">
-    <div class="page-header">
+<x-layouts.app title="Settings & AI Providers">
+    <style>
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--xp-border);
+        }
+        .settings-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+        @media (max-width: 960px) {
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .settings-card {
+            background: var(--xp-surface);
+            border: 1px solid var(--xp-border);
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .card-heading-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--xp-border-subtle);
+            padding-bottom: 10px;
+        }
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .form-row label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--xp-text);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .key-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .key-input-wrapper input {
+            width: 100%;
+            background: var(--xp-black);
+            border: 1px solid var(--xp-border);
+            border-radius: 6px;
+            padding: 8px 10px;
+            color: var(--xp-text);
+            font-size: 12px;
+            font-family: monospace;
+            outline: none;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .key-input-wrapper input:focus {
+            border-color: var(--xp-orange);
+            box-shadow: 0 0 0 2px rgba(217, 78, 0, 0.2);
+        }
+        .form-hint {
+            font-size: 11px;
+            color: var(--xp-muted);
+            line-height: 1.4;
+        }
+        .op-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: var(--xp-black);
+            border: 1px solid var(--xp-border-subtle);
+            border-radius: 6px;
+            transition: border-color 0.15s ease;
+        }
+        .op-row:hover {
+            border-color: var(--xp-border);
+        }
+        .provider-pill {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .provider-badge-claude {
+            background: rgba(217, 78, 0, 0.12);
+            color: var(--xp-orange);
+            border: 1px solid rgba(217, 78, 0, 0.3);
+        }
+        .provider-badge-chatgpt {
+            background: rgba(16, 163, 127, 0.12);
+            color: #10A37F;
+            border: 1px solid rgba(16, 163, 127, 0.3);
+        }
+        .provider-badge-gemini {
+            background: rgba(66, 133, 244, 0.12);
+            color: #4285F4;
+            border: 1px solid rgba(66, 133, 244, 0.3);
+        }
+    </style>
+
+    <!-- Page Header -->
+    <div class="settings-header">
         <div>
-            <h1 class="page-title">Settings & API Keys</h1>
-            <p class="page-subtitle">Configure external API credentials, LLM model parameters, and local database maintenance</p>
-        </div>
-    </div>
-
-    <!-- System Stats -->
-    <div class="grid-4">
-        <div class="stat-card">
-            <span class="stat-label">SQLite Database Size</span>
-            <div class="stat-value" style="color:var(--accent);">{{ $stats['db_size'] }}</div>
-            <span class="stat-meta">{{ $stats['matches_count'] }} matches in database</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-label">Predictions</span>
-            <div class="stat-value">{{ number_format($stats['predictions_count']) }}</div>
-            <span class="stat-meta">{{ number_format($stats['evaluations_count']) }} post-match evaluations</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-label">API Calls Logged</span>
-            <div class="stat-value" style="color:var(--yellow);">{{ number_format($stats['api_calls_count']) }}</div>
-            <span class="stat-meta">Full raw payloads stored</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-label">Database Backups</span>
-            <div class="stat-value" style="color:var(--green);">{{ $stats['backups_count'] }}</div>
-            <span class="stat-meta">In storage/backups</span>
-        </div>
-    </div>
-
-    <div class="grid-2">
-        <!-- API Keys Configuration Form -->
-        <div class="stat-card">
-            <h3 style="margin-bottom:0.5rem;font-size:1.1rem;">API Credentials & Model Setup</h3>
-            <p style="font-size:0.8rem;color:var(--text-dim);margin-bottom:1.25rem;">
-                Keys are stored strictly in your local <code>.env</code> file. They are masked before display and never committed to git.
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                <h1 style="font-size:20px;font-weight:700;color:var(--xp-text);margin:0;letter-spacing:-0.02em;">
+                    Settings &amp; AI Providers
+                </h1>
+                <span class="badge" style="background:var(--xp-surface);border:1px solid var(--xp-border);font-size:10.5px;color:var(--xp-orange);font-weight:700;">
+                    v1.2.1-h2h
+                </span>
+            </div>
+            <p style="font-size:12px;color:var(--xp-muted);margin:0;">
+                Configure multi-LLM reasoning engines (Claude, ChatGPT, Gemini), sports data credentials, and local database operations
             </p>
+        </div>
 
-            <form method="POST" action="{{ route('settings.keys') }}">
+        <!-- Privacy & Security Badges -->
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            <span class="badge" style="background:#0C0C0E;border:1px solid var(--xp-border);color:var(--xp-ok);font-size:10px;">
+                <span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--xp-ok);margin-right:4px;"></span>
+                Local .env Storage Only
+            </span>
+            <span class="badge" style="background:#0C0C0E;border:1px solid var(--xp-border);color:var(--xp-muted);font-size:10px;">
+                Zero Leakage Guard Active
+            </span>
+        </div>
+    </div>
+
+    <!-- System Vital Stats Strip -->
+    <div class="grid-kpi-4" style="margin-bottom:20px;">
+        <div class="kpi-card" style="padding:14px 16px;">
+            <span class="kpi-label">SQLite Database Size</span>
+            <div class="kpi-value" style="font-size:22px;margin:2px 0;color:var(--xp-orange);">
+                {{ $stats['db_size'] }}
+            </div>
+            <span style="font-size:11px;color:var(--xp-muted);">
+                {{ number_format($stats['matches_count']) }} verified matches
+            </span>
+        </div>
+
+        <div class="kpi-card" style="padding:14px 16px;">
+            <span class="kpi-label">Model Predictions</span>
+            <div class="kpi-value" style="font-size:22px;margin:2px 0;">
+                {{ number_format($stats['predictions_count']) }}
+            </div>
+            <span style="font-size:11px;color:var(--xp-muted);">
+                {{ number_format($stats['evaluations_count']) }} evaluated results
+            </span>
+        </div>
+
+        <div class="kpi-card" style="padding:14px 16px;">
+            <span class="kpi-label">Audited API Calls</span>
+            <div class="kpi-value" style="font-size:22px;margin:2px 0;color:var(--xp-text);">
+                {{ number_format($stats['api_calls_count']) }}
+            </div>
+            <span style="font-size:11px;color:var(--xp-muted);">
+                Full raw payloads &amp; redacted keys
+            </span>
+        </div>
+
+        <div class="kpi-card" style="padding:14px 16px;">
+            <span class="kpi-label">Database Backups</span>
+            <div class="kpi-value" style="font-size:22px;margin:2px 0;color:var(--xp-ok);">
+                {{ $stats['backups_count'] }}
+            </div>
+            <span style="font-size:11px;color:var(--xp-muted);">
+                In storage/backups/
+            </span>
+        </div>
+    </div>
+
+    <!-- Main Settings Layout -->
+    <div class="settings-grid">
+        <!-- Left Column: AI Model & Multi-LLM Engine Configuration -->
+        <div class="settings-card">
+            <div class="card-heading-row">
+                <div>
+                    <h2 style="font-size:15px;font-weight:700;color:var(--xp-text);margin:0;">
+                        AI Model &amp; Reasoning Engine
+                    </h2>
+                    <p style="font-size:11px;color:var(--xp-muted);margin:2px 0 0 0;">
+                        Select between Claude, ChatGPT, or Gemini to synthesize match previews and tactical insights
+                    </p>
+                </div>
+                <span id="active-provider-badge" class="provider-pill provider-badge-{{ $keys['ai_provider'] }}">
+                    {{ $providers[$keys['ai_provider']]['badge'] ?? 'Anthropic Claude' }}
+                </span>
+            </div>
+
+            <form method="POST" action="{{ route('settings.keys') }}" style="display:flex;flex-direction:column;gap:14px;margin:0;">
                 @csrf
 
-                <!-- Football Data API Key -->
-                <div class="form-group">
-                    <label class="form-label">
-                        football-data.org API Key
-                        <span style="font-weight:400;color:var(--accent);">({{ $keys['football_data_key'] }})</span>
+                <!-- AI Provider Dropdown -->
+                <div class="form-row">
+                    <label for="ai_provider_select">
+                        <span>Active AI Provider</span>
+                        <span style="font-size:11px;color:var(--xp-orange);font-weight:600;">Multi-Model Enabled</span>
                     </label>
-                    <input type="password" name="football_data_key" class="form-control" placeholder="Enter new key to update...">
-                    <div class="form-text">Used for live matchday fixtures and result synchronization.</div>
-                </div>
-
-                <!-- API-Football Key -->
-                <div class="form-group">
-                    <label class="form-label">
-                        API-Football Key (api-sports)
-                        <span style="font-weight:400;color:var(--accent);">({{ $keys['api_football_key'] }})</span>
-                    </label>
-                    <input type="password" name="api_football_key" class="form-control" placeholder="Enter API-Football key...">
-                    <div class="form-text">Used for lineups and injuries in Phase 7.</div>
-                </div>
-
-                <!-- Anthropic API Key -->
-                <div class="form-group">
-                    <label class="form-label">
-                        Anthropic Claude API Key
-                        <span style="font-weight:400;color:var(--accent);">({{ $keys['anthropic_key'] }})</span>
-                    </label>
-                    <input type="password" name="anthropic_key" class="form-control" placeholder="sk-ant-...">
-                    <div class="form-text">Used by PreviewGenerator to write match previews from Poisson numbers.</div>
-                </div>
-
-                <!-- Anthropic Model Selection -->
-                <div class="form-group">
-                    <label class="form-label">Anthropic Model String</label>
-                    <select name="anthropic_model" class="form-control">
-                        <option value="claude-3-5-sonnet-latest" {{ $keys['anthropic_model'] === 'claude-3-5-sonnet-latest' ? 'selected' : '' }}>claude-3-5-sonnet-latest (Recommended)</option>
-                        <option value="claude-3-5-haiku-latest" {{ $keys['anthropic_model'] === 'claude-3-5-haiku-latest' ? 'selected' : '' }}>claude-3-5-haiku-latest (Fastest & Cheaper)</option>
-                        <option value="claude-3-opus-latest" {{ $keys['anthropic_model'] === 'claude-3-opus-latest' ? 'selected' : '' }}>claude-3-opus-latest</option>
+                    <select id="ai_provider_select" name="ai_provider" class="select-pill" style="width:100%;padding:8px 10px;font-size:12px;background:var(--xp-black);border:1px solid var(--xp-border);color:var(--xp-text);border-radius:6px;" onchange="updateProviderModels(this.value)">
+                        <option value="claude" {{ $keys['ai_provider'] === 'claude' ? 'selected' : '' }}>
+                            Anthropic Claude (Sonnet 3.5, Haiku, Opus)
+                        </option>
+                        <option value="chatgpt" {{ $keys['ai_provider'] === 'chatgpt' ? 'selected' : '' }}>
+                            OpenAI ChatGPT (GPT-4o, GPT-4o-mini, o1-preview)
+                        </option>
+                        <option value="gemini" {{ $keys['ai_provider'] === 'gemini' ? 'selected' : '' }}>
+                            Google Gemini (Gemini 1.5 Pro, Flash, 2.0)
+                        </option>
                     </select>
-                    <div class="form-text">Current model: <code>{{ $keys['anthropic_model'] }}</code></div>
+                    <div id="provider-description" class="form-hint">
+                        {{ $providers[$keys['ai_provider']]['description'] }}
+                    </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width:100%;margin-top:0.5rem;">
-                    💾 Save API Credentials to .env
+                <!-- Dynamic Model String Selector -->
+                <div class="form-row">
+                    <label for="ai_model_select">
+                        <span>AI Model</span>
+                        <span style="font-size:11px;color:var(--xp-muted);">Selected Model</span>
+                    </label>
+                    <select id="ai_model_select" name="ai_model" class="select-pill" style="width:100%;padding:8px 10px;font-size:12px;background:var(--xp-black);border:1px solid var(--xp-border);color:var(--xp-text);border-radius:6px;">
+                        @foreach ($providers[$keys['ai_provider']]['models'] as $mKey => $mLabel)
+                            <option value="{{ $mKey }}" {{ ($keys['ai_model'] === $mKey || $keys['anthropic_model'] === $mKey) ? 'selected' : '' }}>
+                                {{ $mLabel }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="form-hint">
+                        Previews strictly explain Poisson probabilities without fabricating external narratives.
+                    </div>
+                </div>
+
+                <div style="border-top:1px solid var(--xp-border-subtle);margin:4px 0;"></div>
+
+                <!-- 1. Anthropic Claude API Key -->
+                <div id="key-group-claude" class="form-row" style="transition:opacity 0.2s ease;">
+                    <label>
+                        <span>Anthropic Claude API Key</span>
+                        @if ($keys['anthropic_has_key'])
+                            <span class="badge" style="background:rgba(61,220,132,0.15);color:var(--xp-ok);border:1px solid rgba(61,220,132,0.3);font-size:10px;">
+                                Configured ({{ $keys['anthropic_key'] }})
+                            </span>
+                        @else
+                            <span class="badge" style="background:rgba(217,78,0,0.15);color:var(--xp-orange);border:1px solid rgba(217,78,0,0.3);font-size:10px;">
+                                Not Configured
+                            </span>
+                        @endif
+                    </label>
+                    <div class="key-input-wrapper">
+                        <input type="password" name="anthropic_key" placeholder="Enter sk-ant-... to update key">
+                    </div>
+                    <div class="form-hint">Powers Anthropic Claude match previews and detailed statistical breakdown explanations.</div>
+                </div>
+
+                <!-- 2. OpenAI ChatGPT API Key -->
+                <div id="key-group-chatgpt" class="form-row" style="transition:opacity 0.2s ease;">
+                    <label>
+                        <span>OpenAI ChatGPT API Key</span>
+                        @if ($keys['openai_has_key'])
+                            <span class="badge" style="background:rgba(61,220,132,0.15);color:var(--xp-ok);border:1px solid rgba(61,220,132,0.3);font-size:10px;">
+                                Configured ({{ $keys['openai_key'] }})
+                            </span>
+                        @else
+                            <span class="badge" style="background:rgba(217,78,0,0.15);color:var(--xp-orange);border:1px solid rgba(217,78,0,0.3);font-size:10px;">
+                                Not Configured
+                            </span>
+                        @endif
+                    </label>
+                    <div class="key-input-wrapper">
+                        <input type="password" name="openai_key" placeholder="Enter sk-proj-... to update key">
+                    </div>
+                    <div class="form-hint">Powers OpenAI GPT-4o and o1 reasoning models for structured Poisson preview generation.</div>
+                </div>
+
+                <!-- 3. Google Gemini API Key -->
+                <div id="key-group-gemini" class="form-row" style="transition:opacity 0.2s ease;">
+                    <label>
+                        <span>Google Gemini API Key</span>
+                        @if ($keys['gemini_has_key'])
+                            <span class="badge" style="background:rgba(61,220,132,0.15);color:var(--xp-ok);border:1px solid rgba(61,220,132,0.3);font-size:10px;">
+                                Configured ({{ $keys['gemini_key'] }})
+                            </span>
+                        @else
+                            <span class="badge" style="background:rgba(217,78,0,0.15);color:var(--xp-orange);border:1px solid rgba(217,78,0,0.3);font-size:10px;">
+                                Not Configured
+                            </span>
+                        @endif
+                    </label>
+                    <div class="key-input-wrapper">
+                        <input type="password" name="gemini_key" placeholder="Enter AIzaSy... to update key">
+                    </div>
+                    <div class="form-hint">Powers Google Gemini 1.5 Pro and 2.0 Flash for instant contextual commentary.</div>
+                </div>
+
+                <div style="border-top:1px solid var(--xp-border-subtle);margin:4px 0;"></div>
+
+                <!-- Football Data Providers -->
+                <div class="form-row">
+                    <label>
+                        <span>football-data.org API Key</span>
+                        @if ($keys['football_data_has_key'])
+                            <span class="badge" style="background:rgba(61,220,132,0.15);color:var(--xp-ok);border:1px solid rgba(61,220,132,0.3);font-size:10px;">
+                                Configured ({{ $keys['football_data_key'] }})
+                            </span>
+                        @else
+                            <span class="badge" style="background:rgba(217,78,0,0.15);color:var(--xp-orange);border:1px solid rgba(217,78,0,0.3);font-size:10px;">
+                                Not Configured
+                            </span>
+                        @endif
+                    </label>
+                    <div class="key-input-wrapper">
+                        <input type="password" name="football_data_key" placeholder="Enter football-data token to update">
+                    </div>
+                    <div class="form-hint">Used for live matchday fixtures and automatic result synchronization.</div>
+                </div>
+
+                <div class="form-row">
+                    <label>
+                        <span>API-Football Key (api-sports)</span>
+                        @if ($keys['api_football_has_key'])
+                            <span class="badge" style="background:rgba(61,220,132,0.15);color:var(--xp-ok);border:1px solid rgba(61,220,132,0.3);font-size:10px;">
+                                Configured ({{ $keys['api_football_key'] }})
+                            </span>
+                        @else
+                            <span class="badge" style="background:rgba(217,78,0,0.15);color:var(--xp-orange);border:1px solid rgba(217,78,0,0.3);font-size:10px;">
+                                Not Configured
+                            </span>
+                        @endif
+                    </label>
+                    <div class="key-input-wrapper">
+                        <input type="password" name="api_football_key" placeholder="Enter API-Football key to update">
+                    </div>
+                    <div class="form-hint">Used for secondary lineup validation and team metadata enrichment.</div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="margin-top:8px;padding:9px;font-size:12px;font-weight:700;">
+                    Save Credentials &amp; Model Selection to .env
                 </button>
             </form>
         </div>
 
-        <!-- Local Actions & Maintenance -->
-        <div class="stat-card">
-            <h3 style="margin-bottom:0.5rem;font-size:1.1rem;">Local System Operations</h3>
-            <p style="font-size:0.8rem;color:var(--text-dim);margin-bottom:1.25rem;">
-                Trigger local maintenance commands directly through the application.
-            </p>
-
-            <div style="display:flex;flex-direction:column;gap:1rem;">
-                <!-- Sync Matches -->
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 1rem;background:var(--xp-surface);border-radius:6px;border:1px solid var(--border);">
+        <!-- Right Column: Operations & Maintenance -->
+        <div style="display:flex;flex-direction:column;gap:18px;">
+            <!-- System Operations Card -->
+            <div class="settings-card">
+                <div class="card-heading-row">
                     <div>
-                        <div style="font-weight:600;font-size:0.85rem;">Sync Upcoming Matches</div>
-                        <div style="font-size:0.75rem;color:var(--text-dim);">Fetch current Premier League fixtures and recent results</div>
+                        <h2 style="font-size:15px;font-weight:700;color:var(--xp-text);margin:0;">
+                            Local System Operations
+                        </h2>
+                        <p style="font-size:11px;color:var(--xp-muted);margin:2px 0 0 0;">
+                            Execute maintenance routines and database synchronization tasks
+                        </p>
                     </div>
-                    <form method="POST" action="{{ route('settings.action') }}">
-                        @csrf
-                        <input type="hidden" name="action" value="sync_matches">
-                        <button type="submit" class="btn btn-secondary btn-sm">Run Sync</button>
-                    </form>
                 </div>
 
-                <!-- Rebuild Standings -->
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 1rem;background:var(--xp-surface);border-radius:6px;border:1px solid var(--border);">
-                    <div>
-                        <div style="font-weight:600;font-size:0.85rem;">Rebuild Standings Snapshots</div>
-                        <div style="font-size:0.75rem;color:var(--text-dim);">Recalculate league tables and positions across all seasons</div>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                    <!-- Action 1: Sync Matches -->
+                    <div class="op-row">
+                        <div>
+                            <div style="font-size:12px;font-weight:600;color:var(--xp-text);">Sync Upcoming Matches</div>
+                            <div style="font-size:10.5px;color:var(--xp-muted);">Fetch current Premier League fixtures and recent results</div>
+                        </div>
+                        <form method="POST" action="{{ route('settings.action') }}" style="margin:0;">
+                            @csrf
+                            <input type="hidden" name="action" value="sync_matches">
+                            <button type="submit" class="btn btn-secondary btn-sm" style="font-size:11px;padding:3px 8px;">Run Sync</button>
+                        </form>
                     </div>
-                    <form method="POST" action="{{ route('settings.action') }}">
-                        @csrf
-                        <input type="hidden" name="action" value="rebuild_standings">
-                        <button type="submit" class="btn btn-secondary btn-sm">Rebuild</button>
-                    </form>
-                </div>
 
-                <!-- Evaluate Predictions -->
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 1rem;background:var(--xp-surface);border-radius:6px;border:1px solid var(--border);">
-                    <div>
-                        <div style="font-weight:600;font-size:0.85rem;">Evaluate Predictions</div>
-                        <div style="font-size:0.75rem;color:var(--text-dim);">Compute Log Loss and Brier scores for finished matches</div>
+                    <!-- Action 2: Rebuild Standings -->
+                    <div class="op-row">
+                        <div>
+                            <div style="font-size:12px;font-weight:600;color:var(--xp-text);">Rebuild Standings Snapshots</div>
+                            <div style="font-size:10.5px;color:var(--xp-muted);">Recalculate league tables and positions across all seasons</div>
+                        </div>
+                        <form method="POST" action="{{ route('settings.action') }}" style="margin:0;">
+                            @csrf
+                            <input type="hidden" name="action" value="rebuild_standings">
+                            <button type="submit" class="btn btn-secondary btn-sm" style="font-size:11px;padding:3px 8px;">Rebuild</button>
+                        </form>
                     </div>
-                    <form method="POST" action="{{ route('settings.action') }}">
-                        @csrf
-                        <input type="hidden" name="action" value="evaluate_predictions">
-                        <button type="submit" class="btn btn-secondary btn-sm">Evaluate</button>
-                    </form>
-                </div>
 
-                <!-- Backup SQLite Database -->
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 1rem;background:var(--xp-surface);border-radius:6px;border:1px solid var(--border);">
-                    <div>
-                        <div style="font-weight:600;font-size:0.85rem;">Backup Database</div>
-                        <div style="font-size:0.75rem;color:var(--text-dim);">Create timestamped SQLite snapshot in storage/backups</div>
+                    <!-- Action 3: Evaluate Predictions -->
+                    <div class="op-row">
+                        <div>
+                            <div style="font-size:12px;font-weight:600;color:var(--xp-text);">Evaluate Predictions</div>
+                            <div style="font-size:10.5px;color:var(--xp-muted);">Compute Log Loss and Brier scores for finished matches</div>
+                        </div>
+                        <form method="POST" action="{{ route('settings.action') }}" style="margin:0;">
+                            @csrf
+                            <input type="hidden" name="action" value="evaluate_predictions">
+                            <button type="submit" class="btn btn-secondary btn-sm" style="font-size:11px;padding:3px 8px;">Evaluate</button>
+                        </form>
                     </div>
-                    <form method="POST" action="{{ route('settings.action') }}">
-                        @csrf
-                        <input type="hidden" name="action" value="app_backup">
-                        <button type="submit" class="btn btn-secondary btn-sm">Create Backup</button>
-                    </form>
+
+                    <!-- Action 4: Backup Database -->
+                    <div class="op-row">
+                        <div>
+                            <div style="font-size:12px;font-weight:600;color:var(--xp-text);">Backup SQLite Database</div>
+                            <div style="font-size:10.5px;color:var(--xp-muted);">Create timestamped SQLite snapshot in storage/backups/</div>
+                        </div>
+                        <form method="POST" action="{{ route('settings.action') }}" style="margin:0;">
+                            @csrf
+                            <input type="hidden" name="action" value="app_backup">
+                            <button type="submit" class="btn btn-secondary btn-sm" style="font-size:11px;padding:3px 8px;">Create Backup</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Architecture & Integrity Overview Card -->
+            <div class="settings-card" style="background:#09090C;border-color:var(--xp-border-subtle);">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--xp-orange);">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                    <span style="font-size:13px;font-weight:700;color:var(--xp-text);">Privacy &amp; Data Security Architecture</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px;font-size:11px;color:var(--xp-muted);line-height:1.5;">
+                    <div>
+                        <strong style="color:var(--xp-text);">1. Secrets Redaction:</strong> All credentials (API keys, authorization headers) are masked before persisting to <code>api_calls</code> and logs. Keys reside only in <code>.env</code>.
+                    </div>
+                    <div>
+                        <strong style="color:var(--xp-text);">2. Zero Data Leakage:</strong> Features for any fixture are computed exclusively from matches finished strictly prior to kickoff ($t < \text{kickoff}$).
+                    </div>
+                    <div>
+                        <strong style="color:var(--xp-text);">3. Anti-Hallucination Guard:</strong> Previews generated by any LLM are parsed by <code>NumberCheckGuard</code> to guarantee numbers match computed mathematical probabilities.
+                    </div>
+                </div>
+                <div style="margin-top:4px;display:flex;justify-content:flex-end;">
+                    <a href="{{ route('docs') }}" style="font-size:11px;color:var(--xp-orange);text-decoration:none;font-weight:600;">
+                        Read Technical Docs &rarr;
+                    </a>
                 </div>
             </div>
         </div>
     </div>
-</x-layouts.app>
 
+    <!-- Client-side Model Switching Script -->
+    <script>
+        const providerData = @json($providers);
+
+        function updateProviderModels(provider) {
+            const modelSelect = document.getElementById('ai_model_select');
+            const descEl = document.getElementById('provider-description');
+            const badgeEl = document.getElementById('active-provider-badge');
+
+            if (!providerData[provider]) return;
+
+            const info = providerData[provider];
+            
+            // Update badge & description
+            badgeEl.textContent = info.badge;
+            badgeEl.className = 'provider-pill provider-badge-' + provider;
+            descEl.textContent = info.description;
+
+            // Clear and populate model dropdown
+            modelSelect.innerHTML = '';
+            for (const [key, label] of Object.entries(info.models)) {
+                const opt = document.createElement('option');
+                opt.value = key;
+                opt.textContent = label;
+                if (key === info.default_model) {
+                    opt.selected = true;
+                }
+                modelSelect.appendChild(opt);
+            }
+
+            // Highlight corresponding key section
+            ['claude', 'chatgpt', 'gemini'].forEach(p => {
+                const group = document.getElementById('key-group-' + p);
+                if (group) {
+                    if (p === provider) {
+                        group.style.opacity = '1';
+                        group.style.borderColor = 'var(--xp-orange)';
+                    } else {
+                        group.style.opacity = '0.65';
+                        group.style.borderColor = 'transparent';
+                    }
+                }
+            });
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const current = document.getElementById('ai_provider_select').value;
+            updateProviderModels(current);
+        });
+    </script>
+</x-layouts.app>
