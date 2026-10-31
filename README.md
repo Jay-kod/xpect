@@ -249,11 +249,11 @@ php artisan xpect:generate-preview {id}     # Generate Claude 3.5 Sonnet preview
 
 ## 🎨 User Interface & Design System
 
-The Xpect user interface is built on a custom **orange and obsidian dark theme** specified in [`UI_GUIDELINES.md`](UI_GUIDELINES.md):
+The Xpect interface uses the shared color tokens in [`UI_GUIDELINES.md`](UI_GUIDELINES.md), with orange brand accents and four built-in palettes. Open **Themes** in the sidebar to choose Pitch Black, Obsidian, Midnight, or Light, or create, edit, save, and delete custom palettes. Theme data stays in the current browser and does not affect football data or predictions.
 
 - **Main Accent (`--xp-orange`):** `#D94E00` (deep vibrant orange; high-contrast black text on button active states)
-- **Obsidian Page Background (`--xp-black`):** `#000000` (pure pitch black)
-- **Elevated Card Surfaces (`--xp-surface`):** `#0C0C0E` and `#141416`
+- **Default Pitch Black Background (`--xp-black`):** `#000000`; appearance tokens update with the selected palette
+- **Default Card Surface (`--xp-surface`):** `#0C0C0E`; selectable alternatives include Obsidian, Midnight, and Light
 - **Subtle Dividers & Borders (`--xp-border`):** `#1E1E22`
 - **Primary Typography:** Space Grotesk Bold (headings & wordmarks), Inter (body), and JetBrains Mono (metrics & code)
 

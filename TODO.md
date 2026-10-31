@@ -232,6 +232,12 @@ matches the model output, and the full call is stored.
   - Mathematical architecture breakdown: Poisson rate parameters, Dixon-Coles low-score adjustment, and exponential decay
   - Benchmark comparison table against Always Home, Uniform, and Historical Base Rates
   - Direct links on dashboard: sidebar update widget, view navigator, KPI Card 4, and calculation provenance drawer
+- [x] **Phase F: Selectable UI Themes (`/themes`)**
+  - Sidebar-linked page for Pitch Black, Obsidian, Midnight, and Light palettes
+  - Browser-local persistence without database or prediction changes
+- [x] **Phase G: Custom Theme Manager**
+  - Create, edit, save, select, and delete custom palettes
+  - Keep built-in presets fixed and fall back to Pitch Black when the active custom theme is deleted
 
 ---
 

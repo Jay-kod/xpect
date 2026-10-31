@@ -258,7 +258,7 @@
                     <!-- Interactive Data Points and Labels -->
                     @foreach ($points as $pt)
                         <circle cx="{{ $pt['x'] }}" cy="{{ $pt['y'] }}" r="3.5" fill="#FF6B00" stroke="#0C0C0E" stroke-width="1.8" />
-                        <text x="{{ $pt['x'] }}" y="{{ $pt['y'] - 6 }}" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">
+                        <text x="{{ $pt['x'] }}" y="{{ $pt['y'] - 6 }}" fill="var(--xp-text)" font-size="10" font-weight="700" text-anchor="middle">
                             {{ $pt['goals'] }}
                         </text>
                         <text x="{{ $pt['x'] }}" y="112" fill="#A1A1A6" font-size="10" font-weight="600" text-anchor="middle">
@@ -306,7 +306,7 @@
                             <strong style="color:var(--xp-text);">{{ $compStats['over_15_pct'] }}% ({{ $compStats['over_15_count'] }})</strong>
                         </div>
                         <div style="width:100%;height:4px;background:#141418;border-radius:2px;overflow:hidden;">
-                            <div style="width:{{ $compStats['over_15_pct'] }}%;height:100%;background:#FFFFFF;"></div>
+                            <div style="width:{{ $compStats['over_15_pct'] }}%;height:100%;background:var(--xp-text);"></div>
                         </div>
                     </div>
 
@@ -340,13 +340,13 @@
                                     stroke-dasharray="{{ $compStats['donut']['away_dash'] }} 289" 
                                     stroke-dashoffset="{{ $compStats['donut']['away_offset'] }}" 
                                     transform="rotate(-90 70 70)" />
-                            <circle cx="70" cy="70" r="46" fill="none" stroke="#FFFFFF" stroke-width="22"
+                            <circle cx="70" cy="70" r="46" fill="none" stroke="var(--xp-text)" stroke-width="22"
                                     stroke-dasharray="{{ $compStats['donut']['draw_dash'] }} 289" 
                                     stroke-dashoffset="{{ $compStats['donut']['draw_offset'] }}" 
                                     transform="rotate(-90 70 70)" />
                         @endif
                         <circle cx="70" cy="70" r="34" fill="var(--xp-surface)" />
-                        <text x="70" y="68" fill="#FFFFFF" font-size="14" font-weight="700" text-anchor="middle">
+                        <text x="70" y="68" fill="var(--xp-text)" font-size="14" font-weight="700" text-anchor="middle">
                             {{ $compStats['finished'] }}
                         </text>
                         <text x="70" y="80" fill="#A1A1A6" font-size="8" font-weight="600" text-anchor="middle">
@@ -360,7 +360,7 @@
                             <span style="color:var(--xp-text);font-weight:600;">Home {{ $compStats['home_win_pct'] }}%</span> ({{ $compStats['home_wins'] }})
                         </span>
                         <span style="display:flex;align-items:center;gap:4px;">
-                            <span style="width:6px;height:6px;border-radius:2px;background:#FFFFFF;display:inline-block;"></span>
+                            <span style="width:6px;height:6px;border-radius:2px;background:var(--xp-text);display:inline-block;"></span>
                             <span style="color:var(--xp-text);font-weight:600;">Draw {{ $compStats['draw_pct'] }}%</span> ({{ $compStats['draws'] }})
                         </span>
                         <span style="display:flex;align-items:center;gap:4px;">

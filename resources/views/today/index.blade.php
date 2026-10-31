@@ -210,7 +210,7 @@
                                             <!-- Multi-segment visual bar -->
                                             <div style="width:100%;height:8px;background:#0C0C0E;border-radius:4px;overflow:hidden;display:flex;border:1px solid var(--xp-border-subtle);margin-bottom:6px;">
                                                 <div style="width:{{ $pred->p_home * 100 }}%;height:100%;background:var(--xp-orange);"></div>
-                                                <div style="width:{{ $pred->p_draw * 100 }}%;height:100%;background:#FFFFFF;"></div>
+                                                <div style="width:{{ $pred->p_draw * 100 }}%;height:100%;background:var(--xp-text);"></div>
                                                 <div style="width:{{ $pred->p_away * 100 }}%;height:100%;background:#6B6B70;"></div>
                                             </div>
 

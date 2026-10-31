@@ -61,6 +61,7 @@ class AllRoutesHealthTest extends TestCase
             'Man of the Match' => ['/motm', 'Man of the Match'],
             'System Health & Auditor' => ['/system-health', 'System Health'],
             'Settings' => ['/settings', 'Settings'],
+            'Themes' => ['/themes', 'Choose your theme'],
             'Model Changelog' => ['/changelog', 'Model Changelog'],
             'Technical Documentation' => ['/docs', 'Technical Documentation'],
         ];

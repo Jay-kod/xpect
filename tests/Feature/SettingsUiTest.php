@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class SettingsUiTest extends TestCase
@@ -81,5 +82,77 @@ class SettingsUiTest extends TestCase
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
+    }
+
+    public function test_settings_page_renders_test_key_buttons_and_feedback_elements(): void
+    {
+        $response = $this->get('/settings');
+
+        $response->assertStatus(200);
+        $response->assertSee('Test Key');
+        $response->assertSee('btn-test-key');
+        $response->assertSee('test-feedback-claude');
+        $response->assertSee('test-feedback-chatgpt');
+        $response->assertSee('test-feedback-gemini');
+        $response->assertSee('test-feedback-football_data');
+        $response->assertSee('test-feedback-api_football');
+    }
+
+    public function test_settings_test_key_endpoint_via_json(): void
+    {
+        Http::fake([
+            'https://generativelanguage.googleapis.com/*' => Http::response([
+                'candidates' => [
+                    ['content' => ['parts' => [['text' => 'pong']], 'role' => 'model']],
+                ],
+            ], 200),
+        ]);
+
+        $response = $this->postJson(route('settings.test-key'), [
+            'provider' => 'gemini',
+            'key' => 'AIzaSyTestValid123',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'provider' => 'gemini',
+            'is_valid' => true,
+            'status_code' => 200,
+        ]);
+        $response->assertJsonFragment(['is_valid' => true]);
+    }
+
+    public function test_settings_test_key_endpoint_via_form_redirect(): void
+    {
+        Http::fake([
+            'https://api.openai.com/v1/chat/completions' => Http::response([
+                'id' => 'chatcmpl-test',
+                'model' => 'gpt-4o-mini',
+                'choices' => [['message' => ['role' => 'assistant', 'content' => 'pong']]],
+            ], 200),
+        ]);
+
+        $response = $this->post(route('settings.test-key'), [
+            'provider' => 'chatgpt',
+            'key' => 'sk-proj-test-1234',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+    }
+
+    public function test_artisan_test_key_command(): void
+    {
+        Http::fake([
+            'https://generativelanguage.googleapis.com/*' => Http::response([
+                'candidates' => [
+                    ['content' => ['parts' => [['text' => 'pong']], 'role' => 'model']],
+                ],
+            ], 200),
+        ]);
+
+        $this->artisan('test:key', ['provider' => 'gemini', '--key' => 'AIzaSyTestCliKey'])
+            ->expectsOutputToContain('ACTIVE')
+            ->assertExitCode(0);
     }
 }

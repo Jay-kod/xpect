@@ -46,7 +46,11 @@ Route::post('/system-health/run', [SystemHealthController::class, 'runAudit'])->
 // Settings: API Credentials, Model Config & Maintenance Operations
 Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
 Route::post('/settings/keys', [SettingsController::class, 'updateKeys'])->name('settings.keys');
+Route::post('/settings/test-key', [SettingsController::class, 'testKey'])->name('settings.test-key');
 Route::post('/settings/action', [SettingsController::class, 'runAction'])->name('settings.action');
+
+// Themes: Browser-local appearance preferences
+Route::view('/themes', 'themes.index')->name('themes');
 
 // Model Changelog: Version History, Benchmarks & Releases
 Route::get('/changelog', [ChangelogController::class, 'index'])->name('changelog');

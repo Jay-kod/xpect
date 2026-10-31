@@ -9,6 +9,10 @@ No microservices, no queue server, no Redis in v1.
 - Tailwind CSS for styling and UI token definitions.
 - Blade (+ one small Vue 3 component) for the dev-only API inspector from
   Phase 1. The full UI waits until the model is proven (Phase 4).
+- The shared Blade layout defines appearance tokens and applies the browser's
+  selected theme; `/themes` stores built-in selection and custom palettes in
+  localStorage. Built-in presets are fixed; custom palettes support create,
+  edit, and delete without server-side or database persistence.
 - Claude API for previews (model name from `.env`).
 
 ## Local Docker development
@@ -283,3 +287,14 @@ expensive. Backups stay out of git.
 - Test that keys never appear in `api_calls`.
 - The backtest command is itself a regression check: record the metrics per
   `model_version` in `CHANGELOG.md`.
+
+## 16. Appearance preferences
+
+- `/themes` manages the four built-in palettes and browser-local custom palettes.
+- Built-in palettes are fixed. Custom palettes support creation, color editing,
+  saving, selection, and deletion; deleting the active custom palette falls back
+  to Pitch Black.
+- The shared layout validates stored colors as six-digit hex values and applies
+  the selected palette before rendering page styles. The default is Pitch Black.
+- Palette changes affect presentation only; they do not change prediction
+  calculations, match data, or model configuration.

@@ -71,6 +71,39 @@
             border-color: var(--xp-orange);
             box-shadow: 0 0 0 2px rgba(217, 78, 0, 0.2);
         }
+        .key-input-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .btn-test-key {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--xp-border);
+            color: var(--xp-text);
+            cursor: pointer;
+            border-radius: 6px;
+            padding: 7px 12px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+            transition: all 0.15s ease;
+        }
+        .btn-test-key:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--xp-orange);
+            color: var(--xp-orange);
+        }
+        .btn-test-key:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
         .form-hint {
             font-size: 11px;
             color: var(--xp-muted);
@@ -265,9 +298,16 @@
                             </span>
                         @endif
                     </label>
-                    <div class="key-input-wrapper">
-                        <input type="password" name="anthropic_key" placeholder="Enter sk-ant-... to update key">
+                    <div class="key-input-row">
+                        <div class="key-input-wrapper" style="flex:1;">
+                            <input type="password" id="input-anthropic-key" name="anthropic_key" placeholder="Enter sk-ant-... to update key">
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-test-key" data-provider="claude" data-target="input-anthropic-key" title="Test Anthropic Claude API Key">
+                            <span class="btn-spinner" style="display:none;width:10px;height:10px;border:2px solid var(--xp-border);border-top-color:var(--xp-orange);border-radius:50%;animation:spin 0.6s linear infinite;"></span>
+                            <span class="btn-label">Test Key</span>
+                        </button>
                     </div>
+                    <div id="test-feedback-claude" class="test-feedback-box" style="display:none;margin-top:5px;font-size:11px;padding:7px 11px;border-radius:6px;line-height:1.4;"></div>
                     <div class="form-hint">Powers Anthropic Claude match previews and detailed statistical breakdown explanations.</div>
                 </div>
 
@@ -288,9 +328,16 @@
                             </span>
                         @endif
                     </label>
-                    <div class="key-input-wrapper">
-                        <input type="password" name="openai_key" placeholder="Enter sk-proj-... to update key">
+                    <div class="key-input-row">
+                        <div class="key-input-wrapper" style="flex:1;">
+                            <input type="password" id="input-openai-key" name="openai_key" placeholder="Enter sk-proj-... to update key">
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-test-key" data-provider="chatgpt" data-target="input-openai-key" title="Test OpenAI ChatGPT API Key">
+                            <span class="btn-spinner" style="display:none;width:10px;height:10px;border:2px solid var(--xp-border);border-top-color:var(--xp-orange);border-radius:50%;animation:spin 0.6s linear infinite;"></span>
+                            <span class="btn-label">Test Key</span>
+                        </button>
                     </div>
+                    <div id="test-feedback-chatgpt" class="test-feedback-box" style="display:none;margin-top:5px;font-size:11px;padding:7px 11px;border-radius:6px;line-height:1.4;"></div>
                     <div class="form-hint">Powers OpenAI GPT-4o and o1 reasoning models for structured Poisson preview generation.</div>
                 </div>
 
@@ -311,9 +358,16 @@
                             </span>
                         @endif
                     </label>
-                    <div class="key-input-wrapper">
-                        <input type="password" name="gemini_key" placeholder="Enter AIzaSy... to update key">
+                    <div class="key-input-row">
+                        <div class="key-input-wrapper" style="flex:1;">
+                            <input type="password" id="input-gemini-key" name="gemini_key" placeholder="Enter AIzaSy... to update key">
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-test-key" data-provider="gemini" data-target="input-gemini-key" title="Test Google Gemini API Key">
+                            <span class="btn-spinner" style="display:none;width:10px;height:10px;border:2px solid var(--xp-border);border-top-color:var(--xp-orange);border-radius:50%;animation:spin 0.6s linear infinite;"></span>
+                            <span class="btn-label">Test Key</span>
+                        </button>
                     </div>
+                    <div id="test-feedback-gemini" class="test-feedback-box" style="display:none;margin-top:5px;font-size:11px;padding:7px 11px;border-radius:6px;line-height:1.4;"></div>
                     <div class="form-hint">Powers Google Gemini 1.5 Pro and 2.0 Flash for instant contextual commentary.</div>
                 </div>
 
@@ -336,9 +390,16 @@
                             </span>
                         @endif
                     </label>
-                    <div class="key-input-wrapper">
-                        <input type="password" name="football_data_key" placeholder="Enter football-data token to update">
+                    <div class="key-input-row">
+                        <div class="key-input-wrapper" style="flex:1;">
+                            <input type="password" id="input-football-data-key" name="football_data_key" placeholder="Enter football-data token to update">
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-test-key" data-provider="football_data" data-target="input-football-data-key" title="Test football-data.org API Token">
+                            <span class="btn-spinner" style="display:none;width:10px;height:10px;border:2px solid var(--xp-border);border-top-color:var(--xp-orange);border-radius:50%;animation:spin 0.6s linear infinite;"></span>
+                            <span class="btn-label">Test Key</span>
+                        </button>
                     </div>
+                    <div id="test-feedback-football_data" class="test-feedback-box" style="display:none;margin-top:5px;font-size:11px;padding:7px 11px;border-radius:6px;line-height:1.4;"></div>
                     <div class="form-hint">Used for live matchday fixtures and automatic result synchronization.</div>
                 </div>
 
@@ -358,9 +419,16 @@
                             </span>
                         @endif
                     </label>
-                    <div class="key-input-wrapper">
-                        <input type="password" name="api_football_key" placeholder="Enter API-Football key to update">
+                    <div class="key-input-row">
+                        <div class="key-input-wrapper" style="flex:1;">
+                            <input type="password" id="input-api-football-key" name="api_football_key" placeholder="Enter API-Football key to update">
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-test-key" data-provider="api_football" data-target="input-api-football-key" title="Test API-Football Key">
+                            <span class="btn-spinner" style="display:none;width:10px;height:10px;border:2px solid var(--xp-border);border-top-color:var(--xp-orange);border-radius:50%;animation:spin 0.6s linear infinite;"></span>
+                            <span class="btn-label">Test Key</span>
+                        </button>
                     </div>
+                    <div id="test-feedback-api_football" class="test-feedback-box" style="display:none;margin-top:5px;font-size:11px;padding:7px 11px;border-radius:6px;line-height:1.4;"></div>
                     <div class="form-hint">Used for secondary lineup validation and team metadata enrichment.</div>
                 </div>
 
@@ -517,6 +585,87 @@
         document.addEventListener('DOMContentLoaded', () => {
             const current = document.getElementById('ai_provider_select').value;
             updateProviderModels(current);
+
+            // Setup API Key testing buttons
+            document.querySelectorAll('.btn-test-key').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const provider = btn.getAttribute('data-provider');
+                    const targetId = btn.getAttribute('data-target');
+                    const feedbackEl = document.getElementById('test-feedback-' + provider);
+                    const inputEl = document.getElementById(targetId);
+                    const spinner = btn.querySelector('.btn-spinner');
+                    const label = btn.querySelector('.btn-label');
+
+                    const candidateKey = inputEl ? inputEl.value.trim() : '';
+
+                    // UI Loading state
+                    btn.disabled = true;
+                    if (spinner) spinner.style.display = 'inline-block';
+                    if (label) label.textContent = 'Testing...';
+
+                    if (feedbackEl) {
+                        feedbackEl.style.display = 'block';
+                        feedbackEl.style.background = 'rgba(255,255,255,0.04)';
+                        feedbackEl.style.border = '1px solid var(--xp-border)';
+                        feedbackEl.style.color = 'var(--xp-muted)';
+                        feedbackEl.innerHTML = `Sending verification probe to <strong>${provider}</strong> endpoint...`;
+                    }
+
+                    try {
+                        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') 
+                            || document.querySelector('input[name="_token"]')?.value;
+
+                        const res = await fetch("{{ route('settings.test-key') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': token,
+                            },
+                            body: JSON.stringify({
+                                provider: provider,
+                                key: candidateKey,
+                            }),
+                        });
+
+                        const data = await res.json();
+
+                        if (data.is_valid) {
+                            feedbackEl.style.background = 'rgba(61,220,132,0.12)';
+                            feedbackEl.style.border = '1px solid rgba(61,220,132,0.3)';
+                            feedbackEl.style.color = 'var(--xp-ok)';
+                            let html = `<strong>✓ Active &amp; Verified (HTTP ${data.status_code}, ${data.duration_ms}ms)</strong>: ${data.message}`;
+                            if (data.details) {
+                                html += `<div style="margin-top:3px;font-size:10.5px;color:rgba(255,255,255,0.7);">${data.details}</div>`;
+                            }
+                            if (candidateKey) {
+                                html += `<div style="margin-top:4px;font-size:10.5px;color:var(--xp-orange);font-weight:600;">Remember to click &ldquo;Save Credentials&rdquo; below to persist this key into .env.</div>`;
+                            }
+                            feedbackEl.innerHTML = html;
+                        } else {
+                            feedbackEl.style.background = 'rgba(255,90,95,0.12)';
+                            feedbackEl.style.border = '1px solid rgba(255,90,95,0.3)';
+                            feedbackEl.style.color = 'var(--xp-danger)';
+                            let html = `<strong>✕ Verification Failed (HTTP ${data.status_code || 0}, ${data.duration_ms || 0}ms)</strong>: ${data.message}`;
+                            if (data.details && data.details !== data.message) {
+                                html += `<div style="margin-top:3px;font-size:10.5px;color:rgba(255,255,255,0.7);">${data.details}</div>`;
+                            }
+                            feedbackEl.innerHTML = html;
+                        }
+                    } catch (err) {
+                        if (feedbackEl) {
+                            feedbackEl.style.background = 'rgba(255,90,95,0.12)';
+                            feedbackEl.style.border = '1px solid rgba(255,90,95,0.3)';
+                            feedbackEl.style.color = 'var(--xp-danger)';
+                            feedbackEl.innerHTML = `<strong>✕ Connection Error</strong>: ${err.message || 'Failed to communicate with verification endpoint.'}`;
+                        }
+                    } finally {
+                        btn.disabled = false;
+                        if (spinner) spinner.style.display = 'none';
+                        if (label) label.textContent = 'Test Key';
+                    }
+                });
+            });
         });
     </script>
 </x-layouts.app>

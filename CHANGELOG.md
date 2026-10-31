@@ -4,6 +4,35 @@ All notable changes to Xpect will be documented in this file.
 
 ## [Unreleased]
 
+### [Live API Key Verification Engine & Testing System] - 2026-10-31
+#### Added
+- **API Key Verification Engine (`App\Services\Api\ApiKeyTesterService`):**
+  - Built single-purpose testing service verifying external API keys across all 5 supported providers:
+    - **Anthropic Claude:** Validates against `POST https://api.anthropic.com/v1/messages` with model `claude-3-5-haiku-latest`.
+    - **OpenAI ChatGPT:** Validates against `POST https://api.openai.com/v1/chat/completions` with model `gpt-4o-mini`.
+    - **Google Gemini:** Validates against `POST https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`.
+    - **football-data.org:** Validates token against `GET https://api.football-data.org/v4/competitions/PL` and reports minute quota status.
+    - **API-Football (api-sports):** Validates key against `GET https://v3.football.api-sports.io/status`, reporting plan name, account email, and daily request usage.
+  - All calls routed through `LoggedHttpClient` with `fresh: true`, secret header redaction, and persistence to `api_calls`.
+- **Artisan Console Command (`php artisan test:key`):**
+  - Added CLI command `php artisan test:key {provider=all} {--key=} {--json}` allowing instant verification of individual or all API keys directly from the terminal.
+- **Interactive Settings UI Testing Controls (`resources/views/settings/index.blade.php`):**
+  - Added "Test Key" action buttons alongside every API key input field.
+  - Added asynchronous testing flow (`POST /settings/test-key`) with animated spinners, HTTP status, response latency, and clear success/failure error messages.
+  - Added test key support for candidate keys before persisting them to `.env`.
+- **Unit and Feature Test Suites:**
+  - Added `tests/Unit/ApiKeyTesterServiceTest.php` covering all providers for both valid, invalid, and missing key states with `Http::fake()`.
+  - Expanded `tests/Feature/SettingsUiTest.php` verifying UI buttons, JSON endpoint, form post redirect, and CLI command execution.
+  - Full suite verified: 142 tests, 720 assertions passing (0 failures). `php artisan audit:data` clean across all 8 domains.
+
+### [Selectable Page Themes] - 2026-10-31
+#### Added
+- Added a sidebar-linked `/themes` page with Pitch Black, Obsidian, Midnight, and Light built-in palettes.
+- Added browser-local custom palette creation, color editing, saving, selection, and deletion; built-in palettes remain fixed.
+- Deleting the active custom palette returns the app to Pitch Black. Theme changes do not affect match or prediction data.
+- Added feature coverage for theme controls, browser-local storage behavior, built-in palettes, and route health.
+- Verified: Theme feature test passes (1 test, 17 assertions), route health tests pass (10 tests, 20 assertions), and the full Docker suite passes (142 tests, 720 assertions) with `AI_PROVIDER=anthropic` to match existing preview fakes. The live `/themes` route returns HTTP 200.
+
 ### [Settings Redesign & Multi-LLM Provider Architecture] - 2026-10-31
 #### Added
 - **Multi-LLM Provider Architecture (Claude, ChatGPT, Gemini):**

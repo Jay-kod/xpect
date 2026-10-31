@@ -14,13 +14,139 @@
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('brand/favicon-32x32.png') }}">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('brand/favicon-16x16.png') }}">
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+    <script>
+        const XPECT_THEME_STORAGE_KEY = 'xpect-theme';
+        const XPECT_CUSTOM_THEMES_STORAGE_KEY = 'xpect-custom-themes';
+        const XPECT_THEME_COLORS = Object.freeze({
+            page: '--xp-black',
+            sidebar: '--xp-sidebar',
+            surface: '--xp-surface',
+            surfaceHover: '--xp-surface-hover',
+            surfaceActive: '--xp-surface-active',
+            border: '--xp-border',
+            borderSubtle: '--xp-border-subtle',
+            borderLight: '--xp-border-light',
+            text: '--xp-text',
+            muted: '--xp-muted',
+            away: '--xp-away',
+            accent: '--xp-orange',
+            accentHover: '--xp-orange-hover',
+            accentPress: '--xp-orange-press',
+        });
+        const XPECT_THEME_PRESETS = [
+            {
+                id: 'pitch-black',
+                name: 'Pitch Black',
+                description: 'The original deep-black Xpect look.',
+                mode: 'dark',
+                colors: {
+                    page: '#000000', sidebar: '#070709', surface: '#0C0C0E',
+                    surfaceHover: '#141417', surfaceActive: '#1A1A1E',
+                    border: '#1E1E22', borderSubtle: '#131315', borderLight: '#2A2A30',
+                    text: '#FFFFFF', muted: '#A1A1A6', away: '#6B6B70',
+                    accent: '#D94E00', accentHover: '#E85B07', accentPress: '#BC4300',
+                },
+            },
+            {
+                id: 'obsidian',
+                name: 'Obsidian',
+                description: 'A softer charcoal dark palette.',
+                mode: 'dark',
+                colors: {
+                    page: '#121416', sidebar: '#101214', surface: '#1B1E22',
+                    surfaceHover: '#252A30', surfaceActive: '#30363D',
+                    border: '#353B43', borderSubtle: '#252A30', borderLight: '#444B55',
+                    text: '#F3F4F6', muted: '#B4BAC3', away: '#8A929E',
+                    accent: '#D94E00', accentHover: '#E85B07', accentPress: '#BC4300',
+                },
+            },
+            {
+                id: 'midnight',
+                name: 'Midnight',
+                description: 'A cool, blue-tinted dark palette.',
+                mode: 'dark',
+                colors: {
+                    page: '#07111F', sidebar: '#091525', surface: '#0E1E31',
+                    surfaceHover: '#152944', surfaceActive: '#1C3555',
+                    border: '#203B5D', borderSubtle: '#152A42', borderLight: '#345271',
+                    text: '#F2F7FC', muted: '#B4C7D9', away: '#829AB2',
+                    accent: '#D94E00', accentHover: '#E85B07', accentPress: '#BC4300',
+                },
+            },
+            {
+                id: 'light',
+                name: 'Light',
+                description: 'A bright neutral palette with Xpect orange accents.',
+                mode: 'light',
+                colors: {
+                    page: '#F3F5F7', sidebar: '#E9EDF2', surface: '#FFFFFF',
+                    surfaceHover: '#F0F2F5', surfaceActive: '#E5E9EE',
+                    border: '#D8DEE7', borderSubtle: '#E9EDF2', borderLight: '#C2CBD6',
+                    text: '#1A2028', muted: '#4C5662', away: '#626D79',
+                    accent: '#D94E00', accentHover: '#E85B07', accentPress: '#BC4300',
+                },
+            },
+        ];
+        const isXpectHexColor = (value) => typeof value === 'string' && /^#[0-9A-Fa-f]{6}$/.test(value);
+        const isXpectTheme = (theme) => theme
+            && typeof theme.id === 'string'
+            && typeof theme.name === 'string'
+            && ['dark', 'light'].includes(theme.mode)
+            && theme.colors
+            && Object.keys(XPECT_THEME_COLORS).every((key) => isXpectHexColor(theme.colors[key]));
+        let xpectCustomThemes = [];
+        try {
+            const storedThemes = JSON.parse(window.localStorage.getItem(XPECT_CUSTOM_THEMES_STORAGE_KEY) || '[]');
+            if (Array.isArray(storedThemes)) {
+                xpectCustomThemes = storedThemes.filter((theme) => isXpectTheme(theme) && theme.id.startsWith('custom-'));
+            }
+        } catch (error) {
+            console.warn('Unable to load saved Xpect themes from browser storage.', error);
+        }
+        const getXpectThemes = () => [...XPECT_THEME_PRESETS, ...xpectCustomThemes];
+        const savedThemeId = window.localStorage.getItem(XPECT_THEME_STORAGE_KEY);
+        const initialTheme = getXpectThemes().find((theme) => theme.id === savedThemeId) || XPECT_THEME_PRESETS[0];
+        const applyXpectTheme = (theme) => {
+            document.documentElement.dataset.theme = theme.id;
+            document.documentElement.dataset.themeMode = theme.mode;
+            document.documentElement.style.colorScheme = theme.mode;
+            Object.entries(XPECT_THEME_COLORS).forEach(([key, variable]) => {
+                document.documentElement.style.setProperty(variable, theme.colors[key]);
+            });
+        };
+        applyXpectTheme(initialTheme);
+        window.XpectThemeManager = Object.freeze({
+            presets: XPECT_THEME_PRESETS,
+            colors: XPECT_THEME_COLORS,
+            getThemes: getXpectThemes,
+            getActiveTheme: () => getXpectThemes().find((theme) => theme.id === document.documentElement.dataset.theme) || XPECT_THEME_PRESETS[0],
+            activate: (themeId) => {
+                const theme = getXpectThemes().find((candidate) => candidate.id === themeId);
+                if (!theme) {
+                    throw new Error('The selected Xpect theme is unavailable.');
+                }
+                window.localStorage.setItem(XPECT_THEME_STORAGE_KEY, theme.id);
+                applyXpectTheme(theme);
+            },
+            saveCustomThemes: (themes) => {
+                if (!Array.isArray(themes) || !themes.every((theme) => isXpectTheme(theme) && theme.id.startsWith('custom-'))) {
+                    throw new Error('Custom theme data is invalid.');
+                }
+                window.localStorage.setItem(XPECT_CUSTOM_THEMES_STORAGE_KEY, JSON.stringify(themes));
+                xpectCustomThemes = themes;
+            },
+        });
+    </script>
     <style>
         :root {
+            color-scheme: dark;
+
             /* Canonical UI_GUIDELINES.md Tokens (Darker burnt orange & pitch black) */
             --xp-orange: #D94E00;
             --xp-orange-hover: #E85B07;
             --xp-orange-press: #BC4300;
             --xp-black: #000000;
+            --xp-sidebar: #070709;
             --xp-surface: #0C0C0E;
             --xp-surface-hover: #141417;
             --xp-surface-active: #1A1A1E;
@@ -32,6 +158,14 @@
             --xp-away: #6B6B70;
             --xp-ok: #3DDC84;
             --xp-error: #FF4D4D;
+            --theme-preview-pitch-page: #000000;
+            --theme-preview-pitch-surface: #0C0C0E;
+            --theme-preview-obsidian-page: #121416;
+            --theme-preview-obsidian-surface: #1B1E22;
+            --theme-preview-midnight-page: #07111F;
+            --theme-preview-midnight-surface: #0E1E31;
+            --theme-preview-light-page: #F3F5F7;
+            --theme-preview-light-surface: #FFFFFF;
 
             /* Compatibility aliases mapped directly to canonical tokens */
             --text-primary: var(--xp-text);
@@ -68,7 +202,7 @@
             background: transparent;
         }
         ::-webkit-scrollbar-thumb {
-            background: #222227;
+            background: var(--xp-border-light);
             border-radius: 9999px;
             transition: background 0.15s ease;
         }
@@ -79,7 +213,7 @@
         /* Firefox Scrollbar */
         * {
             scrollbar-width: thin;
-            scrollbar-color: #222227 transparent;
+            scrollbar-color: var(--xp-border-light) transparent;
         }
         body {
             background-color: var(--xp-black);
@@ -92,6 +226,7 @@
             display: flex;
             overflow-x: clip;
         }
+        html[data-theme-mode="light"] body { background-image: none; }
 
         h1, h2, h3, h4, .card-title, .kpi-value, .sidebar-brand {
             font-family: 'Space Grotesk', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -103,7 +238,7 @@
         .sidebar {
             width: 244px;
             min-width: 244px;
-            background: #070709;
+            background: var(--xp-sidebar);
             border-right: 1px solid var(--xp-border);
             height: 100vh;
             position: sticky;
@@ -155,7 +290,7 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.08em;
-            color: #63636C;
+            color: var(--xp-muted);
             padding: 12px 8px 5px 8px;
         }
 
@@ -207,9 +342,9 @@
         .nav-tag {
             font-size: 9px;
             font-weight: 700;
-            color: #6E6E78;
+            color: var(--xp-muted);
             background: rgba(255, 255, 255, 0.03);
-            border: 1px solid #1E1E24;
+            border: 1px solid var(--xp-border);
             padding: 1px 5px;
             border-radius: 4px;
             letter-spacing: 0.04em;
@@ -222,7 +357,7 @@
         }
         .sidebar-link:hover .nav-tag {
             color: var(--xp-text);
-            border-color: #383842;
+            border-color: var(--xp-border-light);
         }
 
         .status-dot {
@@ -436,7 +571,7 @@
 
         /* Form elements */
         .select-pill {
-            background: #101012;
+            background: var(--xp-surface-hover);
             border: 1px solid var(--xp-border);
             border-radius: 6px;
             padding: 5px 10px;
@@ -450,7 +585,7 @@
             border-color: var(--xp-orange);
         }
         .form-control {
-            background: #101012;
+            background: var(--xp-surface-hover);
             border: 1px solid var(--xp-border);
             border-radius: 6px;
             padding: 7px 10px;
@@ -525,7 +660,7 @@
         }
         table { width: 100%; border-collapse: collapse; text-align: left; }
         th {
-            background: #101012;
+            background: var(--xp-surface-hover);
             padding: 10px 14px;
             font-size: 11px;
             text-transform: uppercase;
@@ -563,7 +698,7 @@
         }
 
         .xp-skeleton {
-            background: linear-gradient(90deg, #101014 25%, #1d1d26 37%, #101014 63%);
+            background: linear-gradient(90deg, var(--xp-surface-hover) 25%, var(--xp-surface-active) 37%, var(--xp-surface-hover) 63%);
             background-size: 400% 100%;
             animation: xp-shimmer 1.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
             border-radius: 4px;
@@ -626,6 +761,195 @@
             filter: blur(0.3px);
             pointer-events: none;
             transition: opacity 0.15s ease;
+        }
+
+        .theme-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 14px;
+        }
+        .theme-card {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 0;
+        }
+        .theme-manager-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .theme-manager-message {
+            min-height: 20px;
+            margin-bottom: 12px;
+            color: var(--xp-muted);
+        }
+        .theme-option-actions,
+        .theme-editor-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            width: 100%;
+        }
+        .theme-editor {
+            margin-top: 16px;
+        }
+        .theme-editor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 12px;
+            margin: 14px 0;
+        }
+        .theme-color-field {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            min-height: 48px;
+            padding: 7px 10px;
+            color: var(--xp-text);
+            background: var(--xp-surface-hover);
+            border: 1px solid var(--xp-border);
+            border-radius: 6px;
+        }
+        .theme-color-field input[type="color"] {
+            width: 40px;
+            height: 34px;
+            padding: 2px;
+            background: var(--xp-surface);
+            border: 1px solid var(--xp-border);
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .theme-contrast-warning {
+            margin: 8px 0 12px;
+            color: var(--xp-orange);
+        }
+        .theme-description {
+            color: var(--xp-muted);
+            font-size: 12px;
+        }
+        @media (max-width: 640px) {
+            .theme-manager-header { flex-direction: column; }
+        }
+        .theme-option {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            padding: 14px;
+            text-align: left;
+            color: var(--xp-text);
+            background: var(--xp-surface);
+            border: 1px solid var(--xp-border);
+            border-radius: 9px;
+            cursor: pointer;
+            transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+        }
+        .theme-option:hover {
+            border-color: var(--xp-border-light);
+            transform: translateY(-2px);
+        }
+        .theme-option[aria-pressed="true"] {
+            border-color: var(--xp-orange);
+            box-shadow: 0 0 0 1px var(--xp-orange);
+        }
+        .theme-swatch {
+            --preview-page: var(--theme-preview-pitch-page);
+            --preview-surface: var(--theme-preview-pitch-surface);
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            gap: 7px;
+            height: 100px;
+            padding: 12px;
+            overflow: hidden;
+            background: var(--preview-page);
+            border: 1px solid var(--xp-border);
+            border-radius: 6px;
+        }
+        .theme-swatch[data-preview="obsidian"] {
+            --preview-page: var(--theme-preview-obsidian-page);
+            --preview-surface: var(--theme-preview-obsidian-surface);
+        }
+        .theme-swatch[data-preview="midnight"] {
+            --preview-page: var(--theme-preview-midnight-page);
+            --preview-surface: var(--theme-preview-midnight-surface);
+        }
+        .theme-swatch[data-preview="light"] {
+            --preview-page: var(--theme-preview-light-page);
+            --preview-surface: var(--theme-preview-light-surface);
+        }
+        .theme-swatch-panel {
+            width: 58%;
+            height: 70%;
+            background: var(--preview-surface);
+            border: 1px solid var(--xp-border);
+            border-radius: 4px;
+        }
+        .theme-swatch-accent {
+            width: 22%;
+            height: 35%;
+            background: var(--preview-accent, var(--xp-orange));
+            border-radius: 4px;
+        }
+        .theme-option-copy {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .theme-option-title { font-size: 14px; font-weight: 700; }
+        .theme-option-description { font-size: 12px; color: var(--xp-muted); }
+        .theme-option-status {
+            min-height: 16px;
+            color: var(--xp-orange);
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .theme-storage-note {
+            margin-top: 16px;
+            padding: 12px 14px;
+            color: var(--xp-muted);
+            background: var(--xp-surface-hover);
+            border: 1px solid var(--xp-border);
+            border-radius: 7px;
+        }
+
+        html[data-theme-mode="light"] [style*="background:#0c0c0e" i],
+        html[data-theme-mode="light"] [style*="background: #0c0c0e" i],
+        html[data-theme-mode="light"] [style*="background-color:#0c0c0e" i],
+        html[data-theme-mode="light"] [style*="background-color: #0c0c0e" i],
+        html[data-theme-mode="light"] [style*="background:#09090c" i],
+        html[data-theme-mode="light"] [style*="background: #09090c" i],
+        html[data-theme-mode="light"] [style*="background:#09090b" i],
+        html[data-theme-mode="light"] [style*="background: #09090b" i],
+        html[data-theme-mode="light"] [style*="background:#070709" i],
+        html[data-theme-mode="light"] [style*="background: #070709" i],
+        html[data-theme-mode="light"] [style*="background:#08080a" i],
+        html[data-theme-mode="light"] [style*="background: #08080a" i],
+        html[data-theme-mode="light"] [style*="background:#060608" i],
+        html[data-theme-mode="light"] [style*="background: #060608" i],
+        html[data-theme-mode="light"] [style*="background:#101012" i],
+        html[data-theme-mode="light"] [style*="background: #101012" i],
+        html[data-theme-mode="light"] [style*="background:#141418" i],
+        html[data-theme-mode="light"] [style*="background: #141418" i],
+        html[data-theme-mode="light"] [style*="background:#18181c" i],
+        html[data-theme-mode="light"] [style*="background: #18181c" i],
+        html[data-theme-mode="light"] [style*="background:#16161a" i],
+        html[data-theme-mode="light"] [style*="background: #16161a" i],
+        html[data-theme-mode="light"] [style*="background:#16161c" i],
+        html[data-theme-mode="light"] [style*="background: #16161c" i],
+        html[data-theme-mode="light"] [style*="background:#000000" i],
+        html[data-theme-mode="light"] [style*="background: #000000" i] {
+            background: var(--xp-surface) !important;
+        }
+        html[data-theme-mode="light"] [style*="color:#ffffff" i],
+        html[data-theme-mode="light"] [style*="color: #ffffff" i],
+        html[data-theme-mode="light"] [style*="color:#fff" i],
+        html[data-theme-mode="light"] [style*="color: #fff" i] {
+            color: var(--xp-text) !important;
         }
     </style>
 </head>
@@ -818,6 +1142,18 @@
                         <span>Settings</span>
                     </div>
                     <span class="nav-tag">CFG</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('themes') }}" class="sidebar-link {{ request()->routeIs('themes') ? 'active' : '' }}">
+                    <div class="sidebar-link-content">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M12 2a4 4 0 0 0 0 8h1a2 2 0 0 1 0 4h-1a4 4 0 0 0 0 8"></path>
+                        </svg>
+                        <span>Themes</span>
+                    </div>
+                    <span class="nav-tag">UI</span>
                 </a>
             </li>
             <li>

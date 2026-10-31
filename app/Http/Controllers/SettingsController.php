@@ -8,6 +8,8 @@ use App\Models\ApiCall;
 use App\Models\FootballMatch;
 use App\Models\Prediction;
 use App\Models\PredictionEvaluation;
+use App\Services\Api\ApiKeyTesterService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -178,6 +180,32 @@ class SettingsController extends Controller
         file_put_contents($envFile, $content);
 
         return back()->with('success', 'API credentials, AI provider, and model parameters updated in .env successfully.');
+    }
+
+    /**
+     * Test whether an API key is valid and active.
+     */
+    public function testKey(Request $request, ApiKeyTesterService $tester): JsonResponse|RedirectResponse
+    {
+        $validated = $request->validate([
+            'provider' => 'required|string|in:claude,chatgpt,gemini,anthropic,openai,google,football_data,footballdata,football-data,api_football,apifootball,api-football',
+            'key' => 'nullable|string|max:200',
+        ]);
+
+        $provider = $validated['provider'];
+        $key = !empty($validated['key']) ? trim($validated['key']) : null;
+
+        $result = $tester->testKey($provider, $key);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json($result->toArray(), $result->isValid ? 200 : 422);
+        }
+
+        if ($result->isValid) {
+            return back()->with('success', $result->message . ($result->details ? " ({$result->details})" : ''));
+        }
+
+        return back()->with('error', $result->message);
     }
 
     /**

@@ -64,7 +64,7 @@ Not hosted. Not multi-user. No monetization. Built for the owner's personal use.
 | Persistence | Everything saved: raw API calls, LLM prompts and responses, predictions, evaluations |
 | Interface | Artisan commands first; dev-only API inspector from Phase 1; full UI after the model is proven |
 | Agent IDE | Antigravity, driven by `AGENTS.md` and `TODO.md` |
-| Theme | orange and black, bright and sharp (UI_GUIDELINES.md) |
+| Theme | Xpect orange accents with selectable page palettes (UI_GUIDELINES.md); the default remains pitch-black |
 
 ## 6. Data sources
 
@@ -639,4 +639,36 @@ Template:
   - Expanded `tests/Feature/SettingsUiTest.php` to verify all 5 direct portal links render in the view.
 - Verified: All 125 unit and feature tests pass (637 assertions); `php artisan audit:data` clean across all 8 domains (zero data leakage). Dev server running at `http://127.0.0.1:8080`.
 
+### Session 45: Selectable Page Themes (2026-10-31)
+- Done: Added a sidebar-linked Themes page with Pitch Black, Obsidian, Midnight, and Light palettes.
+  - Shared layout tokens apply the chosen appearance throughout the app, and browser localStorage remembers the choice.
+  - Added a feature test and documented the theme choices and browser-local persistence.
+- Decisions made: Keep the Xpect orange accent and semantic match/status colors; theme selection changes page and surface colors only. No database or prediction changes.
+- Verified or changed versus the docs: Updated UI guidelines, architecture, README, TODO, and CHANGELOG for selectable palettes. `/themes` returns HTTP 200 and renders all four options. Docker suite passes 127 tests (649 assertions) with `AI_PROVIDER=anthropic`; without that override, three existing preview tests fail because their HTTP fakes target Anthropic while the environment selects Gemini.
+- Stopped at: Theme page implementation and test verification.
+- Next: Confirm API-Football daily quota and reset time when a key is available.
 
+### Session 46: Custom Theme Manager (2026-10-31)
+- Done: Expanded `/themes` with browser-local custom palette creation, editing, saving, selection, and deletion.
+  - Added color controls for page/sidebar/surfaces/borders/text/chart gray and orange accent states.
+  - Kept built-in palettes fixed; deleting the active custom theme falls back to Pitch Black.
+- Decisions made: Theme settings remain local to the current browser, with no server/database persistence.
+- Verified or changed versus the docs: Updated UI guidelines, architecture, README, TODO, and CHANGELOG for user-managed custom palettes. Theme feature test passed (1 test, 17 assertions), route health tests passed (10 tests, 20 assertions), full Docker suite passed (142 tests, 720 assertions) with `AI_PROVIDER=anthropic`, JavaScript syntax checks passed, and live `/themes` returned HTTP 200.
+- Stopped at: Custom theme manager; verification complete.
+- Next: Confirm API-Football daily quota and reset time when a key is available.
+
+### Session 47: Live API Key Verification Engine & Testing System (2026-10-31)
+- Done: Implemented live API key testing mechanism so user can immediately verify if a configured or typed API key is active:
+  - Created single-purpose service `App\Services\Api\ApiKeyTesterService` with DTO `App\Services\Api\ApiKeyTestResult` verifying:
+    - Anthropic Claude: `POST /messages` via `claude-3-5-haiku-latest`.
+    - OpenAI ChatGPT: `POST /chat/completions` via `gpt-4o-mini`.
+    - Google Gemini: `POST /models/gemini-1.5-flash:generateContent`.
+    - football-data.org: `GET /competitions/PL` with rate header extraction.
+    - API-Football: `GET /status` with plan, email, and quota usage extraction.
+  - All calls routed through `LoggedHttpClient` with `fresh: true`, secret header redaction, and persistence to `api_calls`.
+  - Added CLI command `php artisan test:key {provider=all} {--key=} {--json}`.
+  - Added AJAX route `POST /settings/test-key` in `SettingsController`.
+  - Added interactive "Test Key" buttons and feedback containers in `resources/views/settings/index.blade.php`.
+  - Added unit test suite `tests/Unit/ApiKeyTesterServiceTest.php` and expanded feature tests in `tests/Feature/SettingsUiTest.php`.
+- Verified: All 142 tests passing (720 assertions); `php artisan audit:data` clean across 8/8 domains (0 warnings, 0 failures, zero data leakage). Dev server running at `http://127.0.0.1:8080`.
+- Next: Confirm API-Football daily quota and reset time when a key is available.
