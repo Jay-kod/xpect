@@ -781,6 +781,11 @@
             gap: 16px;
             margin-bottom: 20px;
         }
+        .theme-header-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
         .theme-manager-message {
             min-height: 20px;
             margin-bottom: 12px;
@@ -833,6 +838,7 @@
         }
         @media (max-width: 640px) {
             .theme-manager-header { flex-direction: column; }
+            .theme-header-actions { width: 100%; }
         }
         .theme-option {
             display: flex;

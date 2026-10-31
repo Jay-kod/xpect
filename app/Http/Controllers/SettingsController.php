@@ -54,7 +54,7 @@ class SettingsController extends Controller
             'openai_model' => (string) env('OPENAI_MODEL', 'gpt-4o'),
             'gemini_key' => $this->maskSecret((string) env('GEMINI_API_KEY')),
             'gemini_has_key' => !empty(env('GEMINI_API_KEY')),
-            'gemini_model' => (string) env('GEMINI_MODEL', 'gemini-1.5-pro'),
+            'gemini_model' => (string) env('GEMINI_MODEL', 'gemini-3.8-flash'),
             'football_data_key' => $this->maskSecret((string) env('FOOTBALL_DATA_API_KEY')),
             'football_data_has_key' => !empty(env('FOOTBALL_DATA_API_KEY')),
             'api_football_key' => $this->maskSecret((string) env('API_FOOTBALL_KEY')),
@@ -88,12 +88,12 @@ class SettingsController extends Controller
             'gemini' => [
                 'name' => 'Gemini (Google)',
                 'badge' => 'Google Gemini',
-                'description' => 'Gemini 1.5 Pro & 2.0 Flash with low latency & complex contextual summarization.',
-                'default_model' => 'gemini-1.5-pro',
+                'description' => 'Gemini 3.8 Flash & 3 Pro with ultra-low latency & deep statistical summarization.',
+                'default_model' => 'gemini-3.8-flash',
                 'models' => [
-                    'gemini-1.5-pro' => 'gemini-1.5-pro (Flagship Complex Reasoning)',
-                    'gemini-1.5-flash' => 'gemini-1.5-flash (High Speed & Low Latency)',
-                    'gemini-2.0-flash' => 'gemini-2.0-flash (Next-Gen Experimental)',
+                    'gemini-3.8-flash' => 'gemini-3.8-flash (Recommended - High Speed & Reasoning)',
+                    'gemini-3-flash-preview' => 'gemini-3-flash-preview (Ultra-Fast Preview)',
+                    'gemini-3-pro-preview' => 'gemini-3-pro-preview (Flagship Deep Reasoning)',
                 ],
             ],
         ];

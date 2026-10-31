@@ -81,3 +81,4 @@ class TestApiKeyCommand extends Command
         return $hasFailure ? self::FAILURE : self::SUCCESS;
     }
 }
+

@@ -11,7 +11,8 @@ No microservices, no queue server, no Redis in v1.
   Phase 1. The full UI waits until the model is proven (Phase 4).
 - The shared Blade layout defines appearance tokens and applies the browser's
   selected theme; `/themes` stores built-in selection and custom palettes in
-  localStorage. Built-in presets are fixed; custom palettes support create,
+  localStorage. Built-in presets are fixed; the active preset can be edited in
+  a live preview and saved as a custom copy. Custom palettes support create,
   edit, and delete without server-side or database persistence.
 - Claude API for previews (model name from `.env`).
 
@@ -294,6 +295,8 @@ expensive. Backups stay out of git.
 - Built-in palettes are fixed. Custom palettes support creation, color editing,
   saving, selection, and deletion; deleting the active custom palette falls back
   to Pitch Black.
+- Editing the current built-in palette previews changes live and saves them as
+  a new custom palette; it never overwrites the preset.
 - The shared layout validates stored colors as six-digit hex values and applies
   the selected palette before rendering page styles. The default is Pitch Black.
 - Palette changes affect presentation only; they do not change prediction

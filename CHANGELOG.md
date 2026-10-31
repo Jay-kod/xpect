@@ -4,13 +4,19 @@ All notable changes to Xpect will be documented in this file.
 
 ## [Unreleased]
 
+### [Live Current Theme Editing] - 2026-10-31
+#### Added
+- Added an **Edit current theme** action with live palette preview.
+- Editing a built-in preset saves changes as a new custom copy, preserving the fixed preset; the active custom theme opens in its existing editor.
+- Added feature coverage for the current-theme editor action and built-in copy behavior.
+
 ### [Live API Key Verification Engine & Testing System] - 2026-10-31
 #### Added
 - **API Key Verification Engine (`App\Services\Api\ApiKeyTesterService`):**
   - Built single-purpose testing service verifying external API keys across all 5 supported providers:
     - **Anthropic Claude:** Validates against `POST https://api.anthropic.com/v1/messages` with model `claude-3-5-haiku-latest`.
     - **OpenAI ChatGPT:** Validates against `POST https://api.openai.com/v1/chat/completions` with model `gpt-4o-mini`.
-    - **Google Gemini:** Validates against `POST https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`.
+    - **Google Gemini:** Upgraded from deprecated `gemini-2.5-flash` to active `gemini-3.8-flash` with graceful fallback to `gemini-3-flash-preview` for high demand resilience. Validated against `POST https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent`.
     - **football-data.org:** Validates token against `GET https://api.football-data.org/v4/competitions/PL` and reports minute quota status.
     - **API-Football (api-sports):** Validates key against `GET https://v3.football.api-sports.io/status`, reporting plan name, account email, and daily request usage.
   - All calls routed through `LoggedHttpClient` with `fresh: true`, secret header redaction, and persistence to `api_calls`.

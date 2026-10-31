@@ -200,54 +200,72 @@ class ApiKeyTesterService
         }
 
         try {
-            $model = (string) (env('GEMINI_MODEL') ?: 'gemini-2.5-flash');
-            $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent";
-            $payload = [
-                'contents' => [
-                    ['parts' => [['text' => 'ping']]],
-                ],
-                'generationConfig' => [
-                    'maxOutputTokens' => 1,
-                ],
-            ];
+            $candidateModels = array_values(array_filter(array_unique([
+                (string) env('GEMINI_MODEL', ''),
+                'gemini-3.8-flash',
+                'gemini-3-flash-preview',
+            ])));
 
-            $response = $this->httpClient->request(
-                source: 'gemini',
-                method: 'POST',
-                url: $url,
-                body: $payload,
-                headers: [
-                    'x-goog-api-key' => $apiKey,
-                    'content-type' => 'application/json',
-                ],
-                triggeredBy: 'key-verification',
-                countsTowardQuota: false,
-                fresh: true
-            );
+            $lastResponse = null;
+            $lastData = [];
+            $lastModel = 'gemini-3.8-flash';
 
-            $data = json_decode($response->body, true) ?? [];
+            foreach ($candidateModels as $model) {
+                $lastModel = $model;
+                $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent";
+                $payload = [
+                    'contents' => [
+                        ['parts' => [['text' => 'ping']]],
+                    ],
+                    'generationConfig' => [
+                        'maxOutputTokens' => 1,
+                    ],
+                ];
 
-            if ($response->status === 200) {
-                return new ApiKeyTestResult(
-                    provider: 'gemini',
-                    isValid: true,
-                    statusCode: 200,
-                    durationMs: $response->durationMs,
-                    message: 'Google Gemini API key is active and connected!',
-                    details: 'Authenticated successfully with Gemini 1.5 Flash.',
-                    rawResponse: $data
+                $response = $this->httpClient->request(
+                    source: 'gemini',
+                    method: 'POST',
+                    url: $url,
+                    body: $payload,
+                    headers: [
+                        'x-goog-api-key' => $apiKey,
+                        'content-type' => 'application/json',
+                    ],
+                    triggeredBy: 'key-verification',
+                    countsTowardQuota: false,
+                    fresh: true
                 );
+
+                $lastResponse = $response;
+                $lastData = json_decode($response->body, true) ?? [];
+
+                if ($response->status === 200) {
+                    return new ApiKeyTestResult(
+                        provider: 'gemini',
+                        isValid: true,
+                        statusCode: 200,
+                        durationMs: $response->durationMs,
+                        message: 'Google Gemini API key is active and connected!',
+                        details: "Authenticated successfully with {$model}.",
+                        rawResponse: $lastData
+                    );
+                }
+
+                // If authentication error (400 API_KEY_INVALID or 401/403 Forbidden), key is definitively invalid
+                if (in_array($response->status, [400, 401, 403], true) && !str_contains($response->body, 'is not found for API version')) {
+                    break;
+                }
             }
 
-            $errMsg = $data['error']['message'] ?? "HTTP {$response->status}";
+            $errMsg = $lastData['error']['message'] ?? "HTTP " . ($lastResponse ? $lastResponse->status : 500);
             return new ApiKeyTestResult(
                 provider: 'gemini',
                 isValid: false,
-                statusCode: $response->status,
-                durationMs: $response->durationMs,
+                statusCode: $lastResponse ? $lastResponse->status : 500,
+                durationMs: $lastResponse ? $lastResponse->durationMs : 0,
                 message: "Google Gemini verification failed: {$errMsg}",
-                details: $response->error,
-                rawResponse: $data
+                details: $lastResponse?->error,
+                rawResponse: $lastData
             );
         } catch (Throwable $e) {
             return new ApiKeyTestResult(

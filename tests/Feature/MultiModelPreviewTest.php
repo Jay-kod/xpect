@@ -115,7 +115,7 @@ class MultiModelPreviewTest extends TestCase
         $fakeText = "Arsenal hold a 54% win probability against Chelsea (21%), with the draw projected at 25%. Expected goals stand at 1.80 to 0.90, pointing towards a 2-1 outcome.";
 
         Http::fake([
-            'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent*' => Http::response([
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent*' => Http::response([
                 'candidates' => [
                     [
                         'content' => [
@@ -138,11 +138,11 @@ class MultiModelPreviewTest extends TestCase
         config(['services.gemini.key' => 'AIzaSyTestGeminiKey123']);
 
         $generator = app(PreviewGenerator::class);
-        $preview = $generator->generate($this->prediction, modelOverride: 'gemini-1.5-pro', providerOverride: 'gemini');
+        $preview = $generator->generate($this->prediction, modelOverride: 'gemini-3.8-flash', providerOverride: 'gemini');
 
         $this->assertInstanceOf(Preview::class, $preview);
         $this->assertSame($fakeText, $preview->text);
-        $this->assertSame('gemini-1.5-pro', $preview->model);
+        $this->assertSame('gemini-3.8-flash', $preview->model);
         $this->assertFalse($preview->flagged);
 
         // Verify api_calls entry created

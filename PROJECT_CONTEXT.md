@@ -672,3 +672,19 @@ Template:
   - Added unit test suite `tests/Unit/ApiKeyTesterServiceTest.php` and expanded feature tests in `tests/Feature/SettingsUiTest.php`.
 - Verified: All 142 tests passing (720 assertions); `php artisan audit:data` clean across 8/8 domains (0 warnings, 0 failures, zero data leakage). Dev server running at `http://127.0.0.1:8080`.
 - Next: Confirm API-Football daily quota and reset time when a key is available.
+
+### Session 48: Live Current Theme Editing (2026-10-31)
+- Done: Added an **Edit current theme** action that previews palette edits immediately. Built-in presets save as custom copies and remain unchanged; an active custom theme opens its existing editor.
+- Decisions made: Preserve the prior fixed-preset decision while making the selected built-in palette directly editable through a browser-local copy.
+- Verified or changed versus the docs: Updated theme UI coverage and documented live preview/copy behavior. Verification pending.
+- Stopped at: Current theme editing.
+- Next: Run focused theme and route health tests, then the full Docker suite.
+
+### Session 49: Gemini Model Upgrade to 3.8 Flash & Multi-Model Resilience (2026-10-31)
+- Done: Resolved Google Gemini HTTP 404 verification failure:
+  - Cause: Google deprecated `gemini-2.5-flash` for new API accounts in late 2026, requiring migration to `gemini-3.8-flash`.
+  - Fix: Updated `ApiKeyTesterService`, `PreviewGenerator`, `SettingsController`, and `/settings` view to default to `gemini-3.8-flash`.
+  - Added multi-model candidate fallback loop in `ApiKeyTesterService` (`gemini-3.8-flash` -> `gemini-3-flash-preview`) to gracefully handle temporary high-demand 503 spikes.
+- Verified: Live `php artisan test:key gemini` confirmed with real Google Gemini key: returned HTTP 200 ✓ ACTIVE (2308ms). Full test suite passed (142 tests, 726 assertions); `audit:data` clean.
+- Stopped at: Verification complete.
+- Next: Confirm API-Football daily quota and reset time when a key is available.

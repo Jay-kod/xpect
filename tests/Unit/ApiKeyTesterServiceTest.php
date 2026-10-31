@@ -265,3 +265,4 @@ class ApiKeyTesterServiceTest extends TestCase
         $this->assertStringContainsString('invalid API key', $result->message);
     }
 }
+

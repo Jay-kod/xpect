@@ -368,7 +368,7 @@
                         </button>
                     </div>
                     <div id="test-feedback-gemini" class="test-feedback-box" style="display:none;margin-top:5px;font-size:11px;padding:7px 11px;border-radius:6px;line-height:1.4;"></div>
-                    <div class="form-hint">Powers Google Gemini 1.5 Pro and 2.0 Flash for instant contextual commentary.</div>
+                    <div class="form-hint">Powers Google Gemini 3.8 Flash &amp; 3 Pro for instant contextual commentary.</div>
                 </div>
 
                 <div style="border-top:1px solid var(--xp-border-subtle);margin:4px 0;"></div>

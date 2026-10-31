@@ -4,10 +4,13 @@
             <div>
                 <h1 style="font-size: 25px; color: var(--xp-text);">Choose your theme</h1>
                 <p style="margin-top: 6px; color: var(--xp-muted); font-size: 13px;">
-                    Select a built-in palette or create your own and customize its colors.
+                    Select a palette, edit the current theme with a live preview, or create your own.
                 </p>
             </div>
-            <button type="button" class="btn btn-primary" id="add-theme">＋ Create theme</button>
+            <div class="theme-header-actions">
+                <button type="button" class="btn btn-secondary" id="edit-active-theme">Edit current theme</button>
+                <button type="button" class="btn btn-primary" id="add-theme">＋ Create theme</button>
+            </div>
         </div>
 
         <p class="theme-manager-message" id="theme-manager-message" role="status" aria-live="polite"></p>
@@ -203,22 +206,38 @@
             document.documentElement.style.colorScheme = draft.mode;
         }
 
-        function openEditor(theme = null) {
-            const sourceTheme = theme || themeManager.getActiveTheme();
+        function openEditor(theme = null, sourceTheme = null) {
+            const palette = sourceTheme || theme || themeManager.getActiveTheme();
             themeBeforeEditing = themeManager.getActiveTheme();
             editingThemeId = theme ? theme.id : null;
-            draftColors = { ...sourceTheme.colors };
+            draftColors = { ...palette.colors };
             themeForm.reset();
-            themeName.value = theme ? theme.name : `${sourceTheme.name} Custom`;
-            themeMode.value = sourceTheme.mode;
-            document.getElementById('theme-editor-title').textContent = theme ? 'Edit custom theme' : 'Create theme';
-            document.getElementById('save-theme').textContent = theme ? 'Save changes' : 'Save theme';
+            themeName.value = theme ? theme.name : `${palette.name} Custom`;
+            themeMode.value = palette.mode;
+            document.getElementById('theme-editor-title').textContent = theme
+                ? 'Edit custom theme'
+                : sourceTheme ? 'Edit current theme' : 'Create theme';
+            document.getElementById('save-theme').textContent = theme
+                ? 'Save changes'
+                : sourceTheme ? 'Save as custom theme' : 'Save theme';
             fillColorFields(draftColors);
             themeEditor.hidden = false;
-            showThemeMessage(theme ? `Editing ${theme.name}.` : 'Creating a custom theme.');
+            showThemeMessage(theme
+                ? `Editing ${theme.name}.`
+                : sourceTheme ? `Previewing changes to ${palette.name}; saving creates a custom copy.` : 'Creating a custom theme.');
             previewDraft();
             themeEditor.scrollIntoView({ behavior: 'smooth', block: 'start' });
             themeName.focus();
+        }
+
+        function editActiveTheme() {
+            const activeTheme = themeManager.getActiveTheme();
+            if (activeTheme.id.startsWith('custom-')) {
+                openEditor(activeTheme);
+                return;
+            }
+
+            openEditor(null, activeTheme);
         }
 
         function closeEditor() {
@@ -257,6 +276,7 @@
 
         themeName.addEventListener('input', previewDraft);
         themeMode.addEventListener('change', previewDraft);
+        document.getElementById('edit-active-theme').addEventListener('click', editActiveTheme);
         document.getElementById('add-theme').addEventListener('click', () => openEditor());
         document.getElementById('cancel-theme').addEventListener('click', closeEditor);
         themeForm.addEventListener('submit', (event) => {

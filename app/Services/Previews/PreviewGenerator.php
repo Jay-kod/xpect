@@ -70,7 +70,7 @@ class PreviewGenerator
             $text = $decoded['choices'][0]['message']['content'] ?? null;
         } elseif ($provider === 'gemini') {
             $apiKey = (string) (config('services.gemini.key') ?: env('GEMINI_API_KEY'));
-            $model = $modelOverride ?: (string) (config('services.gemini.model') ?: env('GEMINI_MODEL', 'gemini-1.5-pro'));
+            $model = $modelOverride ?: (string) (config('services.gemini.model') ?: env('GEMINI_MODEL', 'gemini-3.8-flash'));
 
             if (empty($apiKey) && !app()->environment('testing')) {
                 throw new RuntimeException('GEMINI_API_KEY is not configured in .env. Previews require a valid Gemini API key.');

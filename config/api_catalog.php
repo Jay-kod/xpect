@@ -170,7 +170,7 @@ return [
                 [
                     'method' => 'POST',
                     'path' => '/models/{model}:generateContent',
-                    'purpose' => 'Generate AI match preview via Gemini (1.5 Pro, Flash, 2.0)',
+                    'purpose' => 'Generate AI match preview via Gemini (3.8 Flash, 3 Pro, etc.)',
                     'status' => 'DOC',
                 ],
             ],

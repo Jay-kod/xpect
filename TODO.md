@@ -237,6 +237,7 @@ matches the model output, and the full call is stored.
   - Browser-local persistence without database or prediction changes
 - [x] **Phase G: Custom Theme Manager**
   - Create, edit, save, select, and delete custom palettes
+  - Edit the current palette with a live preview; save built-in edits as custom copies
   - Keep built-in presets fixed and fall back to Pitch Black when the active custom theme is deleted
 
 ---

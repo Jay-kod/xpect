@@ -3,8 +3,10 @@
 THEME: Xpect orange accents with user-selectable page palettes. The default is
 the original pitch-black dark theme. The sidebar Themes page offers Pitch Black,
 Obsidian, Midnight, and Light palettes. Built-in palettes remain fixed; create,
-edit, and delete browser-local custom palettes from the Themes page. Palette
-changes never affect prediction or match data.
+edit, and delete browser-local custom palettes from the Themes page. Editing a
+built-in current theme previews changes live and saves them as a custom copy;
+the built-in preset remains unchanged. Palette changes never affect prediction
+or match data.
 
 Colour tokens (define palette values centrally; components use these tokens):
 - xp-orange        #D94E00  main accent: buttons, highlights, links (deep dark orange)
