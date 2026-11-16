@@ -22,7 +22,8 @@ class FootballDataAdapter implements DataSourceAdapter
         Competition $competition,
         int $season,
         bool $fromCache = false,
-        ?int $syncRunId = null
+        ?int $syncRunId = null,
+        bool $fresh = false
     ): array {
         $code = $competition->source_ids['football_data'] ?? null;
         if (!$code) {
@@ -61,6 +62,12 @@ class FootballDataAdapter implements DataSourceAdapter
             $headers['X-Auth-Token'] = (string) $key;
         }
 
+        $isMatchday = \App\Models\FootballMatch::where('competition_id', $competition->id)
+            ->whereDate('kickoff_at', \Carbon\CarbonImmutable::now('UTC')->toDateString())
+            ->exists();
+
+        $ttlSeconds = $fresh ? 0 : ($isMatchday ? config('football.cache_ttl.matchday_results', 900) : config('football.cache_ttl.current_fixtures', 43200));
+
         $response = $this->httpClient->request(
             source: 'football_data',
             method: 'GET',
@@ -69,7 +76,8 @@ class FootballDataAdapter implements DataSourceAdapter
             headers: $headers,
             triggeredBy: 'sync:matches',
             countsTowardQuota: true,
-            ttlSeconds: config('football.cache_ttl.current_fixtures', 43200),
+            ttlSeconds: $ttlSeconds,
+            fresh: $fresh,
             syncRunId: $syncRunId
         );
 

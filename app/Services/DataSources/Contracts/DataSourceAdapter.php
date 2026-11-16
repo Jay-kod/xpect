@@ -16,7 +16,8 @@ interface DataSourceAdapter
         Competition $competition,
         int $season,
         bool $fromCache = false,
-        ?int $syncRunId = null
+        ?int $syncRunId = null,
+        bool $fresh = false
     ): array;
 }
 

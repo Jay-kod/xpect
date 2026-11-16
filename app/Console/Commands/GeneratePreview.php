@@ -78,7 +78,13 @@ class GeneratePreview extends Command
             config(['services.anthropic.key' => config('services.anthropic.key') ?: 'sk-ant-simulated-key']);
         }
 
-        $this->info("Calling Anthropic Claude API via LoggedHttpClient...");
+        $provider = $previewGenerator->resolveProvider();
+        $providerName = match ($provider) {
+            'gemini' => 'Google Gemini API',
+            'chatgpt' => 'OpenAI ChatGPT API',
+            default => 'Anthropic Claude API',
+        };
+        $this->info("Calling {$providerName} via LoggedHttpClient...");
 
         try {
             $preview = $previewGenerator->generate($prediction, $modelOverride);

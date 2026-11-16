@@ -1,4 +1,9 @@
 <x-layouts.app title="Data Health & Integrity Auditor">
+    <!-- System Health Skeletal Preloader (Active during navigation or ?skeleton=1) -->
+    <x-skeletal-preloader page="system-health" />
+
+    <!-- System Health Real Content Stream -->
+    <div id="system-health-real-content" class="xp-page-content" style="{{ request()->has('skeleton') ? 'display: none;' : '' }}">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;flex-wrap:wrap;gap:16px;">
         <div>
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
@@ -307,5 +312,6 @@
             </table>
         </div>
     </div>
+    </div> <!-- /#system-health-real-content -->
 </x-layouts.app>
 

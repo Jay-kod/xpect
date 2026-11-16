@@ -32,7 +32,13 @@ Schedule::command('evaluate:predictions')
     ->withoutOverlapping()
     ->runInBackground();
 
-// 4. Daily SQLite snapshot backup at 02:00 UTC (keeps rolling 10 snapshots)
+// 4. End-of-day verified MOTM research for the previous UTC matchday.
+Schedule::command('motm:research')
+    ->dailyAt('23:30')
+    ->withoutOverlapping()
+    ->runInBackground();
+
+// 5. Daily SQLite snapshot backup at 02:00 UTC (keeps rolling 10 snapshots)
 Schedule::command('app:backup')
     ->dailyAt('02:00')
     ->withoutOverlapping()

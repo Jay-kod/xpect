@@ -33,7 +33,8 @@ class UnderstatAdapter implements DataSourceAdapter
         Competition $competition,
         int $season,
         bool $fromCache = false,
-        ?int $syncRunId = null
+        ?int $syncRunId = null,
+        bool $fresh = false
     ): array {
         $league = $this->leagueMap[$competition->slug] ?? null;
         if (!$league) {

@@ -1,4 +1,9 @@
 <x-layouts.app title="Today's Fixtures Hub">
+    <!-- Today Hub Skeletal Preloader (Active during navigation / date switching or ?skeleton=1) -->
+    <x-skeletal-preloader page="today" />
+
+    <!-- Today Hub Real Content Stream -->
+    <div id="today-real-content" class="xp-page-content" style="{{ request()->has('skeleton') ? 'display: none;' : '' }}">
     <!-- Header & Date Navigator Bar -->
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:16px;">
         <div>
@@ -317,4 +322,5 @@
             </div>
         </div>
     @endif
+    </div> <!-- /#today-real-content -->
 </x-layouts.app>

@@ -1,0 +1,18 @@
+{
+    "timestamp": "2026-10-31T15:05:00+00:00",
+    "matches_evaluated": 1980,
+    "best_parameters": {
+        "k_factor": 32,
+        "home_adv": 50,
+        "draw_scale": 500,
+        "decay_half_life_days": 60,
+        "dixon_coles_rho": -0.06,
+        "shrinkage_k": 3
+    },
+    "metrics": {
+        "log_loss": 0.9839,
+        "brier_score": 0.5859,
+        "accuracy_pct": 53.84
+    },
+    "candidates_tested": 27
+}

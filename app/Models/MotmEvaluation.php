@@ -23,6 +23,10 @@ class MotmEvaluation extends Model
         'assists' => 'integer',
         'xg' => 'float',
         'decisive_actions' => 'array',
+        'source_urls' => 'array',
+        'source_titles' => 'array',
+        'research_queries' => 'array',
+        'verified_at' => 'datetime',
     ];
 
     public function match(): BelongsTo

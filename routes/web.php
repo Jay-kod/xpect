@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Route;
 
 // Dashboard: Fixtures, Predictions & AI Previews
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+Route::post('/matches/sync-live', [DashboardController::class, 'syncLiveScores'])->name('matches.sync-live');
 Route::post('/matches/{match}/predict', [DashboardController::class, 'predict'])->name('matches.predict');
 Route::post('/predictions/{prediction}/preview', [DashboardController::class, 'generatePreview'])->name('predictions.preview');
 

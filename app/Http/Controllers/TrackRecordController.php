@@ -10,6 +10,7 @@ use App\Models\PredictionEvaluation;
 use App\Services\Evaluation\Evaluator;
 use App\Services\Evaluation\Metrics;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class TrackRecordController extends Controller
@@ -34,35 +35,38 @@ class TrackRecordController extends Controller
 
         $totalEvaluations = $evaluationsQuery->count();
 
-        // 2. Compute aggregate evaluation stats using Evaluator service if we have predictions
-        $predictions = Prediction::with(['match.competition', 'match.homeTeam', 'match.awayTeam'])
-            ->whereHas('evaluation')
-            ->whereHas('match', function ($q) use ($competition) {
-                if ($competition) {
-                    $q->where('competition_id', $competition->id);
-                }
-                $q->where('status', 'finished');
-            })
-            ->get();
+        // 2. Compute aggregate evaluation stats using Evaluator service (cached 300s for peak efficiency)
+        $cacheKey = 'track_record_stats_' . ($competition?->id ?? 'all');
+        $stats = Cache::remember($cacheKey, 300, function () use ($evaluator, $competition) {
+            $predictions = Prediction::with(['match.competition', 'match.odds'])
+                ->whereHas('evaluation')
+                ->whereHas('match', function ($q) use ($competition) {
+                    if ($competition) {
+                        $q->where('competition_id', $competition->id);
+                    }
+                    $q->where('status', 'finished');
+                })
+                ->get();
 
-        $stats = $predictions->isNotEmpty() 
-            ? $evaluator->evaluate($predictions, $competition) 
-            : [
-                'sample_size' => 0,
-                'model' => ['accuracy' => 0, 'log_loss' => 0, 'brier' => 0],
-                'baselines' => [
-                    'historical_base_rates' => ['accuracy' => 0, 'log_loss' => 0, 'brier' => 0],
-                    'always_home' => ['accuracy' => 0, 'log_loss' => 0, 'brier' => 0],
-                    'uniform' => ['accuracy' => 0, 'log_loss' => 0, 'brier' => 0],
-                ],
-                'comparison' => [
-                    'beats_always_home' => false,
-                    'beats_uniform' => false,
-                    'beats_historical_base_rate' => false,
-                    'all_baselines_beaten' => false,
-                ],
-                'calibration_table' => [],
-            ];
+            return $predictions->isNotEmpty()
+                ? $evaluator->evaluate($predictions, $competition)
+                : [
+                    'sample_size' => 0,
+                    'model' => ['accuracy' => 0, 'log_loss' => 0, 'brier' => 0],
+                    'baselines' => [
+                        'historical_base_rates' => ['accuracy' => 0, 'log_loss' => 0, 'brier' => 0],
+                        'always_home' => ['accuracy' => 0, 'log_loss' => 0, 'brier' => 0],
+                        'uniform' => ['accuracy' => 0, 'log_loss' => 0, 'brier' => 0],
+                    ],
+                    'comparison' => [
+                        'beats_always_home' => false,
+                        'beats_uniform' => false,
+                        'beats_historical_base_rate' => false,
+                        'all_baselines_beaten' => false,
+                    ],
+                    'calibration_table' => [],
+                ];
+        });
 
         // 3. Paginated list of recent evaluations
         $evaluations = (clone $evaluationsQuery)

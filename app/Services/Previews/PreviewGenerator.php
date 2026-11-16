@@ -70,10 +70,27 @@ class PreviewGenerator
             $text = $decoded['choices'][0]['message']['content'] ?? null;
         } elseif ($provider === 'gemini') {
             $apiKey = (string) (config('services.gemini.key') ?: env('GEMINI_API_KEY'));
-            $model = $modelOverride ?: (string) (config('services.gemini.model') ?: env('GEMINI_MODEL', 'gemini-3.8-flash'));
 
             if (empty($apiKey) && !app()->environment('testing')) {
                 throw new RuntimeException('GEMINI_API_KEY is not configured in .env. Previews require a valid Gemini API key.');
+            }
+
+            if (app()->environment('testing')) {
+                $candidateModels = [$modelOverride ?: (string) (config('services.gemini.model') ?: env('GEMINI_MODEL', 'gemini-3-flash-preview'))];
+            } else {
+                $configuredModel = (string) (config('services.gemini.model') ?: env('GEMINI_MODEL', ''));
+                $candidateModels = [];
+                if ($modelOverride) {
+                    $candidateModels[] = $modelOverride;
+                }
+                if ($configuredModel && !in_array($configuredModel, ['gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-2.5-flash', 'gemini-2.0-flash'], true)) {
+                    $candidateModels[] = $configuredModel;
+                }
+                $candidateModels[] = 'gemini-3-flash-preview';
+                $candidateModels[] = 'gemini-3.5-flash';
+                $candidateModels[] = 'gemini-3.8-flash';
+                $candidateModels[] = 'gemini-flash-latest';
+                $candidateModels = array_values(array_unique($candidateModels));
             }
 
             $requestBody = [
@@ -97,24 +114,42 @@ class PreviewGenerator
                 'Content-Type' => 'application/json',
             ];
 
-            $response = $this->httpClient->request(
-                source: 'gemini',
-                method: 'POST',
-                url: "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent",
-                params: [],
-                body: $requestBody,
-                headers: $headers,
-                triggeredBy: 'preview:generate',
-                countsTowardQuota: false,
-                ttlSeconds: 0
-            );
+            $response = null;
+            $text = null;
+            $model = null;
 
-            if ($response->failed()) {
-                throw new RuntimeException("Google Gemini API call failed: {$response->error} (HTTP {$response->status})");
+            foreach ($candidateModels as $candidateModel) {
+                $response = $this->httpClient->request(
+                    source: 'gemini',
+                    method: 'POST',
+                    url: "https://generativelanguage.googleapis.com/v1beta/models/{$candidateModel}:generateContent",
+                    params: [],
+                    body: $requestBody,
+                    headers: $headers,
+                    triggeredBy: 'preview:generate',
+                    countsTowardQuota: false,
+                    ttlSeconds: 0
+                );
+
+                if ($response->status === 200) {
+                    $decoded = json_decode($response->body, true);
+                    $text = $decoded['candidates'][0]['content']['parts'][0]['text'] ?? null;
+                    if (!empty($text)) {
+                        $model = $candidateModel;
+                        break;
+                    }
+                }
+
+                // If fatal authentication error (400 API_KEY_INVALID or 401/403 Forbidden), do not loop models
+                if (in_array($response->status, [400, 401, 403], true) && !str_contains($response->body, 'not found')) {
+                    break;
+                }
             }
 
-            $decoded = json_decode($response->body, true);
-            $text = $decoded['candidates'][0]['content']['parts'][0]['text'] ?? null;
+            if ($response === null || $response->failed() || empty($text)) {
+                $err = $response?->error ?: "HTTP " . ($response?->status ?? 500);
+                throw new RuntimeException("Google Gemini API call failed: {$err} (HTTP {$response?->status})");
+            }
         } else {
             // Default: Claude (Anthropic)
             $apiKey = (string) (config('services.anthropic.key') ?: env('ANTHROPIC_API_KEY'));

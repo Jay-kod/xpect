@@ -88,12 +88,13 @@ class SettingsController extends Controller
             'gemini' => [
                 'name' => 'Gemini (Google)',
                 'badge' => 'Google Gemini',
-                'description' => 'Gemini 3.8 Flash & 3 Pro with ultra-low latency & deep statistical summarization.',
-                'default_model' => 'gemini-3.8-flash',
+                'description' => 'Gemini Flash models with ultra-low latency & deep statistical summarization.',
+                'default_model' => 'gemini-3-flash-preview',
                 'models' => [
-                    'gemini-3.8-flash' => 'gemini-3.8-flash (Recommended - High Speed & Reasoning)',
-                    'gemini-3-flash-preview' => 'gemini-3-flash-preview (Ultra-Fast Preview)',
-                    'gemini-3-pro-preview' => 'gemini-3-pro-preview (Flagship Deep Reasoning)',
+                    'gemini-3-flash-preview' => 'gemini-3-flash-preview (Recommended - Instant & Verified)',
+                    'gemini-3.5-flash' => 'gemini-3.5-flash (High Speed)',
+                    'gemini-3.8-flash' => 'gemini-3.8-flash (High Capacity)',
+                    'gemini-flash-latest' => 'gemini-flash-latest (Auto-Updating Flash)',
                 ],
             ],
         ];
@@ -144,9 +145,13 @@ class SettingsController extends Controller
             $model = trim($validated['ai_model']);
             $updates['AI_MODEL'] = $model;
 
-            // Maintain ANTHROPIC_MODEL for backward compatibility
-            if (($validated['ai_provider'] ?? 'claude') === 'claude') {
+            $prov = $validated['ai_provider'] ?? env('AI_PROVIDER', 'claude');
+            if (in_array($prov, ['claude', 'anthropic'], true)) {
                 $updates['ANTHROPIC_MODEL'] = $model;
+            } elseif (in_array($prov, ['chatgpt', 'openai'], true)) {
+                $updates['OPENAI_MODEL'] = $model;
+            } elseif (in_array($prov, ['gemini', 'google'], true)) {
+                $updates['GEMINI_MODEL'] = $model;
             }
         } elseif (!empty($validated['anthropic_model'])) {
             $updates['ANTHROPIC_MODEL'] = trim($validated['anthropic_model']);

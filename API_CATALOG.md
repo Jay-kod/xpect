@@ -30,10 +30,14 @@ sync.
 | `GET /competitions` | Competitions available on your plan | DOC |
 | `GET /competitions/{code or id}` | Competition detail + list of seasons | DOC |
 | `GET /competitions/{code}/matches?season=YYYY` | Fixtures and results | VERIFIED (2026-10-28: code 'PL', season 2026 and 2023 OK, <=2022 403 Forbidden) |
+| `GET /competitions/{code}/matches?dateFrom=YYYY-MM-DD&dateTo=YYYY-MM-DD` | Windowed matches query for freshness probes (`status`, `dateFrom`, `dateTo`, `season`) | MEM |
+| `GET /matches/{id}` | Single match detail including goals and goalscorers | DOC |
 | `GET /competitions/{code}/standings` | League table (cross-check only; we compute our own) | DOC |
 | `GET /competitions/{code}/teams?season=YYYY` | Teams in a season | DOC |
 | `GET /teams/{id}` | Team detail | DOC |
 | `GET /persons/{id}` and `/persons/{id}/matches` | Player data (not planned) | DOC |
+
+Freshness probe notes: `GET /competitions/{code}/matches` accepts `dateFrom`, `dateTo`, `status`, and `season` filters (MEM). Each match object in the response payload includes a `lastUpdated` ISO-8601 UTC timestamp (MEM), which the diff engine compares against stored records to detect results, corrections, and rescheduled fixtures.
 
 Optional request headers `X-Unfold-Lineups`, `X-Unfold-Bookings`, `X-Unfold-Subs`,
 `X-Unfold-Goals` control deeper match fields (DOC). Likely limited on the free
@@ -46,6 +50,7 @@ Competition codes: `WC` (DOC). `PL` (VERIFIED: confirmed 2026-10-28). `PD`, `BL1
 - Base URL: `https://v3.football.api-sports.io`
 - Auth: header `x-apisports-key: <key>` (never saved to the DB)
 - Free plan: 100 requests/day, all endpoints but limited seasons
+- **Freshness rule: API-Football is NEVER probed for freshness.** Probes would consume the daily 100-request quota. It is used strictly for matchday lineups/injuries and inside `verify:run` when resolving missing fields.
 - Response envelope: `get, parameters, errors, results, paging, response`
 - **Check `errors` in the body on every call.** Do not trust the HTTP status
   alone. Treat a non-empty `errors` as a failed call.
@@ -77,6 +82,7 @@ Premier League id `39` (MEM).
   A, `F1` Ligue 1 (VERIFIED: confirmed 2026-10-28)
 - Static files, no key. Results, and usually bookmaker odds columns (VERIFIED: confirmed date DD/MM/YYYY, goals FTHG/FTAG, UTF-8 BOM on header)
 - Be polite: download each file once and store the raw file via `LoggedHttpClient`
+- Freshness probes (MEM): `CsvProbe` sends HTTP `HEAD` or conditional `GET` requests with `If-None-Match` (ETag) and `If-Modified-Since` (Last-Modified) headers to check whether current-season CSV files have updated without transferring the entire body. If the server omits usable caching headers, fall back to downloading and content-hashing (SHA-256) inside `api_calls`.
 
 ## 4. AI Reasoning & Preview APIs (Claude, ChatGPT, Gemini)
 
@@ -98,6 +104,8 @@ Premier League id `39` (MEM).
 - Base URL: `https://generativelanguage.googleapis.com/v1beta`
 - Auth: `x-goog-api-key: <key>`
 - Endpoint: `POST /models/{model}:generateContent` (Status: DOC)
+  - Verified MOTM research uses the `google_search` tool and requires grounding
+    metadata/citation URLs before an award can be stored.
 
 ## 5. Understat (xG for Top 5 European Leagues)
 

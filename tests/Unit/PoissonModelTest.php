@@ -167,5 +167,66 @@ class PoissonModelTest extends TestCase
         $sum = $dcProbs->pHome + $dcProbs->pDraw + $dcProbs->pAway;
         $this->assertEqualsWithDelta(1.0, $sum, 0.0001);
     }
+
+    public function test_calibrated_model_incorporates_form_momentum_and_temperature(): void
+    {
+        $asOf = CarbonImmutable::parse('2024-10-01 15:00:00', 'UTC');
+
+        $inFormHome = new TeamFeatures(
+            teamId: 1,
+            teamName: 'Hot Form FC',
+            asOf: $asOf,
+            homeAttackStrength: 1.2,
+            homeDefenceStrength: 0.9,
+            awayAttackStrength: 1.1,
+            awayDefenceStrength: 1.0,
+            matchesSampleCount: 20,
+            lowConfidence: false,
+            formPointsLast5: 15, // Perfect 15 pts in last 5
+            restDays: 6,
+            leagueAvgHomeGoals: 1.5,
+            leagueAvgAwayGoals: 1.2,
+            homeXgAttackStrength: 1.3,
+            homeXgDefenceStrength: 0.85,
+            awayXgAttackStrength: 1.1,
+            awayXgDefenceStrength: 1.0,
+            xgSampleCount: 20,
+        );
+
+        $slumpAway = new TeamFeatures(
+            teamId: 2,
+            teamName: 'Slumping Away FC',
+            asOf: $asOf,
+            homeAttackStrength: 1.0,
+            homeDefenceStrength: 1.0,
+            awayAttackStrength: 0.9,
+            awayDefenceStrength: 1.2,
+            matchesSampleCount: 20,
+            lowConfidence: false,
+            formPointsLast5: 1, // Only 1 pt in last 5
+            restDays: 6,
+            leagueAvgHomeGoals: 1.5,
+            leagueAvgAwayGoals: 1.2,
+            homeXgAttackStrength: 1.0,
+            homeXgDefenceStrength: 1.0,
+            awayXgAttackStrength: 0.85,
+            awayXgDefenceStrength: 1.3,
+            xgSampleCount: 20,
+        );
+
+        $probs = $this->model->predict($inFormHome, $slumpAway, PoissonModel::MODEL_V1_CALIBRATED, 1.05);
+
+        // Probabilities must sum strictly to 1.0
+        $sum = $probs->pHome + $probs->pDraw + $probs->pAway;
+        $this->assertEqualsWithDelta(1.0, $sum, 0.0001);
+
+        // In-form home team vs slumping away team should have strong home win probability
+        $this->assertGreaterThan(0.60, $probs->pHome);
+        $this->assertGreaterThan($probs->expAwayGoals, $probs->expHomeGoals);
+
+        // Score matrix exists and is valid
+        $this->assertNotEmpty($probs->scoreMatrix);
+        $this->assertCount(5, $probs->topScorelines);
+    }
 }
 

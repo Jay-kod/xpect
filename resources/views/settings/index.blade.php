@@ -147,6 +147,11 @@
         }
     </style>
 
+    <!-- Settings Skeletal Preloader (Active during navigation or ?skeleton=1) -->
+    <x-skeletal-preloader page="settings" />
+
+    <!-- Settings Real Content Stream -->
+    <div id="settings-real-content" class="xp-page-content" style="{{ request()->has('skeleton') ? 'display: none;' : '' }}">
     <!-- Page Header -->
     <div class="settings-header">
         <div>
@@ -535,6 +540,7 @@
             </div>
         </div>
     </div>
+    </div> <!-- /#settings-real-content -->
 
     <!-- Client-side Model Switching Script -->
     <script>

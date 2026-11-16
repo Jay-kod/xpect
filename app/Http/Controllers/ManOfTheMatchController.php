@@ -7,7 +7,7 @@ namespace App\Http\Controllers;
 use App\Models\Competition;
 use App\Models\FootballMatch;
 use App\Models\MotmEvaluation;
-use App\Services\Motm\MotmEvaluator;
+use App\Services\Motm\VerifiedMotmResearcher;
 use App\Services\Temporal\TemporalFilterService;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
@@ -19,7 +19,7 @@ use Throwable;
 class ManOfTheMatchController extends Controller
 {
     public function __construct(
-        protected readonly MotmEvaluator $motmEvaluator
+        protected readonly VerifiedMotmResearcher $motmResearcher
     ) {
     }
 
@@ -35,6 +35,7 @@ class ManOfTheMatchController extends Controller
 
         // 1. MOTM Leaderboard: Top Players by awards count
         $playerLeaderboardQuery = MotmEvaluation::where('is_motm', true)
+            ->where('verification_status', 'verified')
             ->select('player_name', 'team_id', DB::raw('COUNT(*) as motm_count'), DB::raw('AVG(rating) as avg_rating'), DB::raw('SUM(goals) as total_goals'))
             ->groupBy('player_name', 'team_id')
             ->orderByDesc('motm_count')
@@ -48,6 +49,7 @@ class ManOfTheMatchController extends Controller
 
         // 2. MOTM Leaderboard: Top Teams
         $teamLeaderboardQuery = MotmEvaluation::where('is_motm', true)
+            ->where('verification_status', 'verified')
             ->select('team_id', DB::raw('COUNT(*) as motm_count'))
             ->groupBy('team_id')
             ->orderByDesc('motm_count')
@@ -64,7 +66,7 @@ class ManOfTheMatchController extends Controller
                 'homeTeam',
                 'awayTeam',
                 'competition',
-                'motmEvaluations' => fn ($q) => $q->where('is_motm', true)->with('team'),
+                'motmEvaluations' => fn ($q) => $q->where('is_motm', true)->where('verification_status', 'verified')->with('team'),
             ])
             ->orderBy('kickoff_at', 'desc');
 
@@ -76,7 +78,7 @@ class ManOfTheMatchController extends Controller
             $finishedMatchesQuery->where(function ($q) use ($searchQuery) {
                 $q->whereHas('homeTeam', fn ($sq) => $sq->where('name', 'like', "%{$searchQuery}%")->orWhere('short_name', 'like', "%{$searchQuery}%"))
                   ->orWhereHas('awayTeam', fn ($sq) => $sq->where('name', 'like', "%{$searchQuery}%")->orWhere('short_name', 'like', "%{$searchQuery}%"))
-                  ->orWhereHas('motmEvaluations', fn ($sq) => $sq->where('is_motm', true)->where('player_name', 'like', "%{$searchQuery}%"));
+                  ->orWhereHas('motmEvaluations', fn ($sq) => $sq->where('is_motm', true)->where('verification_status', 'verified')->where('player_name', 'like', "%{$searchQuery}%"));
             });
         }
 
@@ -93,13 +95,6 @@ class ManOfTheMatchController extends Controller
 
         $finishedMatches = $finishedMatchesQuery->take(50)->get();
 
-        // Auto-evaluate up to 10 unevaluated finished matches on the fly so users always see confirmed MOTMs
-        $unevaluated = $finishedMatches->filter(fn ($m) => $m->motmEvaluations->isEmpty())->take(10);
-        foreach ($unevaluated as $m) {
-            $this->motmEvaluator->evaluateMatch($m);
-            $m->load(['motmEvaluations' => fn ($q) => $q->where('is_motm', true)->with('team')]);
-        }
-
         // 4. Resolve selected match for detail ratings spotlight
         $selectedMatchId = $request->query('match_id') ? (int) $request->query('match_id') : null;
         $selectedMatch = null;
@@ -114,19 +109,20 @@ class ManOfTheMatchController extends Controller
         if ($selectedMatch) {
             // Ensure selected match has evaluations
             $matchEvaluations = MotmEvaluation::where('match_id', $selectedMatch->id)
+                ->where('verification_status', 'verified')
                 ->with('team')
                 ->orderByDesc('rating')
                 ->get();
 
             if ($matchEvaluations->isEmpty()) {
-                $matchEvaluations = $this->motmEvaluator->evaluateMatch($selectedMatch);
+                $matchEvaluations = collect();
             }
         }
 
         // 5. Total MOTMs awarded count & single winner verification
-        $totalAwardsCount = MotmEvaluation::where('is_motm', true)->count();
-        $totalEvaluationsCount = MotmEvaluation::count();
-        $uniqueMatchesWithMotm = MotmEvaluation::where('is_motm', true)->distinct('match_id')->count('match_id');
+        $totalAwardsCount = MotmEvaluation::where('is_motm', true)->where('verification_status', 'verified')->count();
+        $totalEvaluationsCount = $totalAwardsCount;
+        $uniqueMatchesWithMotm = MotmEvaluation::where('is_motm', true)->where('verification_status', 'verified')->distinct('match_id')->count('match_id');
 
         return view('motm.index', [
             'competitions' => $competitions,
@@ -153,10 +149,17 @@ class ManOfTheMatchController extends Controller
      */
     public function evaluate(FootballMatch $match): RedirectResponse
     {
-        $this->motmEvaluator->evaluateMatch($match, force: true);
+        try {
+            $evaluation = $this->motmResearcher->research($match, force: true);
+        } catch (Throwable $e) {
+            return redirect()->route('motm', ['match_id' => $match->id])
+                ->with('error', "Verified MOTM research failed: {$e->getMessage()}");
+        }
 
         return redirect()->route('motm', ['match_id' => $match->id])
-            ->with('success', "Man of the Match & player ratings evaluated for {$match->homeTeam->short_name} vs {$match->awayTeam->short_name}!");
+            ->with('success', $evaluation
+                ? "Verified MOTM found for {$match->homeTeam->short_name} vs {$match->awayTeam->short_name}."
+                : 'No source explicitly named a Man of the Match for this fixture.');
     }
 
     /**
@@ -165,15 +168,20 @@ class ManOfTheMatchController extends Controller
     public function batchEvaluate(Request $request): RedirectResponse
     {
         $unevaluatedMatches = FootballMatch::where('status', 'finished')
-            ->whereDoesntHave('motmEvaluations')
+            ->whereDoesntHave('motmEvaluations', fn ($query) => $query->where('verification_status', 'verified'))
             ->orderBy('kickoff_at', 'desc')
             ->take(40)
             ->get();
 
         $count = 0;
         foreach ($unevaluatedMatches as $match) {
-            $this->motmEvaluator->evaluateMatch($match, force: true);
-            $count++;
+            try {
+                if ($this->motmResearcher->research($match)) {
+                    $count++;
+                }
+            } catch (Throwable $e) {
+                report($e);
+            }
         }
 
         return redirect()->route('motm')

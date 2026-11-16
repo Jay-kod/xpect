@@ -61,7 +61,8 @@ Only `TeamResolver` reads this table. Never match team names elsewhere.
 
 Indexes: (competition_id, season, kickoff_at), (competition_id, season, status),
 (competition_id, kickoff_at), (competition_id, season, status, matchday),
-(home_team_id, kickoff_at), (away_team_id, kickoff_at), (status, kickoff_at).
+(competition_id, season, status, kickoff_at), (home_team_id, kickoff_at),
+(away_team_id, kickoff_at), (status, kickoff_at).
 Constraint: home_team_id != away_team_id.
 
 ## standings_snapshots
@@ -226,6 +227,8 @@ Index: `(match_id, bookmaker)`.
 | brier | decimal | |
 | evaluated_at | datetime | |
 
+Indexes: (evaluated_at), plus the unique (prediction_id) constraint.
+
 ## previews
 | column | type | notes |
 |---|---|---|
@@ -279,14 +282,55 @@ Stores objective starting XI player performance ratings, match contributions, an
 | performance_summary | text | objective performance explanation |
 | model | string | default `algorithmic-v1` |
 | source_api_call_id | fk api_calls null | provenance from lineups call |
+| verification_status | string | `algorithmic` or `verified`; `/motm` displays only `verified` awards |
+| source_urls / source_titles | json null | cited official or reputable sources returned by grounded research |
+| research_queries | json null | search queries used by the grounded research call |
+| verified_at | datetime null | UTC time the explicit award was verified |
 | timestamps | datetime | index on `(match_id, is_motm)`, `(is_motm, player_name)`, `(is_motm, team_id)`, `(is_motm, rating)`, `(match_id, rating)` |
+
+Additional index: `(is_motm, verification_status, player_name, team_id)` for the
+verified player leaderboard grouping.
+
+## source_checks  (Phase 2D: Freshness and auto-refresh)
+Mutable state tracking probe cadence, fingerprints, and last detected changes per source resource.
+| column | type | notes |
+|---|---|---|
+| id | pk | |
+| source | string | `football_data`, `csv` (API-Football is NEVER probed for freshness) |
+| resource | string | resource identifier, e.g. `PL:2026` or `E0:2526` |
+| probe_type | string | `windowed_query`, `conditional_get`, `content_hash` |
+| fingerprint | string null | ETag, Last-Modified, or content hash |
+| last_checked_at | datetime null | |
+| next_check_at | datetime | enforced: active competition every 120m, inactive 24h, CSV 12h |
+| last_changed_at | datetime null | timestamp of most recent detected change |
+| consecutive_unchanged | integer | counter of checks with zero changes |
+| last_api_call_id | fk api_calls null | provenance of the probe call |
+| updated_at | datetime | |
+Unique: `(source, resource)`.
+
+## source_changes  (Phase 2D: Freshness and auto-refresh)
+Append-only log of detected upstream changes awaiting application via `refresh:run`.
+| column | type | notes |
+|---|---|---|
+| id | pk | |
+| source_check_id | fk source_checks | |
+| detected_at | datetime | UTC timestamp when difference was detected |
+| kind | string | `new_finished`, `result_correction`, `kickoff_change`, `postponed`, `new_fixture`, `new_season`, `csv_new_rows`, `csv_correction` |
+| match_id | fk matches null | linked match if change targets an existing fixture |
+| count | integer | number of impacted rows/fixtures (default 1) |
+| api_call_id | fk api_calls | raw response where change was detected |
+| applied_at | datetime null | null while unapplied; set by `refresh:run` upon applying |
+| refresh_run_id | fk sync_runs null | sync run that applied the change |
+Index: `(applied_at, kind)`.
 
 ## Relationships (summary)
 
 competitions 1-n matches; teams 1-n team_aliases; teams 1-n matches (home/away);
 matches 1-n predictions; predictions 1-1 prediction_evaluations; predictions 1-n
-previews; matches 1-n motm_evaluations; api_calls 1-n (matches, standings_snapshots,
-team_ratings, match_stats, previews, motm_evaluations) via `source_api_call_id` / `api_call_id`.
+previews; matches 1-n motm_evaluations; source_checks 1-n source_changes;
+api_calls 1-n (matches, standings_snapshots, team_ratings, match_stats, previews,
+motm_evaluations, source_checks, source_changes) via `source_api_call_id` / `api_call_id`;
+sync_runs 1-n source_changes (refresh_run_id).
 
 ## Seeding
 

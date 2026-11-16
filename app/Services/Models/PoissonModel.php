@@ -9,21 +9,22 @@ use App\Data\TeamFeatures;
 
 class PoissonModel
 {
-    public const MODEL_VERSION = 'v1.2.1-h2h';
+    public const MODEL_VERSION = 'v1.3.0-calibrated';
     public const MODEL_V1_POISSON = 'v1.0.0-poisson';
     public const MODEL_V1_XG = 'v1.1.0-xg';
     public const MODEL_V1_DIXON_COLES = 'v1.2.0-dixon-coles';
     public const MODEL_V1_H2H = 'v1.2.1-h2h';
     public const MODEL_V1_REST = 'v1.2.2-rest';
+    public const MODEL_V1_CALIBRATED = 'v1.3.0-calibrated';
 
     public function __construct(
-        protected float $dixonColesRho = -0.06
+        protected float $dixonColesRho = -0.10
     ) {
     }
 
     /**
      * Compute win/draw/loss probabilities and expected goals using independent Poisson distributions
-     * with optional Dixon-Coles low-score correction and Tier 3 variables.
+     * with optional Dixon-Coles low-score correction, Tier 3 variables, Form Momentum, and Temperature Calibration.
      */
     public function predict(
         TeamFeatures $homeFeatures,
@@ -37,10 +38,17 @@ class PoissonModel
             self::MODEL_V1_DIXON_COLES,
             self::MODEL_V1_H2H,
             self::MODEL_V1_REST,
+            self::MODEL_V1_CALIBRATED,
         ], true);
 
         if ($usesXg) {
-            $alpha = 0.70; // 70% sustainable xG chance creation, 30% finishing conversion
+            // v1.3.0-calibrated optimizes xG sustainable signal (85% xG chance creation, 15% conversion)
+            $alpha = $modelVersion === self::MODEL_V1_CALIBRATED
+                ? ((function_exists('config') && function_exists('app') && app()->has('config'))
+                    ? (float) config('football.models.xg_weight', 0.85)
+                    : 0.85)
+                : 0.70;
+
             $homeAttack = $alpha * $homeFeatures->homeXgAttackStrength + (1.0 - $alpha) * $homeFeatures->homeAttackStrength;
             $awayDefence = $alpha * $awayFeatures->awayXgDefenceStrength + (1.0 - $alpha) * $awayFeatures->awayDefenceStrength;
             $awayAttack = $alpha * $awayFeatures->awayXgAttackStrength + (1.0 - $alpha) * $awayFeatures->awayAttackStrength;
@@ -57,9 +65,20 @@ class PoissonModel
         $lambdaAway = $awayAttack * $homeDefence * $homeFeatures->leagueAvgAwayGoals;
 
         // Tier 3 variable: Head-to-Head adjustment
-        if ($modelVersion === self::MODEL_V1_H2H && $h2hHomeModifier !== null) {
+        if (in_array($modelVersion, [self::MODEL_V1_H2H, self::MODEL_V1_CALIBRATED], true) && $h2hHomeModifier !== null) {
             $lambdaHome *= $h2hHomeModifier;
             $lambdaAway /= $h2hHomeModifier;
+        }
+
+        // Form Momentum adjustment (v1.3.0-calibrated)
+        if ($modelVersion === self::MODEL_V1_CALIBRATED) {
+            $formWeight = (function_exists('config') && function_exists('app') && app()->has('config'))
+                ? (float) config('football.models.form_momentum_weight', 0.010)
+                : 0.010;
+            $formDiff = $homeFeatures->formPointsLast5 - $awayFeatures->formPointsLast5;
+            $formMod = max(0.85, min(1.15, 1.0 + ($formDiff * $formWeight)));
+            $lambdaHome *= $formMod;
+            $lambdaAway /= $formMod;
         }
 
         // Tier 3 variable: Rest days differential (fatigue / fixture congestion)
@@ -98,11 +117,13 @@ class PoissonModel
             self::MODEL_V1_DIXON_COLES,
             self::MODEL_V1_H2H,
             self::MODEL_V1_REST,
+            self::MODEL_V1_CALIBRATED,
         ], true);
 
+        $defaultRho = in_array($modelVersion, [self::MODEL_V1_DIXON_COLES, self::MODEL_V1_H2H, self::MODEL_V1_REST], true) ? -0.06 : -0.10;
         $rho = (function_exists('config') && function_exists('app') && app()->has('config'))
-            ? (float) config('football.models.dixon_coles_rho', $this->dixonColesRho)
-            : $this->dixonColesRho;
+            ? (float) config('football.models.dixon_coles_rho', $defaultRho)
+            : $defaultRho;
 
         for ($h = 0; $h <= $maxGoals; $h++) {
             for ($a = 0; $a <= $maxGoals; $a++) {
@@ -151,7 +172,24 @@ class PoissonModel
             }
         }
 
-        // 5. Rank Top Scorelines
+        // 5. Post-Grid Temperature Probability Calibration (v1.3.0-calibrated)
+        if ($modelVersion === self::MODEL_V1_CALIBRATED) {
+            $temperature = (function_exists('config') && function_exists('app') && app()->has('config'))
+                ? (float) config('football.models.temperature', 1.08)
+                : 1.08;
+
+            if ($temperature > 0.0 && abs($temperature - 1.0) > 0.001) {
+                $eH = pow($pHome, 1.0 / $temperature);
+                $eD = pow($pDraw, 1.0 / $temperature);
+                $eA = pow($pAway, 1.0 / $temperature);
+                $tSum = $eH + $eD + $eA;
+                $pHome = $eH / $tSum;
+                $pDraw = $eD / $tSum;
+                $pAway = $eA / $tSum;
+            }
+        }
+
+        // 6. Rank Top Scorelines
         usort($allScorelines, fn ($x, $y) => $y['prob'] <=> $x['prob']);
         $top5 = array_slice($allScorelines, 0, 5);
         $topScorelinesFormatted = array_map(function ($s) use ($gridSum) {

@@ -250,6 +250,75 @@
             z-index: 100;
         }
 
+        /* Responsive Off-Canvas Mobile Drawer */
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 105;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            pointer-events: none;
+        }
+        .sidebar-backdrop.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .sidebar-close-btn {
+            display: none;
+            background: transparent;
+            border: none;
+            color: var(--xp-muted);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: color 0.15s ease, background 0.15s ease;
+        }
+        .sidebar-close-btn:hover {
+            color: var(--xp-text);
+            background: var(--xp-surface-hover);
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar-backdrop {
+                display: block;
+            }
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                height: 100vh;
+                z-index: 110;
+                transform: translateX(-100%);
+                transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+                box-shadow: none;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+                box-shadow: 0 0 35px rgba(0, 0, 0, 0.9);
+            }
+            .sidebar-close-btn {
+                display: flex !important;
+            }
+            .main-wrapper {
+                width: 100%;
+                min-width: 0;
+            }
+            .topbar {
+                padding: 0 16px;
+            }
+            .content-container {
+                padding: 16px 16px 36px 16px;
+            }
+        }
+
         .sidebar-brand {
             display: flex;
             align-items: center;
@@ -763,6 +832,349 @@
             transition: opacity 0.15s ease;
         }
 
+        .xp-skeletal-preloader {
+            width: 100%;
+            animation: xp-fadeIn 0.2s ease-in-out;
+        }
+        @keyframes xp-fadeIn {
+            from { opacity: 0.65; }
+            to { opacity: 1; }
+        }
+
+        /* Xpect Dedicated Action & Preactivity Preloader */
+        .xp-activity-preloader {
+            position: fixed;
+            inset: 0;
+            z-index: 100000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            animation: xp-fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .xp-preloader-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.78);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .xp-preloader-dialog {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 38px 42px;
+            background: var(--xp-surface, #0C0C0E);
+            border: 1px solid var(--xp-border, #1E1E22);
+            border-radius: 16px;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.85), 0 0 45px rgba(217, 78, 0, 0.16);
+            max-width: 440px;
+            width: 90%;
+            text-align: center;
+            overflow: hidden;
+        }
+        .xp-preloader-ambient-glow {
+            position: absolute;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 240px;
+            height: 160px;
+            background: radial-gradient(circle, rgba(217, 78, 0, 0.4) 0%, rgba(217, 78, 0, 0.08) 55%, transparent 75%);
+            pointer-events: none;
+            animation: xp-glow-pulse 3s ease-in-out infinite alternate;
+        }
+        .xp-preloader-stage {
+            position: relative;
+            width: 96px;
+            height: 96px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 22px;
+        }
+        .xp-preloader-ring-outer {
+            position: absolute;
+            inset: 0;
+            border: 2px dashed rgba(217, 78, 0, 0.45);
+            border-top-color: var(--xp-orange);
+            border-radius: 50%;
+            animation: xp-orbit-spin 4s linear infinite;
+        }
+        .xp-preloader-ring-inner {
+            position: absolute;
+            inset: 10px;
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-bottom-color: var(--xp-orange);
+            border-radius: 50%;
+            animation: xp-orbit-spin-reverse 2.4s linear infinite;
+        }
+        .xp-preloader-brand-hub {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            filter: drop-shadow(0 4px 14px rgba(217, 78, 0, 0.45));
+            animation: xp-hub-breathe 2.4s ease-in-out infinite alternate;
+        }
+        .xp-preloader-runner-track {
+            width: 100%;
+            height: 3px;
+            background: var(--xp-border-subtle, #131315);
+            border-radius: 9999px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 18px;
+        }
+        .xp-runner-sweep {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 38%;
+            background: linear-gradient(90deg, transparent, var(--xp-orange), #FF8533, transparent);
+            border-radius: 9999px;
+            animation: xp-runner-slide 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+        .xp-preloader-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        .xp-preloader-text {
+            font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--xp-text, #FFFFFF);
+            margin: 0;
+        }
+        .xp-preloader-subtext {
+            font-size: 11.5px;
+            color: var(--xp-muted, #A1A1A6);
+            line-height: 1.45;
+            margin: 0;
+            max-width: 320px;
+        }
+        .xp-preloader-dismiss-btn {
+            margin-top: 18px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--xp-away, #6B6B70);
+            background: transparent;
+            border: 1px solid var(--xp-border, #1E1E22);
+            padding: 5px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .xp-preloader-dismiss-btn:hover {
+            color: var(--xp-text, #FFFFFF);
+            border-color: var(--xp-border-light, #2A2A30);
+            background: var(--xp-surface-hover, #141417);
+        }
+
+        @keyframes xp-orbit-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        @keyframes xp-orbit-spin-reverse {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+        }
+        @keyframes xp-glow-pulse {
+            0% { opacity: 0.6; transform: translateX(-50%) scale(0.95); }
+            100% { opacity: 1; transform: translateX(-50%) scale(1.15); }
+        }
+        @keyframes xp-hub-breathe {
+            0% { transform: scale(0.96); }
+            100% { transform: scale(1.04); }
+        }
+        @keyframes xp-runner-slide {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(350%); }
+        }
+
+        html[data-theme-mode="light"] .xp-activity-preloader .xp-preloader-backdrop {
+            background: rgba(243, 245, 247, 0.85);
+        }
+        html[data-theme-mode="light"] .xp-activity-preloader .xp-preloader-dialog {
+            background: #FFFFFF;
+            border-color: #D8DEE7;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.12), 0 0 35px rgba(217, 78, 0, 0.12);
+        }
+
+        /* Dark Luxury Unified Pagination */
+        .xp-pagination-container {
+            background: var(--xp-surface, #0C0C0E);
+            border: 1px solid var(--xp-border, #1E1E22);
+            border-radius: 10px;
+            padding: 12px 18px;
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+        }
+        .xp-pagination-summary {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .xp-pagination-summary-text {
+            font-size: 12.5px;
+            color: var(--xp-muted, #A1A1A6);
+            line-height: 1.4;
+        }
+        .xp-pagination-number {
+            color: var(--xp-text, #FFFFFF);
+            font-weight: 700;
+        }
+        .xp-pagination-total {
+            color: var(--xp-orange, #D94E00);
+            font-weight: 800;
+        }
+        .xp-pagination-page-pill {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--xp-text, #FFFFFF);
+            background: var(--xp-surface-hover, #141417);
+            border: 1px solid var(--xp-border, #1E1E22);
+            padding: 3px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.2px;
+        }
+        .xp-pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .xp-page-numbers-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .xp-page-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            min-height: 38px;
+            padding: 0 14px;
+            border-radius: 6px;
+            font-size: 12.5px;
+            font-weight: 600;
+            text-decoration: none;
+            user-select: none;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            box-sizing: border-box;
+        }
+        .xp-page-prev,
+        .xp-page-next {
+            padding: 0 16px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+        .xp-page-btn.active-btn {
+            background: var(--xp-surface-hover, #141417);
+            border: 1px solid var(--xp-border, #1E1E22);
+            color: var(--xp-text, #FFFFFF);
+            cursor: pointer;
+        }
+        .xp-page-btn.active-btn:hover {
+            background: rgba(217, 78, 0, 0.14);
+            border-color: var(--xp-orange, #D94E00);
+            color: var(--xp-orange, #D94E00);
+            box-shadow: 0 0 12px rgba(217, 78, 0, 0.25);
+        }
+        .xp-page-prev.active-btn:hover .xp-prev-icon {
+            transform: translateX(-3px);
+        }
+        .xp-page-next.active-btn:hover .xp-next-icon {
+            transform: translateX(3px);
+        }
+        .xp-prev-icon,
+        .xp-next-icon {
+            transition: transform 0.2s ease;
+        }
+        .xp-page-btn.active-btn:active {
+            background: var(--xp-orange-press, #BC4300);
+            border-color: var(--xp-orange-press, #BC4300);
+            color: #000000;
+            transform: scale(0.98);
+        }
+        .xp-page-btn.disabled {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--xp-border-subtle, #131315);
+            color: var(--xp-away, #6B6B70);
+            opacity: 0.45;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .xp-page-num {
+            min-width: 38px;
+            padding: 0 10px;
+            background: var(--xp-surface, #0C0C0E);
+            border: 1px solid var(--xp-border, #1E1E22);
+            color: var(--xp-text, #FFFFFF);
+            font-family: 'Space Grotesk', system-ui, sans-serif;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .xp-page-num:hover {
+            background: var(--xp-surface-hover, #141417);
+            border-color: var(--xp-border-light, #2A2A30);
+            color: var(--xp-orange, #D94E00);
+        }
+        .xp-page-num.current {
+            background: var(--xp-orange, #D94E00) !important;
+            border-color: var(--xp-orange, #D94E00) !important;
+            color: #000000 !important;
+            font-weight: 800;
+            cursor: default;
+            box-shadow: 0 0 14px rgba(217, 78, 0, 0.45);
+        }
+        .xp-page-dots {
+            min-width: 32px;
+            padding: 0 6px;
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--xp-away, #6B6B70);
+            cursor: default;
+        }
+        @media (max-width: 768px) {
+            .xp-pagination-container {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+            .xp-pagination-summary {
+                justify-content: space-between;
+                width: 100%;
+            }
+            .xp-pagination-controls {
+                justify-content: space-between;
+                width: 100%;
+            }
+            .xp-page-numbers-group {
+                display: none;
+            }
+            .xp-page-prev,
+            .xp-page-next {
+                flex: 1;
+            }
+        }
+
         .theme-options {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -962,6 +1374,13 @@
 <body>
     <!-- Top Progress Bar for Skeletal Page Transitions -->
     <div id="xp-nav-progress"></div>
+
+    <!-- Dedicated Xpect Preloader for Preactivities and Action-Based Operations -->
+    <x-activity-preloader />
+
+    <!-- Off-Canvas Sidebar Backdrop (Mobile / Small Screens) -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
     <!-- Sidebar -->
     <aside class="sidebar">
         <!-- Brand -->
@@ -977,7 +1396,15 @@
                 </svg>
                 <span>xpect</span>
             </div>
-            <span class="brand-badge">v1.2</span>
+            <div style="display:flex;align-items:center;gap:6px;">
+                <span class="brand-badge">v1.2</span>
+                <button type="button" class="sidebar-close-btn" id="sidebar-close-btn" aria-label="Close sidebar" title="Close sidebar">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
         </a>
 
         <!-- Section: Overview -->
@@ -1206,7 +1633,7 @@
         <!-- Top Header -->
         <header class="topbar">
             <div class="topbar-left">
-                <button class="topbar-btn" title="Toggle Sidebar">
+                <button class="topbar-btn" id="sidebar-toggle-btn" title="Toggle Sidebar" aria-label="Toggle Sidebar">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="3" y="3" width="18" height="18" rx="2"></rect>
                         <line x1="9" y1="3" x2="9" y2="21"></line>
@@ -1233,7 +1660,14 @@
                     $isFiltered = request()->filled('date') || request()->filled('time_slot') || request()->filled('time') || request()->filled('preset');
 
                     $parsedNow = \Carbon\CarbonImmutable::now('UTC');
-                    $activeDateStr = $rawDate ?? ($rawPreset === 'today' ? $parsedNow->format('Y-m-d') : null);
+                    $activeDateStr = $rawDate ?: match ($rawPreset) {
+                        'yesterday' => $parsedNow->subDay()->format('Y-m-d'),
+                        'tomorrow' => $parsedNow->addDay()->format('Y-m-d'),
+                        'weekend' => in_array((int) $parsedNow->format('w'), [0, 6], true)
+                            ? $parsedNow->format('Y-m-d')
+                            : $parsedNow->next(\Carbon\CarbonImmutable::SATURDAY)->format('Y-m-d'),
+                        default => $parsedNow->format('Y-m-d'),
+                    };
 
                     try {
                         $activeCarbon = $activeDateStr ? \Carbon\CarbonImmutable::parse($activeDateStr, 'UTC') : $parsedNow;
@@ -1251,9 +1685,13 @@
                         default => $rawTime ? $rawTime . ' UTC' : null,
                     };
 
-                    $btnDisplayLabel = $activeDateStr 
-                        ? ($activeDateStr === $parsedNow->format('Y-m-d') ? 'Today, ' . $activeCarbon->format('d M') : $activeCarbon->format('D, d M Y')) 
-                        : 'Select Date & Time';
+                    $btnDisplayLabel = match ($rawPreset) {
+                        'next_matchday' => 'Next Round',
+                        'last_matchday' => 'Last Round',
+                        default => $activeDateStr === $parsedNow->format('Y-m-d')
+                            ? 'Today, ' . $activeCarbon->format('d M')
+                            : $activeCarbon->format('D, d M Y'),
+                    };
                 @endphp
 
                 <div class="temporal-widget-container" style="position:relative;display:flex;align-items:center;gap:4px;">
@@ -1471,6 +1909,55 @@
     <!-- Progressive Skeletal Loading Transitions -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Responsive Mobile Sidebar Drawer
+            const sidebar = document.querySelector('.sidebar');
+            const sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');
+            const sidebarCloseBtn = document.getElementById('sidebar-close-btn');
+            const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+
+            function openSidebar() {
+                if (sidebar) sidebar.classList.add('open');
+                if (sidebarBackdrop) sidebarBackdrop.classList.add('active');
+                if (window.innerWidth <= 1024) document.body.style.overflow = 'hidden';
+            }
+
+            function closeSidebar() {
+                if (sidebar) sidebar.classList.remove('open');
+                if (sidebarBackdrop) sidebarBackdrop.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            if (sidebarToggleBtn) {
+                sidebarToggleBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (sidebar && sidebar.classList.contains('open')) {
+                        closeSidebar();
+                    } else {
+                        openSidebar();
+                    }
+                });
+            }
+
+            if (sidebarCloseBtn) {
+                sidebarCloseBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    closeSidebar();
+                });
+            }
+
+            if (sidebarBackdrop) {
+                sidebarBackdrop.addEventListener('click', function () {
+                    closeSidebar();
+                });
+            }
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && sidebar && sidebar.classList.contains('open')) {
+                    closeSidebar();
+                }
+            });
+
             const progressBar = document.getElementById('xp-nav-progress');
             const mainContent = document.querySelector('.content-container');
 
@@ -1482,24 +1969,137 @@
                 }, 300);
             }
 
-            // Intercept internal navigation clicks for instant skeletal feedback
+            // Global Activity Preloader Controller for Background Tasks, AI Synthesis & Action Triggers
+            window.XpectPreloader = {
+                show: function (title, subtext) {
+                    const el = document.getElementById('xp-activity-preloader');
+                    if (!el) return;
+                    if (title) {
+                        const titleEl = document.getElementById('xp-preloader-title');
+                        if (titleEl) titleEl.textContent = title;
+                    }
+                    if (subtext) {
+                        const subtextEl = document.getElementById('xp-preloader-subtext');
+                        if (subtextEl) subtextEl.textContent = subtext;
+                    }
+                    el.style.display = 'flex';
+                },
+                hide: function () {
+                    const el = document.getElementById('xp-activity-preloader');
+                    if (el) el.style.display = 'none';
+                },
+                setText: function (title, subtext) {
+                    if (title) {
+                        const titleEl = document.getElementById('xp-preloader-title');
+                        if (titleEl) titleEl.textContent = title;
+                    }
+                    if (subtext) {
+                        const subtextEl = document.getElementById('xp-preloader-subtext');
+                        if (subtextEl) subtextEl.textContent = subtext;
+                    }
+                },
+                isActive: function () {
+                    const el = document.getElementById('xp-activity-preloader');
+                    return el ? el.style.display !== 'none' : false;
+                }
+            };
+
+            const preloaderDismissBtn = document.getElementById('xp-preloader-dismiss-btn');
+            if (preloaderDismissBtn) {
+                preloaderDismissBtn.addEventListener('click', function () {
+                    window.XpectPreloader.hide();
+                });
+            }
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && window.XpectPreloader && window.XpectPreloader.isActive()) {
+                    window.XpectPreloader.hide();
+                }
+            });
+
+            // Intercept internal navigation clicks for instant skeletal feedback or preactivity actions
             document.addEventListener('click', function (e) {
+                const preloaderTrigger = e.target.closest('[data-preloader="true"]');
+                if (preloaderTrigger) {
+                    const pTitle = preloaderTrigger.getAttribute('data-preloader-title') || 'PROCESSING SYSTEM REQUEST';
+                    const pSubtext = preloaderTrigger.getAttribute('data-preloader-subtext') || 'Executing background operation...';
+                    if (window.XpectPreloader) {
+                        window.XpectPreloader.show(pTitle, pSubtext);
+                    }
+                    return;
+                }
+
                 const link = e.target.closest('a');
                 if (!link) return;
                 const href = link.getAttribute('href');
                 if (!href || href.startsWith('#') || href.startsWith('javascript:') || link.target === '_blank') return;
                 if (href.startsWith(window.location.origin) || href.startsWith('/')) {
                     if (progressBar) progressBar.classList.add('active');
-                    if (mainContent) mainContent.classList.add('content-loading-veil');
+                    const skeletal = document.querySelector('.xp-skeletal-preloader');
+                    const realContent = document.querySelector('.xp-page-content');
+                    if (skeletal && realContent) {
+                        skeletal.style.display = 'block';
+                        realContent.style.display = 'none';
+                        window.scrollTo({ top: 0, behavior: 'instant' });
+                    } else if (mainContent) {
+                        mainContent.classList.add('content-loading-veil');
+                    }
                 }
             });
 
-            // Intercept filter form submissions (dates, seasons, search)
+            // Intercept filter form submissions (dates, seasons, search) and action preactivities
             document.addEventListener('submit', function (e) {
                 const form = e.target;
-                if (form && !form.target) {
-                    if (progressBar) progressBar.classList.add('active');
-                    if (mainContent) mainContent.classList.add('content-loading-veil');
+                if (form && !form.target && !e.defaultPrevented) {
+                    const method = (form.getAttribute('method') || 'GET').toUpperCase();
+                    const isActionForm = method !== 'GET' || form.hasAttribute('data-preloader');
+
+                    if (isActionForm) {
+                        const action = (form.getAttribute('action') || '').toLowerCase();
+                        let title = 'PROCESSING SYSTEM REQUEST';
+                        let subtext = 'Executing server operation with strict data integrity guards...';
+
+                        if (form.getAttribute('data-preloader-title')) {
+                            title = form.getAttribute('data-preloader-title');
+                            subtext = form.getAttribute('data-preloader-subtext') || subtext;
+                        } else if (action.includes('predict') || action.includes('calculate')) {
+                            title = 'CALIBRATING POISSON PROBABILITIES';
+                            subtext = 'Computing expected goals, Dixon-Coles parameters & zero-leakage features...';
+                        } else if (action.includes('ai') || action.includes('preview')) {
+                            title = 'SYNTHESIZING AI REASONING PREVIEW';
+                            subtext = 'Generating match narrative from structured statistical models...';
+                        } else if (action.includes('audit') || action.includes('health') || action.includes('integrity')) {
+                            title = 'RUNNING SYSTEM INTEGRITY AUDIT';
+                            subtext = 'Validating database foreign keys, API logs & leakage invariants...';
+                        } else if (action.includes('sync') || action.includes('fetch') || action.includes('fixture')) {
+                            title = 'SYNCHRONIZING FOOTBALL DATA';
+                            subtext = 'Pulling latest verified results and updating standings...';
+                        } else if (action.includes('simulate') || action.includes('scenario')) {
+                            title = 'RUNNING AI PREDICTION SIMULATION';
+                            subtext = 'Simulating match outcomes across varied parameter weights...';
+                        } else if (action.includes('motm') || action.includes('history')) {
+                            title = 'EVALUATING MAN OF THE MATCH';
+                            subtext = 'Aggregating player performance ratings and event timeline...';
+                        } else if (action.includes('key') || action.includes('credential') || action.includes('settings')) {
+                            title = 'UPDATING SYSTEM CREDENTIALS';
+                            subtext = 'Encrypting and securely testing provider API connections...';
+                        }
+
+                        if (window.XpectPreloader) {
+                            window.XpectPreloader.show(title, subtext);
+                        }
+                    } else {
+                        if (progressBar) progressBar.classList.add('active');
+                        const skeletal = document.querySelector('.xp-skeletal-preloader');
+                        const realContent = document.querySelector('.xp-page-content');
+                        if (skeletal && realContent) {
+                            skeletal.style.display = 'block';
+                            realContent.style.display = 'none';
+                            window.scrollTo({ top: 0, behavior: 'instant' });
+                        } else if (mainContent) {
+                            mainContent.classList.add('content-loading-veil');
+                        }
+                    }
                 }
             });
         });

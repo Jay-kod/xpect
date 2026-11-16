@@ -98,24 +98,24 @@
                         Stage 1: Feature Extraction &amp; Sustainable xG Blending
                     </div>
                     <p style="font-size: 12px; color: var(--xp-muted); margin: 0; line-height: 1.5;">
-                        For both teams, the system gathers the last <strong>20 matches</strong> dated strictly before the match kickoff. Match statistics blend <strong>70% expected goals (xG)</strong> with <strong>30% actual goals scored</strong> to remove finishing variance and luck. Past matches are exponentially discounted with a <strong>60-day half-life decay</strong>.
+                        For both teams, the system gathers the last <strong>20 matches</strong> dated strictly before the match kickoff. Match statistics blend <strong>85% expected goals (xG)</strong> with <strong>15% actual goals scored</strong> to prioritize sustainable chance creation and eliminate noisy finishing variance. Past matches are exponentially discounted with a <strong>60-day half-life decay</strong>.
                     </p>
                 </div>
 
                 {{-- Step 2 --}}
                 <div style="background: #08080A; border: 1px solid var(--xp-border); border-radius: 8px; padding: 14px 16px; border-left: 3px solid var(--xp-orange);">
                     <div style="font-size: 13px; font-weight: 700; color: #FFFFFF; margin-bottom: 4px;">
-                        Stage 2: Attacking &amp; Defensive Strength Coefficients
+                        Stage 2: Attacking &amp; Defensive Strength Coefficients &amp; Form Momentum
                     </div>
                     <p style="font-size: 12px; color: var(--xp-muted); margin: 0; line-height: 1.5;">
-                        Each club receives an offensive strength rating (<code style="color:var(--xp-orange);">Att</code>) and defensive vulnerability rating (<code style="color:var(--xp-orange);">Def</code>), normalized against league-wide goal averages. Home advantage is computed per-club rather than a uniform constant.
+                        Each club receives an offensive strength rating (<code style="color:var(--xp-orange);">Att</code>) and defensive vulnerability rating (<code style="color:var(--xp-orange);">Def</code>), normalized against league-wide goal averages. A Form Momentum factor (<code style="color:var(--xp-orange);">1.0 + &Delta;<sub>form5</sub> &times; 0.010</code>, clamped <code style="color:var(--xp-orange);">[0.85, 1.15]</code>) dynamically scales expected goals based on 5-match points momentum. Home advantage is computed per-club rather than a uniform constant.
                     </p>
                 </div>
 
                 {{-- Step 3 --}}
                 <div style="background: #08080A; border: 1px solid var(--xp-border); border-radius: 8px; padding: 14px 16px; border-left: 3px solid var(--xp-orange);">
                     <div style="font-size: 13px; font-weight: 700; color: #FFFFFF; margin-bottom: 4px;">
-                        Stage 3: Head-to-Head (H2H) Matchup Factor (v1.2.1-h2h)
+                        Stage 3: Head-to-Head (H2H) Matchup Factor (v1.3.0-calibrated)
                     </div>
                     <p style="font-size: 12px; color: var(--xp-muted); margin: 0; line-height: 1.5;">
                         Historical head-to-head encounters between the two clubs are evaluated with an exponential half-life decay. A shrinkage factor (<code style="color:var(--xp-orange);">k = 3.0</code>) pulls sparse head-to-head records smoothly toward team strength baselines.
@@ -128,17 +128,17 @@
                         Stage 4: Dixon-Coles Low-Score Bivariate Correction
                     </div>
                     <p style="font-size: 12px; color: var(--xp-muted); margin: 0; line-height: 1.5;">
-                        Standard bivariate Poisson assumes goal independence between teams. Real football exhibits systemic correlation on low scorelines. The model applies the Dixon-Coles correlation adjustment with parameter <code style="color:var(--xp-orange);">&rho; = -0.06</code> on scores 0-0, 1-0, 0-1, and 1-1.
+                        Standard bivariate Poisson assumes goal independence between teams. Real football exhibits systemic correlation on low scorelines. The model applies the Dixon-Coles correlation adjustment with parameter <code style="color:var(--xp-orange);">&rho; = -0.10</code> on scores 0-0, 1-0, 0-1, and 1-1 to capture modern draw dynamics.
                     </p>
                 </div>
 
                 {{-- Step 5 --}}
                 <div style="background: #08080A; border: 1px solid var(--xp-border); border-radius: 8px; padding: 14px 16px; border-left: 3px solid var(--xp-orange);">
                     <div style="font-size: 13px; font-weight: 700; color: #FFFFFF; margin-bottom: 4px;">
-                        Stage 5: 6x6 Matrix Integration &amp; 1X2 Probabilities
+                        Stage 5: 6x6 Matrix Integration &amp; Temperature Calibration (T = 1.08)
                     </div>
                     <p style="font-size: 12px; color: var(--xp-muted); margin: 0; line-height: 1.5;">
-                        The 6x6 scoreline probability matrix ($0..5 \times 0..5$) is computed and normalized to exactly 1.000. Summing upper triangles yields <strong style="color:var(--xp-orange);">P(Home Win)</strong>, the diagonal yields <strong style="color:#FFFFFF;">P(Draw)</strong>, and lower triangles yield <strong style="color:var(--xp-away);">P(Away Win)</strong>.
+                        The 6x6 scoreline probability matrix ($0..5 \times 0..5$) is computed and integrated into raw win/draw/loss probabilities. Post-grid temperature scaling (<code style="color:var(--xp-orange);">T = 1.08</code>) softens extreme overconfidence on heavy favorites and aligns predicted probabilities to empirical match outcomes within 0.1%–1.5% calibration error. Summing yields <strong style="color:var(--xp-orange);">P(Home Win)</strong>, <strong style="color:#FFFFFF;">P(Draw)</strong>, and <strong style="color:var(--xp-away);">P(Away Win)</strong>.
                     </p>
                 </div>
             </div>
@@ -174,7 +174,18 @@
                         &tau;(1, 1) = 1 &minus; &rho;
                     </div>
                     <span style="font-size: 11.5px; color: var(--xp-muted); line-height: 1.4;">
-                        Calibrated with &rho; = -0.06 to capture mutual tactical caution in scoreless and 1-1 draws.
+                        Calibrated with &rho; = -0.10 to capture mutual tactical caution and modern draw frequencies in 0-0 and 1-1 scores.
+                    </span>
+                </div>
+
+                <div style="background: #08080A; border: 1px solid var(--xp-border); border-radius: 8px; padding: 16px;">
+                    <strong style="color: var(--xp-orange); font-size: 13px; display: block; margin-bottom: 6px;">Form Momentum &amp; Temperature Calibration</strong>
+                    <div style="font-family: monospace; font-size: 12.5px; background: #000000; padding: 10px; border-radius: 4px; border: 1px solid var(--xp-border-subtle); color: #FFFFFF; margin-bottom: 8px;">
+                        F = clamp(1.0 + &Delta;<sub>form5</sub> &times; 0.010, 0.85, 1.15)<br>
+                        P<sub>scaled</sub>(o) = P(o)<sup>1/T</sup> / &sum; P(k)<sup>1/T</sup> &nbsp;(T = 1.08)
+                    </div>
+                    <span style="font-size: 11.5px; color: var(--xp-muted); line-height: 1.4;">
+                        Momentum adjusts expected goals by recent 5-match point differential; Temperature T = 1.08 softens extreme favorite overconfidence.
                     </span>
                 </div>
 

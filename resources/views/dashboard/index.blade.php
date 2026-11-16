@@ -14,7 +14,7 @@
             grid-template-columns: minmax(0, 1fr) 270px;
             gap: 18px;
             align-items: start;
-            margin-top: 18px;
+            margin-top: 14px;
         }
         .matches-sidebar-col {
             position: -webkit-sticky;
@@ -87,329 +87,832 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* ------------------------------------------------------------- */
+        /* SPORTYBET-STYLE MODERN UI EXTENSIONS                          */
+        /* ------------------------------------------------------------- */
+        .db-provenance-strip {
+            background: linear-gradient(90deg, #0A0A0D 0%, #111115 100%);
+            border: 1px solid var(--xp-border);
+            border-left: 3px solid var(--xp-orange);
+            border-radius: 8px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        .db-provenance-main {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .db-pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--xp-ok);
+            box-shadow: 0 0 8px var(--xp-ok);
+            animation: pulse-live 2s infinite;
+        }
+        @keyframes pulse-live {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.15); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+        .db-title-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .db-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--xp-text);
+            letter-spacing: -0.01em;
+        }
+        .db-tag-model {
+            background: rgba(217, 78, 0, 0.15);
+            color: var(--xp-orange);
+            border: 1px solid rgba(217, 78, 0, 0.35);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 4px;
+        }
+        .db-tag-clean {
+            background: #141418;
+            border: 1px solid var(--xp-border);
+            color: var(--xp-ok);
+            font-size: 10px;
+            font-weight: 600;
+            padding: 1px 6px;
+            border-radius: 4px;
+        }
+        .db-provenance-stats {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--xp-muted);
+            flex-wrap: wrap;
+        }
+        .db-bullet {
+            color: var(--xp-away);
+        }
+        .db-today-badge {
+            background: rgba(217, 78, 0, 0.2);
+            color: var(--xp-orange);
+            border: 1px solid var(--xp-orange);
+            padding: 1px 7px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 10px;
+        }
+
+        /* SportyBet Horizontal League Filter Bar */
+        .sporty-leagues-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+        }
+        .sporty-league-chip {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: #0C0C0E;
+            border: 1px solid var(--xp-border);
+            color: var(--xp-muted);
+            text-decoration: none;
+            font-size: 11.5px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.15s ease;
+        }
+        .sporty-league-chip:hover {
+            background: #141418;
+            color: var(--xp-text);
+            border-color: var(--xp-border-light);
+        }
+        .sporty-league-chip.active {
+            background: rgba(217, 78, 0, 0.14) !important;
+            border-color: var(--xp-orange) !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 0 12px rgba(217, 78, 0, 0.25);
+        }
+        .sporty-league-chip.active .chip-code {
+            background: var(--xp-orange);
+            color: #000000;
+            font-weight: 700;
+        }
+        .chip-code {
+            font-size: 9.5px;
+            padding: 1px 5px;
+            border-radius: 4px;
+            background: #18181C;
+            color: var(--xp-away);
+            font-weight: 700;
+        }
+
+        /* SportyBet Day Switcher Bar */
+        .sporty-day-switcher {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: #0C0C0E;
+            border: 1px solid var(--xp-border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-bottom: 14px;
+        }
+        .day-switcher-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .day-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 10px;
+            border-radius: 6px;
+            background: #060608;
+            border: 1px solid var(--xp-border-subtle);
+            color: var(--xp-muted);
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.15s ease;
+        }
+        .day-pill:hover {
+            background: #141418;
+            color: var(--xp-text);
+            border-color: var(--xp-border);
+        }
+        .day-pill.active {
+            background: rgba(217, 78, 0, 0.14) !important;
+            border-color: var(--xp-orange) !important;
+            color: var(--xp-orange) !important;
+            font-weight: 700;
+        }
+        .day-badge {
+            background: #18181C;
+            color: var(--xp-away);
+            font-size: 9.5px;
+            padding: 1px 5px;
+            border-radius: 8px;
+            font-weight: 700;
+        }
+        .day-pill.active .day-badge {
+            background: var(--xp-orange);
+            color: #000000;
+        }
+
+        /* SportyBet 1X2 Match Card - Professional Broadcast & Betting Look */
+        .sporty-match-card {
+            background: #0D0E12;
+            border: 1px solid #1E2028;
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+        .sporty-match-card:hover {
+            border-color: #2E3342;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+        }
+        .sporty-match-card.featured-card {
+            border: 1.5px solid rgba(217, 78, 0, 0.45);
+            background: linear-gradient(180deg, #101117 0%, #0B0B0E 100%);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(217, 78, 0, 0.08);
+        }
+        .sporty-match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #181922;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sporty-matchup {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 16px;
+            align-items: center;
+            background: #08080B;
+            padding: 14px 18px;
+            border-radius: 8px;
+            border: 1px solid #181922;
+        }
+        .sporty-team-side {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+        .sporty-team-side.home {
+            justify-content: flex-end;
+            text-align: right;
+        }
+        .sporty-team-side.away {
+            justify-content: flex-start;
+            text-align: left;
+        }
+        .sporty-team-name {
+            font-size: 15px;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.01em;
+            line-height: 1.25;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .sporty-team-sub {
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+        .sporty-team-sub.home-sub {
+            color: var(--xp-orange);
+        }
+        .sporty-team-sub.away-sub {
+            color: var(--xp-away);
+        }
+        .sporty-center-pillar {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 0 8px;
+        }
+        .sporty-vs-badge {
+            background: #14151C;
+            border: 1px solid #252835;
+            color: var(--xp-away);
+            font-size: 10.5px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            padding: 3px 10px;
+            border-radius: 14px;
+        }
+        .sporty-score-pill {
+            font-size: 20px;
+            font-weight: 900;
+            color: #FFFFFF;
+            background: #14151C;
+            border: 1px solid #282A36;
+            padding: 4px 14px;
+            border-radius: 6px;
+            letter-spacing: 0.05em;
+        }
+        .sporty-time-sub {
+            font-size: 10.5px;
+            color: var(--xp-muted);
+            font-weight: 600;
+        }
+        .sporty-odds-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+        .sporty-odd-card {
+            background: #07070A;
+            border: 1px solid #1C1E26;
+            border-radius: 8px;
+            padding: 10px 12px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: all 0.15s ease;
+            position: relative;
+        }
+        .sporty-odd-card:hover {
+            border-color: #2D303D;
+            background: #0E0F14;
+        }
+        .sporty-odd-card.favored {
+            border: 1.5px solid var(--xp-orange) !important;
+            background: linear-gradient(180deg, rgba(217, 78, 0, 0.16) 0%, rgba(217, 78, 0, 0.04) 100%) !important;
+            box-shadow: 0 0 16px rgba(217, 78, 0, 0.22);
+        }
+        .odd-num {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: var(--xp-away);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .sporty-odd-card.favored .odd-num {
+            color: var(--xp-orange);
+        }
+        .odd-prob {
+            font-size: 18px;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+        .sporty-odd-card.favored .odd-prob {
+            color: var(--xp-orange);
+        }
+        .odd-fair-price {
+            font-size: 11px;
+            color: var(--xp-muted);
+            font-weight: 600;
+            font-family: var(--xp-font-mono, monospace);
+        }
+        .sporty-odd-card.favored .odd-fair-price {
+            color: #F0A57A;
+        }
+        .odd-tag {
+            font-size: 9px;
+            font-weight: 800;
+            color: #000000;
+            background: var(--xp-orange);
+            padding: 2px 6px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 2px;
+        }
+        .sporty-indicators-strip {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: #08080B;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #181922;
+            font-size: 11px;
+            color: var(--xp-muted);
+        }
+        .indicator-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .indicator-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--xp-orange);
+        }
+        .sporty-ai-box {
+            background: linear-gradient(90deg, rgba(217, 78, 0, 0.09) 0%, rgba(13, 14, 18, 0.7) 100%);
+            border: 1px solid rgba(217, 78, 0, 0.3);
+            border-left: 3.5px solid var(--xp-orange);
+            border-radius: 7px;
+            padding: 12px 14px;
+            font-size: 12px;
+            color: #E2E2E8;
+            line-height: 1.55;
+        }
+        .sporty-ai-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+        }
+        .sporty-ai-title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--xp-orange);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .sporty-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding-top: 4px;
+        }
+
+        /* Prediction Verdict Badges for Completed Games */
+        .sporty-verdict-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2.5px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .sporty-verdict-badge.won {
+            background: rgba(0, 200, 83, 0.16);
+            color: var(--xp-ok);
+            border: 1px solid var(--xp-ok);
+            box-shadow: 0 0 10px rgba(0, 200, 83, 0.2);
+        }
+        .sporty-verdict-badge.lost {
+            background: rgba(255, 69, 58, 0.14);
+            color: #FF453A;
+            border: 1px solid #FF453A;
+        }
+        .sporty-final-score-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #050507;
+            border: 1px solid #282A36;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11.5px;
+            font-weight: 800;
+            color: #FFFFFF;
+        }
+        .sporty-final-score-pill.won {
+            border-color: var(--xp-ok);
+            box-shadow: 0 0 10px rgba(0, 200, 83, 0.2);
+        }
+        .sporty-odd-card.actual-winner {
+            border: 1.5px solid var(--xp-ok) !important;
+            background: rgba(0, 200, 83, 0.06) !important;
+        }
+        .sporty-odd-card.won-tile {
+            border: 2px solid var(--xp-ok) !important;
+            background: linear-gradient(180deg, rgba(0, 200, 83, 0.18) 0%, rgba(0, 200, 83, 0.05) 100%) !important;
+            box-shadow: 0 0 18px rgba(0, 200, 83, 0.28);
+        }
+        .sporty-odd-card.won-tile .odd-num {
+            color: var(--xp-ok);
+        }
+        .sporty-odd-card.won-tile .odd-prob {
+            color: var(--xp-ok);
+        }
+        .odd-verdict-tag {
+            font-size: 8.5px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-top: 2px;
+        }
+        .odd-verdict-tag.won {
+            background: var(--xp-ok);
+            color: #000000;
+        }
+        .odd-verdict-tag.actual {
+            background: rgba(0, 200, 83, 0.2);
+            color: var(--xp-ok);
+            border: 1px solid var(--xp-ok);
+        }
+        .odd-verdict-tag.missed {
+            background: rgba(255, 69, 58, 0.2);
+            color: #FF453A;
+            border: 1px solid #FF453A;
+        }
+
+        /* 3 Analytical Systems Box */
+        .sporty-three-systems-box {
+            background: #08080B;
+            border: 1px solid #1C1E27;
+            border-radius: 7px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .three-systems-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .three-systems-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+        .system-col {
+            background: #0D0E13;
+            border: 1px solid #1F212D;
+            border-radius: 6px;
+            padding: 8px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .system-col.consensus-col {
+            border-color: rgba(217, 78, 0, 0.45);
+            background: linear-gradient(180deg, rgba(217, 78, 0, 0.09) 0%, #0D0E13 100%);
+        }
+        .system-title {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+        .system-badge {
+            font-size: 8px;
+            font-weight: 800;
+            padding: 1px 4px;
+            border-radius: 3px;
+            text-transform: uppercase;
+        }
+        .system-badge.s1 { background: rgba(59, 130, 246, 0.2); color: #60A5FA; border: 1px solid #3B82F6; }
+        .system-badge.s2 { background: rgba(168, 85, 247, 0.2); color: #C084FC; border: 1px solid #A855F7; }
+        .system-badge.s3 { background: rgba(217, 78, 0, 0.25); color: var(--xp-orange); border: 1px solid var(--xp-orange); }
+        .system-method {
+            font-size: 9.5px;
+            color: var(--xp-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .system-probs {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10.5px;
+            font-weight: 600;
+            color: #D4D4DC;
+            margin-top: 2px;
+            padding-top: 2px;
+            border-top: 1px solid #171822;
+        }
+        .system-probs .favored {
+            color: var(--xp-orange);
+            font-weight: 800;
+        }
+        .system-footer {
+            font-size: 10px;
+            color: var(--xp-away);
+            margin-top: 1px;
+        }
+        .system-footer strong {
+            color: #FFFFFF;
+        }
+        .three-systems-agreement-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #050508;
+            border: 1px solid #161720;
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-size: 10.5px;
+            color: #B5B7C2;
+        }
+        @media (max-width: 768px) {
+            .three-systems-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .sporty-time-remaining {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--xp-orange);
+            background: rgba(217, 78, 0, 0.12);
+            border: 1px solid rgba(217, 78, 0, 0.3);
+            padding: 2px 7px;
+            border-radius: 4px;
+            white-space: nowrap;
+            letter-spacing: 0.02em;
+        }
+        .sporty-time-remaining.urgent {
+            color: #FF453A;
+            background: rgba(255, 69, 58, 0.14);
+            border-color: rgba(255, 69, 58, 0.45);
+            animation: pulse-countdown 1.8s infinite ease-in-out;
+        }
+        @keyframes pulse-countdown {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.65; }
+        }
+        .live-pulse-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #FF3B30;
+            box-shadow: 0 0 8px #FF3B30;
+            display: inline-block;
+            margin-right: 4px;
+            animation: pulse-countdown 1.2s infinite;
+        }
+        .team-extra-detail {
+            font-size: 10px;
+            color: var(--xp-away);
+            font-weight: 600;
+            margin-left: 4px;
+        }
+        .sporty-mini-markets {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            font-size: 10.5px;
+            color: var(--xp-muted);
+            border-top: 1px solid #161720;
+            padding-top: 6px;
+            margin-top: 2px;
+        }
+        .mini-market-pill {
+            background: #090A0D;
+            border: 1px solid #1C1E28;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            color: var(--xp-text);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .mini-market-pill strong {
+            color: var(--xp-orange);
+        }
     </style>
 
-    <!-- Top KPI Strip: Real Competition Vital Signs -->
-    <div class="grid-kpi-4">
-        <!-- Card 1: Season Progress -->
-        <div class="kpi-card" style="padding:14px 16px;">
-            <span class="kpi-label">Season progress</span>
-            <div class="kpi-value" style="font-size:22px;margin:3px 0;">
-                {{ $compStats['finished'] }}
-                <span style="font-size:14px;color:var(--xp-muted);font-weight:500;">/ {{ $compStats['total'] }}</span>
-            </div>
-            <div class="kpi-delta positive" style="gap:4px;font-size:11px;">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <polyline points="18 15 12 9 6 15"></polyline>
-                </svg>
-                <span>{{ $compStats['progress_pct'] }}%</span>
-                <span class="kpi-delta-context">played ({{ $compStats['scheduled'] }} left)</span>
+    <!-- Dashboard Skeletal Preloader (Active during navigation / filter state changes or ?skeleton=1) -->
+    <x-skeletal-preloader page="dashboard" />
+
+    <!-- Dashboard Real Content Stream -->
+    <div id="dashboard-real-content" class="xp-page-content" style="{{ request()->has('skeleton') ? 'display: none;' : '' }}">
+    <!-- 1. TOP DATABASE TRUST & PROVENANCE STRIP (The Confidence Ribbon) -->
+    <div class="db-provenance-strip">
+        <div class="db-provenance-main">
+            <span class="db-pulse-dot" title="Live Model Engine Connected"></span>
+            <div class="db-title-group">
+                <span class="db-title">Xpect Prediction Engine Active</span>
+                <span class="db-tag-model">v1.2.1-h2h (Dixon-Coles + xG)</span>
+                <span class="db-tag-clean">Zero Leakage Guard</span>
             </div>
         </div>
-
-        <!-- Card 2: Scoring Rate -->
-        <div class="kpi-card" style="padding:14px 16px;">
-            <span class="kpi-label">Scoring average</span>
-            <div class="kpi-value" style="font-size:22px;margin:3px 0;">
-                {{ number_format($compStats['goals_per_match'], 2) }}
-                <span style="font-size:12px;color:var(--xp-muted);font-weight:500;">goals/game</span>
-            </div>
-            <div class="kpi-delta" style="gap:4px;color:var(--xp-orange);font-size:11px;">
-                <span>{{ $compStats['total_goals'] }} goals</span>
-                <span class="kpi-delta-context">Home {{ number_format($compStats['home_goals_avg'], 1) }} &bull; Away {{ number_format($compStats['away_goals_avg'], 1) }}</span>
-            </div>
-        </div>
-
-        <!-- Card 3: Home Advantage -->
-        <div class="kpi-card" style="padding:14px 16px;">
-            <span class="kpi-label">Home advantage</span>
-            <div class="kpi-value" style="font-size:22px;margin:3px 0;">{{ $compStats['home_win_pct'] }}%</div>
-            <div class="kpi-delta" style="gap:4px;color:var(--xp-text);font-size:11px;">
-                <span>{{ $compStats['home_wins'] }}W</span>
-                <span class="kpi-delta-context">&bull; {{ $compStats['draws'] }}D &bull; {{ $compStats['away_wins'] }}L</span>
-            </div>
-        </div>
-
-        <!-- Card 4: Model Predictions -->
-        <div class="kpi-card" style="padding:14px 16px;">
-            <span class="kpi-label">Model predictions</span>
-            <div class="kpi-value" style="font-size:22px;margin:3px 0;">
-                {{ $compStats['predictions_count'] }}
-                <span style="font-size:12px;color:var(--xp-muted);font-weight:500;">active</span>
-            </div>
-            <a href="{{ route('changelog') }}" class="kpi-delta positive" style="gap:4px;text-decoration:none;font-size:11px;" title="View Model Changelog &amp; Architecture">
-                <span>Dixon-Coles</span>
-                <span class="kpi-delta-context">v1.2.1-h2h &rarr;</span>
-            </a>
+        <div class="db-provenance-stats">
+            <span>⚡ Powered by <strong>{{ number_format($dbStats['total_matches'] ?? 10734) }}</strong> matches in DB</span>
+            <span class="db-bullet">&bull;</span>
+            <span><strong>{{ $dbStats['total_seasons'] ?? 5 }}</strong> seasons verified</span>
+            <span class="db-bullet">&bull;</span>
+            <span><strong>{{ number_format($dbStats['total_predictions'] ?? 6597) }}</strong> predictions evaluated</span>
+            @if (!empty($dbStats['today_all_leagues_count']) && $dbStats['today_all_leagues_count'] > 0)
+                <span class="db-bullet">&bull;</span>
+                <span class="db-today-badge">⭐ {{ $dbStats['today_all_leagues_count'] }} games today</span>
+            @endif
         </div>
     </div>
 
-    <!-- Unified League Pulse & Analytics Card (Merged Trend Chart + Match Dynamics + Outcomes + Shortcuts) -->
-    <div class="card" style="margin-bottom:14px;padding:16px 18px;">
-        <!-- Card Header: Title & Season Selector -->
-        <div class="card-header" style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-            <div>
-                <div class="card-title" style="display:flex;align-items:center;gap:8px;font-size:14px;">
-                    <span>Matchday Scoring &amp; Goal Intensity Trend</span>
-                    <span class="badge" style="background:#141418;border:1px solid var(--xp-border);font-size:10.5px;color:var(--xp-orange);font-weight:700;">
-                        {{ $competition?->name }}
+    <!-- 2. SPORTYBET HORIZONTAL LEAGUE FILTER BAR -->
+    <div class="sporty-leagues-bar">
+        @foreach ($competitions as $c)
+            @php
+                $cCode = match($c->slug) {
+                    'premier-league' => 'EPL',
+                    'la-liga' => 'ESP',
+                    'bundesliga' => 'GER',
+                    'serie-a' => 'ITA',
+                    'ligue-1' => 'FRA',
+                    default => 'UCL',
+                };
+                $cFlag = match($c->slug) {
+                    'premier-league' => '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+                    'la-liga' => '🇪🇸',
+                    'bundesliga' => '🇩🇪',
+                    'serie-a' => '🇮🇹',
+                    'ligue-1' => '🇫🇷',
+                    default => '🏆',
+                };
+                $cTodayCount = $todayLeagueCounts[$c->id] ?? 0;
+                $cUpcomingCount = $upcomingLeagueCounts[$c->id] ?? 0;
+            @endphp
+            <a href="{{ route('dashboard', ['competition' => $c->slug, 'season' => $selectedSeason, 'status' => $statusFilter]) }}"
+               class="sporty-league-chip {{ $selectedComp === $c->slug ? 'active' : '' }}"
+               title="Filter to {{ $c->name }}">
+                <span>{{ $cFlag }}</span>
+                <span>{{ $c->name }}</span>
+                <span class="chip-code">{{ $cCode }}</span>
+                @if ($cTodayCount > 0)
+                    <span class="badge" style="background:var(--xp-orange);color:#000000;font-size:9.5px;font-weight:700;padding:1px 5px;border-radius:8px;">
+                        {{ $cTodayCount }} today
                     </span>
-                </div>
-                <div style="font-size:11px;color:var(--xp-muted);margin-top:2px;">
-                    Total goals scored per round across Season {{ $selectedSeason }}/{{ substr((string)($selectedSeason+1), -2) }}.
-                </div>
-            </div>
+                @elseif ($cUpcomingCount > 0)
+                    <span class="badge" style="background:#18181C;color:var(--xp-away);font-size:9.5px;padding:1px 5px;border-radius:8px;">
+                        {{ $cUpcomingCount }}
+                    </span>
+                @endif
+            </a>
+        @endforeach
+    </div>
 
-            <!-- Season Selector Dropdown -->
-            <form method="GET" action="{{ route('dashboard') }}" style="margin:0;">
-                <input type="hidden" name="competition" value="{{ $selectedComp }}">
-                <input type="hidden" name="status" value="{{ $statusFilter }}">
-                <select name="season" class="select-pill" style="font-size:11px;padding:4px 8px;" onchange="this.form.submit()">
-                    @foreach ($seasons as $s)
-                        <option value="{{ $s }}" {{ $selectedSeason === (int)$s ? 'selected' : '' }}>
-                            Season {{ $s }}/{{ substr((string)($s+1), -2) }}
+    <!-- 3. SPORTYBET QUICK DAY SWITCHER & MATCHDAY JUMP BAR -->
+    <div class="sporty-day-switcher">
+        <div class="day-switcher-left">
+            <!-- 1. Today's Matches -->
+            <a href="{{ route('dashboard', ['competition' => $selectedComp, 'season' => $selectedSeason, 'status' => 'today']) }}"
+               class="day-pill {{ $statusFilter === 'today' ? 'active' : '' }}">
+                <span>⭐</span>
+                <span>Today's Matches</span>
+                <span class="day-badge">{{ $matchCounts['today'] }}</span>
+            </a>
+
+            <!-- 2. Upcoming Round / Future -->
+            <a href="{{ route('dashboard', ['competition' => $selectedComp, 'season' => $selectedSeason, 'status' => 'future']) }}"
+               class="day-pill {{ $statusFilter === 'future' ? 'active' : '' }}">
+                <span>Upcoming Round</span>
+                <span class="day-badge">{{ $matchCounts['future'] }}</span>
+            </a>
+
+            <!-- 3. Past Results -->
+            <a href="{{ route('dashboard', ['competition' => $selectedComp, 'season' => $selectedSeason, 'status' => 'past']) }}"
+               class="day-pill {{ $statusFilter === 'past' ? 'active' : '' }}">
+                <span>Past Results</span>
+                <span class="day-badge">{{ $matchCounts['past'] }}</span>
+            </a>
+
+            <!-- 4. All Matches -->
+            <a href="{{ route('dashboard', ['competition' => $selectedComp, 'season' => $selectedSeason, 'status' => 'all']) }}"
+               class="day-pill {{ $statusFilter === 'all' && !$dateFilterInfo ? 'active' : '' }}">
+                <span>All Fixtures</span>
+                <span class="day-badge">{{ $matchCounts['all'] }}</span>
+            </a>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            <!-- Matchdays Jump Dropdown -->
+            @if (!empty($availableMatchDates) && $availableMatchDates->isNotEmpty())
+                <select class="select-pill" style="font-size:11px;padding:3px 6px;" onchange="if(this.value) window.location.href=this.value;" title="Jump directly to confirmed matchday dates">
+                    <option value="">📅 Matchdays ({{ $availableMatchDates->count() }} rounds)...</option>
+                    @foreach ($availableMatchDates as $amd)
+                        <option value="{{ route('dashboard', array_merge(request()->except(['page', 'preset']), ['competition' => $selectedComp, 'date' => $amd->match_date])) }}" {{ $selectedDate === $amd->match_date ? 'selected' : '' }}>
+                            {{ \Carbon\CarbonImmutable::parse($amd->match_date)->format('D, d M') }} ({{ $amd->count }})
                         </option>
                     @endforeach
                 </select>
-            </form>
-        </div>
-
-        @php
-            $scoringItems = $compStats['matchday_scoring'];
-            $scoringCount = $scoringItems->count();
-            $maxGoals = max(36, (int)($compStats['highest_round']?->total_goals ?? 30) + 4);
-            $chartWidth = 840;
-            $chartHeight = 75;
-            $paddingLeft = 35;
-            $baseY = 95;
-
-            $points = [];
-            $pathD = '';
-            $areaD = '';
-
-            if ($scoringCount > 0) {
-                foreach ($scoringItems as $idx => $item) {
-                    $x = $scoringCount > 1 
-                        ? round($paddingLeft + ($idx * ($chartWidth / ($scoringCount - 1))), 1) 
-                        : round($paddingLeft + ($chartWidth / 2), 1);
-                    $y = round($baseY - (($item->total_goals / $maxGoals) * $chartHeight), 1);
-                    $points[] = [
-                        'x' => $x, 
-                        'y' => $y, 
-                        'goals' => $item->total_goals, 
-                        'matchday' => $item->matchday, 
-                        'avg' => $item->avg_goals
-                    ];
-                }
-
-                foreach ($points as $i => $pt) {
-                    if ($i === 0) {
-                        $pathD = "M {$pt['x']} {$pt['y']}";
-                        $areaD = "M {$pt['x']} {$baseY} L {$pt['x']} {$pt['y']}";
-                    } else {
-                        $prev = $points[$i - 1];
-                        $cx1 = round($prev['x'] + ($pt['x'] - $prev['x']) / 2, 1);
-                        $cy1 = $prev['y'];
-                        $cx2 = $cx1;
-                        $cy2 = $pt['y'];
-                        $pathD .= " C {$cx1} {$cy1}, {$cx2} {$cy2}, {$pt['x']} {$pt['y']}";
-                        $areaD .= " C {$cx1} {$cy1}, {$cx2} {$cy2}, {$pt['x']} {$pt['y']}";
-                    }
-                }
-                $lastPt = end($points);
-                $areaD .= " L {$lastPt['x']} {$baseY} Z";
-            }
-
-            $avgY = $compStats['avg_goals_per_round'] > 0 
-                ? round($baseY - (($compStats['avg_goals_per_round'] / $maxGoals) * $chartHeight), 1) 
-                : $baseY;
-        @endphp
-
-        <!-- Sleek SVG Line Chart -->
-        <div style="width:100%;height:115px;position:relative;">
-            @if ($scoringCount > 0)
-                <svg viewBox="0 0 910 120" preserveAspectRatio="none" style="width:100%;height:100%;overflow:visible;">
-                    <defs>
-                        <linearGradient id="trendGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="#FF6B00" stop-opacity="0.18" />
-                            <stop offset="100%" stop-color="#FF6B00" stop-opacity="0.0" />
-                        </linearGradient>
-                    </defs>
-
-                    <!-- Horizontal grid lines -->
-                    <line x1="20" y1="20" x2="890" y2="20" stroke="var(--xp-border)" stroke-width="1" stroke-dasharray="3,3" />
-                    <line x1="20" y1="55" x2="890" y2="55" stroke="var(--xp-border)" stroke-width="1" stroke-dasharray="3,3" />
-                    <line x1="20" y1="90" x2="890" y2="90" stroke="var(--xp-border)" stroke-width="1" stroke-dasharray="3,3" />
-
-                    <!-- League Average Reference Line -->
-                    @if ($compStats['avg_goals_per_round'] > 0)
-                        <line x1="20" y1="{{ $avgY }}" x2="890" y2="{{ $avgY }}" stroke="#6B6B70" stroke-width="1" stroke-dasharray="4,4" />
-                        <text x="888" y="{{ max(14, $avgY - 4) }}" fill="#A1A1A6" font-size="9" font-weight="600" text-anchor="end">
-                            Avg: {{ $compStats['avg_goals_per_round'] }} goals/round
-                        </text>
-                    @endif
-
-                    <!-- Area fill under the curve -->
-                    <path d="{{ $areaD }}" fill="url(#trendGradient)" />
-
-                    <!-- Smooth orange trendline -->
-                    <path d="{{ $pathD }}" fill="none" stroke="#FF6B00" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
-
-                    <!-- Interactive Data Points and Labels -->
-                    @foreach ($points as $pt)
-                        <circle cx="{{ $pt['x'] }}" cy="{{ $pt['y'] }}" r="3.5" fill="#FF6B00" stroke="#0C0C0E" stroke-width="1.8" />
-                        <text x="{{ $pt['x'] }}" y="{{ $pt['y'] - 6 }}" fill="var(--xp-text)" font-size="10" font-weight="700" text-anchor="middle">
-                            {{ $pt['goals'] }}
-                        </text>
-                        <text x="{{ $pt['x'] }}" y="112" fill="#A1A1A6" font-size="10" font-weight="600" text-anchor="middle">
-                            MD {{ $pt['matchday'] }}
-                        </text>
-                    @endforeach
-                </svg>
-            @else
-                <div style="height:100%;display:flex;align-items:center;justify-content:center;color:var(--xp-muted);font-size:12px;">
-                    No finished matchday scoring recorded for this season yet.
-                </div>
             @endif
-        </div>
 
-        <!-- Integrated 3-Part Analytics Subgrid (Match Dynamics + Outcomes + Operations) -->
-        <div class="analytics-subgrid">
-            <!-- Part 1: Match Dynamics -->
-            <div style="display:flex;flex-direction:column;justify-content:space-between;">
-                <div>
-                    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px;">
-                        <span style="font-size:13px;font-weight:600;color:var(--xp-text);">Match Dynamics</span>
-                        <span style="font-size:16px;font-weight:700;color:var(--xp-orange);">{{ $compStats['btts_pct'] }}%</span>
-                    </div>
-                    <div style="font-size:10.5px;color:var(--xp-muted);margin-bottom:8px;">
-                        BTTS: {{ $compStats['btts_count'] }}/{{ $compStats['finished'] }} games
-                    </div>
-                </div>
-
-                <div style="display:flex;flex-direction:column;gap:6px;">
-                    <!-- Over 2.5 -->
-                    <div>
-                        <div style="display:flex;justify-content:space-between;font-size:10.5px;margin-bottom:2px;">
-                            <span style="color:var(--xp-muted);">Over 2.5 Goals</span>
-                            <strong style="color:var(--xp-text);">{{ $compStats['over_25_pct'] }}% ({{ $compStats['over_25_count'] }})</strong>
-                        </div>
-                        <div style="width:100%;height:4px;background:#141418;border-radius:2px;overflow:hidden;">
-                            <div style="width:{{ $compStats['over_25_pct'] }}%;height:100%;background:var(--xp-orange);"></div>
-                        </div>
-                    </div>
-
-                    <!-- Over 1.5 -->
-                    <div>
-                        <div style="display:flex;justify-content:space-between;font-size:10.5px;margin-bottom:2px;">
-                            <span style="color:var(--xp-muted);">Over 1.5 Goals</span>
-                            <strong style="color:var(--xp-text);">{{ $compStats['over_15_pct'] }}% ({{ $compStats['over_15_count'] }})</strong>
-                        </div>
-                        <div style="width:100%;height:4px;background:#141418;border-radius:2px;overflow:hidden;">
-                            <div style="width:{{ $compStats['over_15_pct'] }}%;height:100%;background:var(--xp-text);"></div>
-                        </div>
-                    </div>
-
-                    <!-- Clean Sheets -->
-                    <div>
-                        <div style="display:flex;justify-content:space-between;font-size:10.5px;margin-bottom:2px;">
-                            <span style="color:var(--xp-muted);">Clean Sheets</span>
-                            <strong style="color:var(--xp-text);">{{ $compStats['clean_sheets_pct'] }}% ({{ $compStats['clean_sheets_count'] }})</strong>
-                        </div>
-                        <div style="width:100%;height:4px;background:#141418;border-radius:2px;overflow:hidden;">
-                            <div style="width:{{ $compStats['clean_sheets_pct'] }}%;height:100%;background:#6B6B70;"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Part 2: Outcome Distribution Donut -->
-            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:1px solid var(--xp-border-subtle);border-right:1px solid var(--xp-border-subtle);padding:0 10px;">
-                <div style="font-size:13px;font-weight:600;color:var(--xp-text);margin-bottom:6px;align-self:flex-start;">
-                    Outcome Distribution
-                </div>
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <svg width="86" height="86" viewBox="0 0 140 140">
-                        <circle cx="70" cy="70" r="46" fill="none" stroke="var(--xp-border)" stroke-width="22" />
-                        @if ($compStats['finished'] > 0)
-                            <circle cx="70" cy="70" r="46" fill="none" stroke="#FF6B00" stroke-width="22"
-                                    stroke-dasharray="{{ $compStats['donut']['home_dash'] }} 289" 
-                                    stroke-dashoffset="{{ $compStats['donut']['home_offset'] }}" 
-                                    transform="rotate(-90 70 70)" />
-                            <circle cx="70" cy="70" r="46" fill="none" stroke="#6B6B70" stroke-width="22"
-                                    stroke-dasharray="{{ $compStats['donut']['away_dash'] }} 289" 
-                                    stroke-dashoffset="{{ $compStats['donut']['away_offset'] }}" 
-                                    transform="rotate(-90 70 70)" />
-                            <circle cx="70" cy="70" r="46" fill="none" stroke="var(--xp-text)" stroke-width="22"
-                                    stroke-dasharray="{{ $compStats['donut']['draw_dash'] }} 289" 
-                                    stroke-dashoffset="{{ $compStats['donut']['draw_offset'] }}" 
-                                    transform="rotate(-90 70 70)" />
-                        @endif
-                        <circle cx="70" cy="70" r="34" fill="var(--xp-surface)" />
-                        <text x="70" y="68" fill="var(--xp-text)" font-size="14" font-weight="700" text-anchor="middle">
-                            {{ $compStats['finished'] }}
-                        </text>
-                        <text x="70" y="80" fill="#A1A1A6" font-size="8" font-weight="600" text-anchor="middle">
-                            PLAYED
-                        </text>
+            <!-- Date Selector Input -->
+            <form method="GET" action="{{ route('dashboard') }}" style="display:flex;gap:4px;align-items:center;margin:0;">
+                <input type="hidden" name="competition" value="{{ $selectedComp }}">
+                <input type="hidden" name="season" value="{{ $selectedSeason }}">
+                <div style="display:flex;align-items:center;background:#060608;border:1px solid var(--xp-border);border-radius:4px;padding:2px 6px;gap:4px;">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--xp-orange);">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
                     </svg>
-
-                    <div style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--xp-muted);">
-                        <span style="display:flex;align-items:center;gap:4px;">
-                            <span style="width:6px;height:6px;border-radius:2px;background:#FF6B00;display:inline-block;"></span>
-                            <span style="color:var(--xp-text);font-weight:600;">Home {{ $compStats['home_win_pct'] }}%</span> ({{ $compStats['home_wins'] }})
-                        </span>
-                        <span style="display:flex;align-items:center;gap:4px;">
-                            <span style="width:6px;height:6px;border-radius:2px;background:var(--xp-text);display:inline-block;"></span>
-                            <span style="color:var(--xp-text);font-weight:600;">Draw {{ $compStats['draw_pct'] }}%</span> ({{ $compStats['draws'] }})
-                        </span>
-                        <span style="display:flex;align-items:center;gap:4px;">
-                            <span style="width:6px;height:6px;border-radius:2px;background:#6B6B70;display:inline-block;"></span>
-                            <span style="color:var(--xp-text);font-weight:600;">Away {{ $compStats['away_win_pct'] }}%</span> ({{ $compStats['away_wins'] }})
-                        </span>
-                    </div>
+                    <input type="date" name="date" value="{{ $selectedDate }}" class="select-pill" style="border:none;background:transparent;padding:2px;font-size:11px;color:var(--xp-text);outline:none;" title="Select specific match date" onchange="this.form.submit()">
                 </div>
-            </div>
-
-            <!-- Part 3: Competition Operations -->
-            <div style="display:flex;flex-direction:column;justify-content:space-between;">
-                <div style="font-size:13px;font-weight:600;color:var(--xp-text);margin-bottom:6px;">
-                    Competition Operations
-                </div>
-                <div style="display:flex;flex-direction:column;gap:4px;">
-                    <a href="#fixtures-section" style="display:flex;align-items:center;justify-content:space-between;padding:5px 6px;border-radius:4px;text-decoration:none;background:#0C0C0E;border:1px solid var(--xp-border-subtle);transition:all 0.15s;" onmouseover="this.style.borderColor='var(--xp-border)'" onmouseout="this.style.borderColor='var(--xp-border-subtle)'">
-                        <div style="font-size:11px;font-weight:600;color:var(--xp-text);">Upcoming Fixtures</div>
-                        <span style="color:var(--xp-orange);font-size:11px;">{{ $compStats['scheduled'] }} matches &rsaquo;</span>
+                @if ($selectedDate || !empty($selectedTimeSlot) || !empty($selectedTime))
+                    <a href="{{ route('dashboard', ['competition' => $selectedComp, 'season' => $selectedSeason, 'status' => $statusFilter]) }}" class="btn btn-secondary btn-sm" style="padding:2px 6px;font-size:10px;color:var(--xp-orange);" title="Clear date filter">
+                        ✕
                     </a>
-                    <a href="{{ route('track-record') }}" style="display:flex;align-items:center;justify-content:space-between;padding:5px 6px;border-radius:4px;text-decoration:none;background:#0C0C0E;border:1px solid var(--xp-border-subtle);transition:all 0.15s;" onmouseover="this.style.borderColor='var(--xp-border)'" onmouseout="this.style.borderColor='var(--xp-border-subtle)'">
-                        <div style="font-size:11px;font-weight:600;color:var(--xp-text);">Model Track Record</div>
-                        <span style="color:var(--xp-away);font-size:11px;">Audit &rsaquo;</span>
-                    </a>
-                    <a href="{{ route('dev.api.index') }}" style="display:flex;align-items:center;justify-content:space-between;padding:5px 6px;border-radius:4px;text-decoration:none;background:#0C0C0E;border:1px solid var(--xp-border-subtle);transition:all 0.15s;" onmouseover="this.style.borderColor='var(--xp-border)'" onmouseout="this.style.borderColor='var(--xp-border-subtle)'">
-                        <div style="font-size:11px;font-weight:600;color:var(--xp-text);">API Inspector</div>
-                        <span style="color:var(--xp-away);font-size:11px;">Quota &rsaquo;</span>
-                    </a>
-                </div>
-            </div>
+                @endif
+            </form>
         </div>
     </div>
 
-    <!-- Matches Grid: Main Stream + In-Page View Navigator Sidebar -->
+    <!-- 4. MATCHES GRID CONTAINER: Matches Feed + In-Page View Navigator Sidebar -->
     <div class="matches-grid-container">
         <!-- Main Content Stream (Spotlight & Fixtures Feed) -->
         <div style="min-width: 0; display:flex; flex-direction:column; gap:16px;">
-            @if ($statusFilter === 'all' || $statusFilter === 'future')
+            @if (($statusFilter === 'all' || $statusFilter === 'future') && !$dateFilterInfo && empty($selectedTimeSlot) && empty($selectedTime))
                 <!-- Curated Marquee Spotlight for Next Matchday -->
-                <div id="upcoming-spotlight" class="card" style="padding:18px;border:1px solid rgba(217, 78, 0, 0.35);background:linear-gradient(180deg, #111114 0%, #0A0A0C 100%);">
+                <div id="upcoming-spotlight" class="card" style="padding:16px;border:1px solid rgba(217, 78, 0, 0.35);background:linear-gradient(180deg, #111114 0%, #0A0A0C 100%);">
                     <!-- Spotlight Header -->
-                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;border-bottom:1px solid var(--xp-border);padding-bottom:12px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;border-bottom:1px solid var(--xp-border);padding-bottom:10px;">
                         <div>
                             <div style="display:flex;align-items:center;gap:8px;">
                                 <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--xp-orange);box-shadow:0 0 8px var(--xp-orange);"></span>
-                                <h2 style="font-size:15px;font-weight:700;color:var(--xp-text);margin:0;letter-spacing:-0.01em;">
+                                <h2 style="font-size:14px;font-weight:700;color:var(--xp-text);margin:0;letter-spacing:-0.01em;">
                                     Next Matchday &amp; Upcoming Predictions
                                 </h2>
-                                <span class="badge badge-warning" style="background:rgba(217, 78, 0, 0.15);color:var(--xp-orange);border:1px solid rgba(217, 78, 0, 0.35);font-size:10px;">
+                                <span class="badge badge-warning" style="background:rgba(217, 78, 0, 0.15);color:var(--xp-orange);border:1px solid rgba(217, 78, 0, 0.35);font-size:9.5px;">
                                     {{ $nextMatchdayInfo['matchday'] ?? 'Next Round' }}
                                 </span>
                             </div>
@@ -446,154 +949,20 @@
                             $otherUpcoming = $upcomingMatches->slice(1);
                         @endphp
 
-                        <!-- Primary Featured Marquee Match Card -->
-                        <div style="background:#0D0D10;border:1px solid var(--xp-border);border-radius:7px;padding:14px;">
-                            <!-- Top Metadata Row -->
-                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--xp-border-subtle);">
-                                <div style="display:flex;align-items:center;gap:8px;">
-                                    <span class="badge badge-warning" style="font-size:9.5px;">
-                                        {{ $featuredMatch->status === 'finished' ? 'Full Time' : 'Upcoming' }}
-                                    </span>
-                                    <span style="font-size:12px;color:var(--xp-text);font-weight:600;">
-                                        {{ $featuredMatch->kickoff_at ? $featuredMatch->kickoff_at->format('l, d M Y') : 'TBD' }}
-                                    </span>
-                                    <span style="font-size:11px;color:var(--xp-muted);">
-                                        &bull; {{ $featuredMatch->kickoff_at ? $featuredMatch->kickoff_at->format('H:i') . ' UTC' : '' }} &bull; Matchday {{ $featuredMatch->matchday ?? '—' }}
-                                    </span>
-                                </div>
+                        <!-- Primary Featured Marquee Match Card (SportyBet Pattern) -->
+                        @include('dashboard.partials.match-card', [
+                            'match' => $featuredMatch,
+                            'prediction' => $featuredPrediction,
+                            'h2hCount' => $h2hCounts[$featuredMatch->id] ?? 0,
+                            'isFeatured' => true
+                        ])
 
-                                @if ($featuredPrediction)
-                                    @php
-                                        $pH = (float) $featuredPrediction->p_home;
-                                        $pD = (float) $featuredPrediction->p_draw;
-                                        $pA = (float) $featuredPrediction->p_away;
-                                        $topPick = $pH >= $pA && $pH >= $pD ? ($featuredMatch->homeTeam?->short_name . ' Favored (' . round($pH * 100, 1) . '%)') : ($pA >= $pH && $pA >= $pD ? ($featuredMatch->awayTeam?->short_name . ' Favored (' . round($pA * 100, 1) . '%)') : 'Draw Lean (' . round($pD * 100, 1) . '%)');
-                                    @endphp
-                                    <span style="font-size:10.5px;font-weight:700;color:var(--xp-orange);background:rgba(217, 78, 0, 0.10);border:1px solid rgba(217, 78, 0, 0.25);padding:2px 8px;border-radius:4px;">
-                                        {{ $topPick }}
-                                    </span>
-                                @endif
-                            </div>
-
-                            <!-- Teams Matchup Block -->
-                            <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;margin-bottom:12px;background:#060608;padding:10px 14px;border-radius:6px;border:1px solid var(--xp-border-subtle);">
-                                <div style="text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:10px;">
-                                    <div>
-                                        <div style="font-size:14px;font-weight:700;color:var(--xp-text);">
-                                            {{ $featuredMatch->homeTeam?->name }}
-                                        </div>
-                                        <div style="font-size:11px;color:var(--xp-orange);font-weight:600;">
-                                            Home &bull; {{ $featuredMatch->homeTeam?->short_name }}
-                                        </div>
-                                    </div>
-                                    <x-team-badge :team="$featuredMatch->homeTeam" size="26" />
-                                </div>
-
-                                <div style="text-align:center;padding:0 6px;">
-                                    <div style="width:28px;height:28px;border-radius:50%;background:#141418;border:1px solid var(--xp-border);display:flex;align-items:center;justify-content:center;margin:0 auto;">
-                                        <span style="font-size:9.5px;font-weight:800;color:var(--xp-away);">VS</span>
-                                    </div>
-                                </div>
-
-                                <div style="text-align:left;display:flex;align-items:center;justify-content:flex-start;gap:10px;">
-                                    <x-team-badge :team="$featuredMatch->awayTeam" size="26" />
-                                    <div>
-                                        <div style="font-size:14px;font-weight:700;color:var(--xp-text);">
-                                            {{ $featuredMatch->awayTeam?->name }}
-                                        </div>
-                                        <div style="font-size:11px;color:var(--xp-away);font-weight:600;">
-                                            Away &bull; {{ $featuredMatch->awayTeam?->short_name }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Prediction Summary Box -->
-                            @if ($featuredPrediction)
-                                @php
-                                    $pH = round((float) $featuredPrediction->p_home * 100, 1);
-                                    $pD = round((float) $featuredPrediction->p_draw * 100, 1);
-                                    $pA = round((float) $featuredPrediction->p_away * 100, 1);
-                                @endphp
-                                <div style="background:var(--xp-black);border:1px solid var(--xp-border);border-radius:6px;padding:12px;margin-bottom:8px;">
-                                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:11px;">
-                                        <span style="font-weight:700;text-transform:uppercase;color:var(--xp-away);">
-                                            Poisson Probabilities ({{ $featuredPrediction->model_version }})
-                                        </span>
-                                        <span style="color:var(--xp-muted);">
-                                            Expected Goals: <strong style="color:var(--xp-orange);">{{ $featuredPrediction->exp_home_goals }}</strong> &ndash; <strong style="color:var(--xp-away);">{{ $featuredPrediction->exp_away_goals }}</strong>
-                                        </span>
-                                    </div>
-
-                                    <!-- Probability Bar -->
-                                    <div style="height:22px;border-radius:4px;overflow:hidden;display:flex;margin-bottom:8px;font-size:11px;font-weight:700;line-height:22px;text-align:center;">
-                                        <div style="width:{{ $pH }}%;background:var(--xp-orange);color:#000000;min-width:34px;">
-                                            {{ $pH }}%
-                                        </div>
-                                        <div style="width:{{ $pD }}%;background:var(--xp-text);color:#000000;min-width:34px;">
-                                            {{ $pD }}%
-                                        </div>
-                                        <div style="width:{{ $pA }}%;background:var(--xp-away);color:#FFFFFF;min-width:34px;">
-                                            {{ $pA }}%
-                                        </div>
-                                    </div>
-
-                                    <!-- Probability Legend -->
-                                    <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--xp-muted);">
-                                        <span><span style="display:inline-block;width:7px;height:7px;background:var(--xp-orange);border-radius:2px;margin-right:4px;"></span>Home: {{ $featuredMatch->homeTeam?->short_name }} ({{ $pH }}%)</span>
-                                        <span><span style="display:inline-block;width:7px;height:7px;background:var(--xp-text);border-radius:2px;margin-right:4px;"></span>Draw ({{ $pD }}%)</span>
-                                        <span><span style="display:inline-block;width:7px;height:7px;background:var(--xp-away);border-radius:2px;margin-right:4px;"></span>Away: {{ $featuredMatch->awayTeam?->short_name }} ({{ $pA }}%)</span>
-                                    </div>
-
-                                    @if (!empty($featuredPrediction->top_scorelines))
-                                        <div style="margin-top:8px;padding-top:6px;border-top:1px dashed var(--xp-border);font-size:11px;color:var(--xp-away);display:flex;gap:10px;flex-wrap:wrap;">
-                                            <span>Scorelines:</span>
-                                            @foreach (array_slice($featuredPrediction->top_scorelines, 0, 4) as $ts)
-                                                <span style="color:var(--xp-muted);font-weight:600;">
-                                                    {{ $ts['home'] }}-{{ $ts['away'] }} ({{ round($ts['prob'] * 100, 1) }}%)
-                                                </span>
-                                            @endforeach
-                                        </div>
-                                    @endif
-                                </div>
-
-                                <!-- Feature Calculation Breakdown Accordion -->
-                                @include('dashboard.partials.feature-breakdown', ['prediction' => $featuredPrediction, 'match' => $featuredMatch])
-                            @else
-                                <div style="background:var(--xp-black);border:1px dashed var(--xp-border);border-radius:6px;padding:12px;text-align:center;margin-bottom:8px;">
-                                    <span style="font-size:11px;color:var(--xp-muted);margin-right:10px;">Prediction not yet computed for this fixture.</span>
-                                    <form method="POST" action="{{ route('matches.predict', $featuredMatch->id) }}" style="display:inline;">
-                                        @csrf
-                                        <button type="submit" class="btn btn-primary btn-sm">+ Compute Poisson Prediction</button>
-                                    </form>
-                                </div>
-                            @endif
-
-                            <!-- Action Buttons -->
-                            <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px;">
-                                <form method="POST" action="{{ route('matches.predict', $featuredMatch->id) }}">
-                                    @csrf
-                                    <button type="submit" class="btn btn-secondary btn-sm">
-                                        {{ $featuredPrediction ? 'Re-Predict' : '+ Predict' }}
-                                    </button>
-                                </form>
-                                @if ($featuredPrediction)
-                                    <form method="POST" action="{{ route('predictions.preview', $featuredPrediction->id) }}">
-                                        @csrf
-                                        <button type="submit" class="btn btn-primary btn-sm">
-                                            {{ $featuredPrediction->previews?->first() ? 'Regenerate Preview' : 'Generate AI Preview' }}
-                                        </button>
-                                    </form>
-                                @endif
-                            </div>
-                        </div>
-
-                        <!-- Compact Secondary Grid for Remaining Round Fixtures (Prevents giant 10-card wall) -->
+                        <!-- Compact Secondary Grid for Remaining Round Fixtures -->
                         @if ($otherUpcoming->isNotEmpty())
                             <div style="margin-top:12px;border-top:1px solid var(--xp-border-subtle);padding-top:10px;">
                                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                                     <span style="font-size:11px;font-weight:700;color:var(--xp-muted);text-transform:uppercase;letter-spacing:0.04em;">
-                                        Other Matchday Fixtures ({{ $otherUpcoming->count() }})
+                                        Other Round Fixtures ({{ $otherUpcoming->count() }})
                                     </span>
                                     <a href="#fixtures-section" style="font-size:11px;color:var(--xp-orange);text-decoration:none;">
                                         View Full Schedule &darr;
@@ -642,7 +1011,7 @@
                 </div>
             @endif
 
-            <!-- Clean Integrated Fixtures & Predictions Section -->
+            <!-- Clean Integrated Fixtures & Predictions Section (SportyBet Card Stream) -->
             <div id="fixtures-section" class="card" style="padding:16px 18px;">
                 <!-- Header & Filters Bar -->
                 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;border-bottom:1px solid var(--xp-border);padding-bottom:12px;">
@@ -660,35 +1029,6 @@
                     <!-- Consolidated Filter Controls -->
                     <form method="GET" action="{{ route('dashboard') }}" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:0;">
                         <input type="hidden" name="competition" value="{{ $selectedComp }}">
-                        
-                        <!-- Quick Matchday Dates Jump -->
-                        @if (!empty($availableMatchDates) && $availableMatchDates->isNotEmpty())
-                            <select class="select-pill" style="font-size:11px;padding:3px 6px;" onchange="if(this.value) window.location.href=this.value;" title="Jump directly to confirmed matchday dates">
-                                <option value="">📅 Matchdays ({{ $availableMatchDates->count() }} rounds)...</option>
-                                @foreach ($availableMatchDates as $amd)
-                                    <option value="{{ route('dashboard', array_merge(request()->except(['page', 'preset']), ['competition' => $selectedComp, 'date' => $amd->match_date])) }}" {{ $selectedDate === $amd->match_date ? 'selected' : '' }}>
-                                        {{ \Carbon\CarbonImmutable::parse($amd->match_date)->format('D, d M') }} ({{ $amd->count }})
-                                    </option>
-                                @endforeach
-                            </select>
-                        @endif
-
-                        <!-- Date Selector Input -->
-                        <div style="display:flex;align-items:center;background:#0C0C0E;border:1px solid var(--xp-border);border-radius:4px;padding:2px 6px;gap:4px;">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--xp-orange);">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                                <line x1="16" y1="2" x2="16" y2="6"></line>
-                                <line x1="8" y1="2" x2="8" y2="6"></line>
-                                <line x1="3" y1="10" x2="21" y2="10"></line>
-                            </svg>
-                            <input type="date" name="date" value="{{ $selectedDate }}" class="select-pill" style="border:none;background:transparent;padding:2px;font-size:11px;color:var(--xp-text);outline:none;" title="Select specific match date" onchange="this.form.submit()">
-                        </div>
-
-                        @if ($selectedDate || !empty($selectedTimeSlot) || !empty($selectedTime))
-                            <a href="{{ route('dashboard', ['competition' => $selectedComp, 'season' => $selectedSeason, 'status' => $statusFilter]) }}" class="btn btn-secondary btn-sm" style="padding:3px 6px;font-size:10.5px;color:var(--xp-orange);" title="Clear date and view all matches">
-                                ✕ Clear
-                            </a>
-                        @endif
 
                         <select name="season" class="select-pill" style="font-size:11px;padding:3px 6px;" onchange="this.form.submit()">
                             @foreach ($seasons as $s)
@@ -759,7 +1099,7 @@
                     </div>
                 @endif
 
-                <!-- Fixtures Listing -->
+                <!-- Fixtures Listing with SportyBet Cards -->
                 @if ($matches->isEmpty())
                     @if ($statusFilter === 'today')
                         <div style="text-align:center;padding:2.5rem 1rem;">
@@ -789,111 +1129,326 @@
                         </div>
                     @endif
                 @else
-                    <div style="display:flex;flex-direction:column;gap:10px;">
+                    <div style="display:flex;flex-direction:column;gap:12px;">
                         @foreach ($matches as $match)
-                            @php
-                                $prediction = $match->predictions->first();
-                            @endphp
-                            <div style="background:var(--xp-surface);border:1px solid var(--xp-border);border-radius:7px;padding:12px 14px;">
-                                <!-- Top Match Meta Row -->
-                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--xp-border-subtle);">
-                                    <div style="display:flex;align-items:center;gap:6px;">
-                                        <span class="badge {{ $match->status === 'finished' ? 'badge-info' : 'badge-warning' }}" style="font-size:9.5px;">
-                                            {{ $match->status === 'finished' ? 'Full Time' : 'Scheduled' }}
-                                        </span>
-                                        <span style="font-size:10.5px;color:var(--xp-muted);font-weight:500;">
-                                            Matchday {{ $match->matchday ?? '—' }} &bull; {{ $match->kickoff_at ? $match->kickoff_at->format('D, d M Y H:i T') : 'TBD' }}
-                                        </span>
-                                    </div>
-                                    @if ($match->status === 'finished' && $match->home_goals !== null)
-                                        <div style="font-size:12px;font-weight:700;color:var(--xp-text);background:var(--xp-black);padding:2px 8px;border-radius:3px;border:1px solid var(--xp-border);">
-                                            Score: {{ $match->home_goals }} &ndash; {{ $match->away_goals }}
-                                        </div>
-                                    @endif
-                                </div>
-
-                                <!-- Teams Display -->
-                                <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin-bottom:8px;">
-                                    <div style="text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:8px;">
-                                        <div>
-                                            <div style="font-size:13.5px;font-weight:700;color:var(--xp-text);">{{ $match->homeTeam?->name }}</div>
-                                            <div style="font-size:10.5px;color:var(--xp-away);">Home &bull; {{ $match->homeTeam?->short_name }}</div>
-                                        </div>
-                                        <x-team-badge :team="$match->homeTeam" size="22" />
-                                    </div>
-                                    <div style="text-align:center;padding:0 4px;">
-                                        <span style="font-size:10px;font-weight:700;color:var(--xp-away);text-transform:uppercase;">vs</span>
-                                    </div>
-                                    <div style="text-align:left;display:flex;align-items:center;justify-content:flex-start;gap:8px;">
-                                        <x-team-badge :team="$match->awayTeam" size="22" />
-                                        <div>
-                                            <div style="font-size:13.5px;font-weight:700;color:var(--xp-text);">{{ $match->awayTeam?->name }}</div>
-                                            <div style="font-size:10.5px;color:var(--xp-away);">Away &bull; {{ $match->awayTeam?->short_name }}</div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Prediction Summary (Clean & Compact) -->
-                                @if ($prediction)
-                                    @php
-                                        $pH = round((float) $prediction->p_home * 100, 1);
-                                        $pD = round((float) $prediction->p_draw * 100, 1);
-                                        $pA = round((float) $prediction->p_away * 100, 1);
-                                    @endphp
-                                    <div style="background:var(--xp-black);border:1px solid var(--xp-border);border-radius:5px;padding:8px 10px;margin-bottom:6px;">
-                                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:10.5px;">
-                                            <span style="font-weight:700;color:var(--xp-away);text-transform:uppercase;">
-                                                Poisson ({{ $prediction->model_version }})
-                                                @if ($prediction->low_confidence)
-                                                    <span class="badge badge-warning" style="font-size:8.5px;padding:1px 4px;">Low Conf</span>
-                                                @endif
-                                            </span>
-                                            <span style="color:var(--xp-muted);">
-                                                xG: <strong style="color:var(--xp-orange);">{{ $prediction->exp_home_goals }}</strong> &ndash; <strong style="color:var(--xp-away);">{{ $prediction->exp_away_goals }}</strong>
-                                            </span>
-                                        </div>
-
-                                        <!-- Probability Bar -->
-                                        <div style="height:18px;border-radius:3px;overflow:hidden;display:flex;font-size:10px;font-weight:700;line-height:18px;text-align:center;">
-                                            <div style="width:{{ $pH }}%;background:var(--xp-orange);color:#000000;min-width:30px;" title="Home Win: {{ $pH }}%">
-                                                {{ $pH }}%
-                                            </div>
-                                            <div style="width:{{ $pD }}%;background:var(--xp-text);color:#000000;min-width:30px;" title="Draw: {{ $pD }}%">
-                                                {{ $pD }}%
-                                            </div>
-                                            <div style="width:{{ $pA }}%;background:var(--xp-away);color:#FFFFFF;min-width:30px;" title="Away Win: {{ $pA }}%">
-                                                {{ $pA }}%
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endif
-
-                                <!-- Actions Row -->
-                                <div style="display:flex;justify-content:flex-end;gap:6px;margin-top:4px;">
-                                    <form method="POST" action="{{ route('matches.predict', $match->id) }}">
-                                        @csrf
-                                        <button type="submit" class="btn btn-secondary btn-sm" style="padding:2px 8px;font-size:10.5px;">
-                                            {{ $prediction ? 'Re-Predict' : '+ Predict' }}
-                                        </button>
-                                    </form>
-                                    @if ($prediction)
-                                        <form method="POST" action="{{ route('predictions.preview', $prediction->id) }}">
-                                            @csrf
-                                            <button type="submit" class="btn btn-primary btn-sm" style="padding:2px 8px;font-size:10.5px;">
-                                                {{ $prediction->previews?->first() ? 'Regenerate Preview' : 'Generate AI Preview' }}
-                                            </button>
-                                        </form>
-                                    @endif
-                                </div>
-                            </div>
+                            @include('dashboard.partials.match-card', [
+                                'match' => $match,
+                                'prediction' => $match->predictions->first(),
+                                'h2hCount' => $h2hCounts[$match->id] ?? 0,
+                                'isFeatured' => false
+                            ])
                         @endforeach
 
                         <!-- Pagination -->
                         <div style="margin-top:10px;">
-                            {{ $matches->links() }}
+                            {{ $matches->links('partials.pagination') }}
                         </div>
                     </div>
                 @endif
+            </div>
+
+            <!-- 5. COMPETITION ANALYTICS & SEASON PULSE (Positioned below the active matches feed) -->
+            <div class="card" style="margin-top:4px;padding:16px 18px;">
+                <!-- Header: Title & Season Selector -->
+                <div class="card-header" style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                    <div>
+                        <div class="card-title" style="display:flex;align-items:center;gap:8px;font-size:14px;">
+                            <span>Matchday Scoring &amp; Goal Intensity Trend</span>
+                            <span class="badge" style="background:#141418;border:1px solid var(--xp-border);font-size:10.5px;color:var(--xp-orange);font-weight:700;">
+                                {{ $competition?->name }}
+                            </span>
+                        </div>
+                        <div style="font-size:11px;color:var(--xp-muted);margin-top:2px;">
+                            Total goals scored per round across Season {{ $selectedSeason }}/{{ substr((string)($selectedSeason+1), -2) }}.
+                        </div>
+                    </div>
+
+                    <form method="GET" action="{{ route('dashboard') }}" style="display:flex;gap:6px;align-items:center;margin:0;">
+                        <input type="hidden" name="competition" value="{{ $selectedComp }}">
+                        <input type="hidden" name="status" value="{{ $statusFilter }}">
+                        <select name="season" class="select-pill" style="font-size:11px;padding:3px 6px;" onchange="this.form.submit()">
+                            @foreach ($seasons as $s)
+                                <option value="{{ $s }}" {{ $selectedSeason === $s ? 'selected' : '' }}>Season {{ $s }}/{{ substr((string)($s+1), -2) }}</option>
+                            @endforeach
+                        </select>
+                    </form>
+                </div>
+
+                <!-- SVG Area/Line Chart -->
+                @php
+                    $scoringData = $compStats['matchday_scoring'] ?? collect();
+                    $scoringCount = $scoringData->count();
+                    $maxGoals = max(40, (int) ($compStats['highest_round']->total_goals ?? 35) + 5);
+                    $chartHeight = 90;
+                    $chartWidth = 860;
+                    $baseY = 96;
+
+                    $points = [];
+                    $pathD = '';
+                    $areaD = '';
+
+                    if ($scoringCount > 0) {
+                        $stepX = $scoringCount > 1 ? ($chartWidth / ($scoringCount - 1)) : ($chartWidth / 2);
+                        foreach ($scoringData as $idx => $item) {
+                            $x = round(30 + ($idx * $stepX), 1);
+                            $y = round($baseY - (($item->total_goals / $maxGoals) * $chartHeight), 1);
+                            $points[] = [
+                                'x' => $x,
+                                'y' => $y,
+                                'goals' => $item->total_goals,
+                                'matchday' => $item->matchday,
+                                'avg' => $item->avg_goals
+                            ];
+                        }
+
+                        foreach ($points as $i => $pt) {
+                            if ($i === 0) {
+                                $pathD = "M {$pt['x']} {$pt['y']}";
+                                $areaD = "M {$pt['x']} {$baseY} L {$pt['x']} {$pt['y']}";
+                            } else {
+                                $prev = $points[$i - 1];
+                                $cx1 = round($prev['x'] + ($pt['x'] - $prev['x']) / 2, 1);
+                                $cy1 = $prev['y'];
+                                $cx2 = $cx1;
+                                $cy2 = $pt['y'];
+                                $pathD .= " C {$cx1} {$cy1}, {$cx2} {$cy2}, {$pt['x']} {$pt['y']}";
+                                $areaD .= " C {$cx1} {$cy1}, {$cx2} {$cy2}, {$pt['x']} {$pt['y']}";
+                            }
+                        }
+                        $lastPt = end($points);
+                        $areaD .= " L {$lastPt['x']} {$baseY} Z";
+                    }
+
+                    $avgY = $compStats['avg_goals_per_round'] > 0
+                        ? round($baseY - (($compStats['avg_goals_per_round'] / $maxGoals) * $chartHeight), 1)
+                        : $baseY;
+                @endphp
+
+                <!-- Sleek SVG Line Chart -->
+                <div style="width:100%;height:115px;position:relative;">
+                    @if ($scoringCount > 0)
+                        <svg viewBox="0 0 910 120" preserveAspectRatio="none" style="width:100%;height:100%;overflow:visible;">
+                            <defs>
+                                <linearGradient id="trendGradient" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#D94E00" stop-opacity="0.18" />
+                                    <stop offset="100%" stop-color="#D94E00" stop-opacity="0.0" />
+                                </linearGradient>
+                            </defs>
+
+                            <!-- Horizontal grid lines -->
+                            <line x1="20" y1="20" x2="890" y2="20" stroke="var(--xp-border)" stroke-width="1" stroke-dasharray="3,3" />
+                            <line x1="20" y1="55" x2="890" y2="55" stroke="var(--xp-border)" stroke-width="1" stroke-dasharray="3,3" />
+                            <line x1="20" y1="90" x2="890" y2="90" stroke="var(--xp-border)" stroke-width="1" stroke-dasharray="3,3" />
+
+                            <!-- League Average Reference Line -->
+                            @if ($compStats['avg_goals_per_round'] > 0)
+                                <line x1="20" y1="{{ $avgY }}" x2="890" y2="{{ $avgY }}" stroke="#6B6B70" stroke-width="1" stroke-dasharray="4,4" />
+                                <text x="888" y="{{ max(14, $avgY - 4) }}" fill="#A1A1A6" font-size="9" font-weight="600" text-anchor="end">
+                                    Avg: {{ $compStats['avg_goals_per_round'] }} goals/round
+                                </text>
+                            @endif
+
+                            <!-- Area fill under the curve -->
+                            <path d="{{ $areaD }}" fill="url(#trendGradient)" />
+
+                            <!-- Smooth orange trendline -->
+                            <path d="{{ $pathD }}" fill="none" stroke="#D94E00" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+
+                            <!-- Interactive Data Points and Labels -->
+                            @foreach ($points as $pt)
+                                <circle cx="{{ $pt['x'] }}" cy="{{ $pt['y'] }}" r="3.5" fill="#D94E00" stroke="#0C0C0E" stroke-width="1.8" />
+                                <text x="{{ $pt['x'] }}" y="{{ $pt['y'] - 6 }}" fill="var(--xp-text)" font-size="10" font-weight="700" text-anchor="middle">
+                                    {{ $pt['goals'] }}
+                                </text>
+                                <text x="{{ $pt['x'] }}" y="112" fill="#A1A1A6" font-size="10" font-weight="600" text-anchor="middle">
+                                    MD {{ $pt['matchday'] }}
+                                </text>
+                            @endforeach
+                        </svg>
+                    @else
+                        <div style="height:100%;display:flex;align-items:center;justify-content:center;color:var(--xp-muted);font-size:12px;">
+                            No finished matchday scoring recorded for this season yet.
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Integrated 3-Part Analytics Subgrid (Match Dynamics + Outcomes + Operations) -->
+                <div class="analytics-subgrid">
+                    <!-- Part 1: Match Dynamics -->
+                    <div style="display:flex;flex-direction:column;justify-content:space-between;">
+                        <div>
+                            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px;">
+                                <span style="font-size:13px;font-weight:600;color:var(--xp-text);">Match Dynamics</span>
+                                <span style="font-size:16px;font-weight:700;color:var(--xp-orange);">{{ $compStats['btts_pct'] }}%</span>
+                            </div>
+                            <div style="font-size:10.5px;color:var(--xp-muted);margin-bottom:8px;">
+                                BTTS: {{ $compStats['btts_count'] }}/{{ $compStats['finished'] }} games
+                            </div>
+                        </div>
+
+                        <div style="display:flex;flex-direction:column;gap:6px;">
+                            <!-- Over 2.5 -->
+                            <div>
+                                <div style="display:flex;justify-content:space-between;font-size:10.5px;margin-bottom:2px;">
+                                    <span style="color:var(--xp-muted);">Over 2.5 Goals</span>
+                                    <strong style="color:var(--xp-text);">{{ $compStats['over_25_pct'] }}% ({{ $compStats['over_25_count'] }})</strong>
+                                </div>
+                                <div style="width:100%;height:4px;background:#141418;border-radius:2px;overflow:hidden;">
+                                    <div style="width:{{ $compStats['over_25_pct'] }}%;height:100%;background:var(--xp-orange);"></div>
+                                </div>
+                            </div>
+
+                            <!-- Over 1.5 -->
+                            <div>
+                                <div style="display:flex;justify-content:space-between;font-size:10.5px;margin-bottom:2px;">
+                                    <span style="color:var(--xp-muted);">Over 1.5 Goals</span>
+                                    <strong style="color:var(--xp-text);">{{ $compStats['over_15_pct'] }}% ({{ $compStats['over_15_count'] }})</strong>
+                                </div>
+                                <div style="width:100%;height:4px;background:#141418;border-radius:2px;overflow:hidden;">
+                                    <div style="width:{{ $compStats['over_15_pct'] }}%;height:100%;background:var(--xp-text);"></div>
+                                </div>
+                            </div>
+
+                            <!-- Clean Sheets -->
+                            <div>
+                                <div style="display:flex;justify-content:space-between;font-size:10.5px;margin-bottom:2px;">
+                                    <span style="color:var(--xp-muted);">Clean Sheets</span>
+                                    <strong style="color:var(--xp-text);">{{ $compStats['clean_sheets_pct'] }}% ({{ $compStats['clean_sheets_count'] }})</strong>
+                                </div>
+                                <div style="width:100%;height:4px;background:#141418;border-radius:2px;overflow:hidden;">
+                                    <div style="width:{{ $compStats['clean_sheets_pct'] }}%;height:100%;background:#6B6B70;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Part 2: Outcome Distribution Donut -->
+                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:1px solid var(--xp-border-subtle);border-right:1px solid var(--xp-border-subtle);padding:0 10px;">
+                        <div style="font-size:13px;font-weight:600;color:var(--xp-text);margin-bottom:6px;align-self:flex-start;">
+                            Outcome Distribution
+                        </div>
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <svg width="86" height="86" viewBox="0 0 140 140">
+                                <circle cx="70" cy="70" r="46" fill="none" stroke="var(--xp-border)" stroke-width="22" />
+                                @if ($compStats['finished'] > 0)
+                                    <circle cx="70" cy="70" r="46" fill="none" stroke="var(--xp-orange)" stroke-width="22"
+                                            stroke-dasharray="{{ $compStats['donut']['home_dash'] }} 289"
+                                            stroke-dashoffset="{{ $compStats['donut']['home_offset'] }}"
+                                            transform="rotate(-90 70 70)" />
+                                    <circle cx="70" cy="70" r="46" fill="none" stroke="#6B6B70" stroke-width="22"
+                                            stroke-dasharray="{{ $compStats['donut']['away_dash'] }} 289"
+                                            stroke-dashoffset="{{ $compStats['donut']['away_offset'] }}"
+                                            transform="rotate(-90 70 70)" />
+                                    <circle cx="70" cy="70" r="46" fill="none" stroke="var(--xp-text)" stroke-width="22"
+                                            stroke-dasharray="{{ $compStats['donut']['draw_dash'] }} 289"
+                                            stroke-dashoffset="{{ $compStats['donut']['draw_offset'] }}"
+                                            transform="rotate(-90 70 70)" />
+                                @endif
+                                <circle cx="70" cy="70" r="34" fill="var(--xp-surface)" />
+                                <text x="70" y="68" fill="var(--xp-text)" font-size="14" font-weight="700" text-anchor="middle">
+                                    {{ $compStats['finished'] }}
+                                </text>
+                                <text x="70" y="82" fill="var(--xp-muted)" font-size="9" text-anchor="middle">
+                                    MATCHES
+                                </text>
+                            </svg>
+
+                            <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;">
+                                <div style="display:flex;align-items:center;gap:6px;">
+                                    <span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--xp-orange);"></span>
+                                    <span style="color:var(--xp-muted);">Home:</span>
+                                    <strong style="color:var(--xp-text);">{{ $compStats['home_win_pct'] }}% ({{ $compStats['home_wins'] }})</strong>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:6px;">
+                                    <span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--xp-text);"></span>
+                                    <span style="color:var(--xp-muted);">Draw:</span>
+                                    <strong style="color:var(--xp-text);">{{ $compStats['draw_pct'] }}% ({{ $compStats['draws'] }})</strong>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:6px;">
+                                    <span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#6B6B70;"></span>
+                                    <span style="color:var(--xp-muted);">Away:</span>
+                                    <strong style="color:var(--xp-text);">{{ $compStats['away_win_pct'] }}% ({{ $compStats['away_wins'] }})</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Part 3: Competition Operations & Quick Shortcuts -->
+                    <div style="display:flex;flex-direction:column;justify-content:space-between;">
+                        <div style="font-size:13px;font-weight:600;color:var(--xp-text);margin-bottom:6px;">
+                            Competition Operations
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:6px;">
+                            <a href="#fixtures-section" style="display:flex;align-items:center;justify-content:space-between;padding:5px 6px;border-radius:4px;text-decoration:none;background:#0C0C0E;border:1px solid var(--xp-border-subtle);transition:all 0.15s;" onmouseover="this.style.borderColor='var(--xp-border)'" onmouseout="this.style.borderColor='var(--xp-border-subtle)'">
+                                <div style="font-size:11px;font-weight:600;color:var(--xp-text);">Upcoming Fixtures</div>
+                                <span style="color:var(--xp-orange);font-size:11px;">{{ $compStats['scheduled'] }} matches &rsaquo;</span>
+                            </a>
+                            <a href="{{ route('track-record') }}" style="display:flex;align-items:center;justify-content:space-between;padding:5px 6px;border-radius:4px;text-decoration:none;background:#0C0C0E;border:1px solid var(--xp-border-subtle);transition:all 0.15s;" onmouseover="this.style.borderColor='var(--xp-border)'" onmouseout="this.style.borderColor='var(--xp-border-subtle)'">
+                                <div style="font-size:11px;font-weight:600;color:var(--xp-text);">Model Track Record</div>
+                                <span style="color:var(--xp-away);font-size:11px;">Audit &rsaquo;</span>
+                            </a>
+                            <a href="{{ route('dev.api.index') }}" style="display:flex;align-items:center;justify-content:space-between;padding:5px 6px;border-radius:4px;text-decoration:none;background:#0C0C0E;border:1px solid var(--xp-border-subtle);transition:all 0.15s;" onmouseover="this.style.borderColor='var(--xp-border)'" onmouseout="this.style.borderColor='var(--xp-border-subtle)'">
+                                <div style="font-size:11px;font-weight:600;color:var(--xp-text);">API Inspector</div>
+                                <span style="color:var(--xp-away);font-size:11px;">Quota &rsaquo;</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. TOP KPI STRIP: Real Competition Vital Signs (Season level) -->
+            <div class="grid-kpi-4" style="margin-top:2px;">
+                <!-- Card 1: Season Progress -->
+                <div class="kpi-card" style="padding:14px 16px;">
+                    <span class="kpi-label">Season progress</span>
+                    <div class="kpi-value" style="font-size:22px;margin:3px 0;">
+                        {{ $compStats['finished'] }}
+                        <span style="font-size:14px;color:var(--xp-muted);font-weight:500;">/ {{ $compStats['total'] }}</span>
+                    </div>
+                    <div class="kpi-delta positive" style="gap:4px;font-size:11px;">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="18 15 12 9 6 15"></polyline>
+                        </svg>
+                        <span>{{ $compStats['progress_pct'] }}%</span>
+                        <span class="kpi-delta-context">played ({{ $compStats['scheduled'] }} left)</span>
+                    </div>
+                </div>
+
+                <!-- Card 2: Scoring Rate -->
+                <div class="kpi-card" style="padding:14px 16px;">
+                    <span class="kpi-label">Scoring average</span>
+                    <div class="kpi-value" style="font-size:22px;margin:3px 0;">
+                        {{ number_format($compStats['goals_per_match'], 2) }}
+                        <span style="font-size:12px;color:var(--xp-muted);font-weight:500;">goals/game</span>
+                    </div>
+                    <div class="kpi-delta" style="gap:4px;color:var(--xp-orange);font-size:11px;">
+                        <span>{{ $compStats['total_goals'] }} goals</span>
+                        <span class="kpi-delta-context">Home {{ number_format($compStats['home_goals_avg'], 1) }} &bull; Away {{ number_format($compStats['away_goals_avg'], 1) }}</span>
+                    </div>
+                </div>
+
+                <!-- Card 3: Home Advantage -->
+                <div class="kpi-card" style="padding:14px 16px;">
+                    <span class="kpi-label">Home advantage</span>
+                    <div class="kpi-value" style="font-size:22px;margin:3px 0;">{{ $compStats['home_win_pct'] }}%</div>
+                    <div class="kpi-delta" style="gap:4px;color:var(--xp-text);font-size:11px;">
+                        <span>{{ $compStats['home_wins'] }}W</span>
+                        <span class="kpi-delta-context">&bull; {{ $compStats['draws'] }}D &bull; {{ $compStats['away_wins'] }}L</span>
+                    </div>
+                </div>
+
+                <!-- Card 4: Model Predictions -->
+                <div class="kpi-card" style="padding:14px 16px;">
+                    <span class="kpi-label">Model predictions</span>
+                    <div class="kpi-value" style="font-size:22px;margin:3px 0;">
+                        {{ $compStats['predictions_count'] }}
+                        <span style="font-size:12px;color:var(--xp-muted);font-weight:500;">active</span>
+                    </div>
+                    <a href="{{ route('changelog') }}" class="kpi-delta positive" style="gap:4px;text-decoration:none;font-size:11px;" title="View Model Changelog &amp; Architecture">
+                        <span>Dixon-Coles</span>
+                        <span class="kpi-delta-context">v1.2.1-h2h &rarr;</span>
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -982,9 +1537,9 @@
 
                     <!-- 4. All Matches -->
                     <a href="{{ route('dashboard', ['competition' => $selectedComp, 'season' => $selectedSeason, 'status' => 'all']) }}"
-                       class="view-nav-btn {{ $statusFilter === 'all' ? 'active' : '' }}">
+                       class="view-nav-btn {{ $statusFilter === 'all' && !$dateFilterInfo ? 'active' : '' }}">
                         <div style="display:flex;align-items:center;gap:8px;">
-                            <div style="width:22px;height:22px;border-radius:4px;background:{{ $statusFilter === 'all' ? 'rgba(217, 78, 0, 0.25)' : '#121215' }};display:flex;align-items:center;justify-content:center;color:{{ $statusFilter === 'all' ? 'var(--xp-orange)' : 'var(--xp-muted)' }};">
+                            <div style="width:22px;height:22px;border-radius:4px;background:{{ $statusFilter === 'all' && !$dateFilterInfo ? 'rgba(217, 78, 0, 0.25)' : '#121215' }};display:flex;align-items:center;justify-content:center;color:{{ $statusFilter === 'all' && !$dateFilterInfo ? 'var(--xp-orange)' : 'var(--xp-muted)' }};">
                                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <line x1="8" y1="6" x2="21" y2="6"></line>
                                     <line x1="8" y1="12" x2="21" y2="12"></line>
@@ -1056,4 +1611,40 @@
             </aside>
         </div>
     </div>
+    </div> <!-- /#dashboard-real-content -->
+
+    <!-- Real-Time Countdown Ticker for Upcoming Fixtures -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            function updateMatchCountdowns() {
+                const nowSec = Math.floor(Date.now() / 1000);
+                document.querySelectorAll('[data-countdown-kickoff]').forEach(function (el) {
+                    const kickoffSec = parseInt(el.getAttribute('data-countdown-kickoff'), 10);
+                    if (!kickoffSec || isNaN(kickoffSec)) return;
+
+                    const diff = kickoffSec - nowSec;
+                    if (diff <= 0) {
+                        el.textContent = '⚡ Starting now / In-Play';
+                        el.classList.add('urgent');
+                        return;
+                    }
+
+                    const hours = Math.floor(diff / 3600);
+                    const minutes = Math.floor((diff % 3600) / 60);
+                    const seconds = diff % 60;
+
+                    if (diff < 3600) {
+                        el.textContent = '⚡ Starts in ' + minutes + 'm ' + String(seconds).padStart(2, '0') + 's';
+                        el.classList.add('urgent');
+                    } else if (diff < 86400) {
+                        el.textContent = '⏳ Starts in ' + hours + 'h ' + minutes + 'm ' + String(seconds).padStart(2, '0') + 's';
+                        if (hours < 3) el.classList.add('urgent');
+                    }
+                });
+            }
+
+            updateMatchCountdowns();
+            setInterval(updateMatchCountdowns, 1000);
+        });
+    </script>
 </x-layouts.app>

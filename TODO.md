@@ -104,6 +104,14 @@ Goal: confirm the data sources behave the way the plan assumes.
 - [x] Set `.gitignore`: `.env`, the SQLite file, `storage/backups`, logs.
 - [x] Fill in the Phase 0 findings table above.
 - [x] Note any difference between real responses and what the docs assume.
+- [ ] football-data.org: do `dateFrom`, `dateTo` and `status` filters work on the free
+      key, and does each match carry `lastUpdated`? How long after full time does a
+      match show FINISHED with its final score?
+- [ ] CSV: does a `HEAD` request return `ETag`, `Last-Modified` or `Content-Length`,
+      and does the server honor conditional requests? Check the current-season file
+      twice a day for a few days and note when it changes.
+- [ ] Confirm one probe cycle (all active competitions) stays well under 10
+      football-data.org calls per minute.
 
 **Done when:** you know exactly what each free key returns and the findings table
 is filled in.
@@ -166,6 +174,44 @@ match, tests pass, and `api_calls` contains every request made.
 
 **Done when:** you can state, with numbers, whether v1 beats the baselines.
 
+## Phase 2D: Freshness and auto-refresh (build right after 2A)
+
+How it works:
+- **Probes (cheap, due-only).** football-data.org: one windowed matches call per
+  active competition (`dateFrom` today minus 3 days, `dateTo` today plus 7 days).
+  The response is stored in `api_calls` and diffed against the DB. CSV: `HEAD` or a
+  conditional GET; if the server gives no usable headers, download and hash.
+- **Diff.** Each difference becomes a `source_changes` row: new finished match,
+  result correction, kickoff change, postponement, new fixture, new season, CSV new
+  rows or corrections. Nothing is written to `matches` yet.
+- **Refresh.** `refresh:run` checks the significance rules. If met, it applies the
+  STORED responses (no new calls): upserts matches with the merge rules, runs
+  `standings:rebuild`, creates or recomputes `match_verifications`, marks the
+  changes applied and writes a `sync_runs` row. It never touches `predictions`.
+- **Predict due.** `predict --due` predicts matches kicking off within 24 hours that
+  have no prediction yet, but refuses if the competition's data is older than 12
+  hours. It then runs a probe first (within quota) or skips and logs a warning.
+- **Visibility.** Inspector "Sources" tab (read-only): per resource, last checked,
+  next check, last changed, unapplied changes by kind, last refresh, data age.
+  `/verify` header shows "Data last refreshed at ...".
+
+Tasks:
+- [ ] Migrations `source_checks`, `source_changes`; `refresh` block in config
+- [ ] `SourceProbe` interface; `FootballDataWindowProbe`; `CsvProbe` (HEAD,
+      conditional GET, hash fallback). All HTTP through `LoggedHttpClient`.
+- [ ] Diff engine: stored response vs DB, writing `source_changes`
+- [ ] `sources:probe` (does nothing unless `next_check_at` has passed)
+- [ ] `refresh:run {--force}` with the significance rules and the 2-hour gap
+- [ ] Table-driven tests for significance: 4 new finished results do not trigger;
+      5 do; one kickoff change in the next 7 days triggers (respecting the gap); 1
+      change after 24 hours since the last refresh triggers
+- [ ] Test: a probe makes zero HTTP calls when `next_check_at` is in the future,
+      and at most one call per competition per cycle
+- [ ] Test: `refresh:run` makes zero HTTP calls (replays stored responses)
+- [ ] `predict --due` with the data-age guard and lead time
+- [ ] Inspector "Sources" tab and the `/verify` "last refreshed" line
+- [ ] Scheduler: `sources:probe` and `refresh:run` every 30 minutes
+
 ## Phase 3: AI previews
 
 - [x] `PromptBuilder` (structured JSON input only) + versioned system prompt
@@ -217,6 +263,7 @@ matches the model output, and the full call is stored.
   - Central multi-league matchday hub with date navigator (Yesterday, Today, Tomorrow)
   - Batch predict action computing Dixon-Coles Poisson probabilities with zero leakage
   - Probability outcome bars, expected goals, and AI preview cards
+  - [x] Match feeds default to today's UTC date; historical analysis pages keep their existing unfiltered content
 - [x] **Phase C: AI Reasoning Studio & Permutation Explainer (`/ai-reasoning`)**
   - Explicit architectural separation: pure math (PHP) vs. grounded qualitative LLM reasoning
   - Mathematical derivation breakdown cards + 6x6 scoreline heatmap matrix
@@ -227,6 +274,7 @@ matches the model output, and the full call is stored.
   - `MotmEvaluator` service calculating 5.0 to 10.0 ratings from lineups and match contributions
   - MOTM Leaderboards (Top Players, Top Clubs) + Squad Ratings Breakdown
   - 1-click single match and batch evaluation workflows
+  - [x] Verified-only AI research path with Google Search grounding, citations, and end-of-day command
 - [x] **Phase E: Model Changelog & Technical Documentation Hub (`/changelog`, `/docs`)**
   - Dedicated page spotlighting active model `v1.2.1-h2h` with live parameters and walk-forward benchmarks
   - Mathematical architecture breakdown: Poisson rate parameters, Dixon-Coles low-score adjustment, and exponential decay
@@ -240,10 +288,54 @@ matches the model output, and the full call is stored.
   - Edit the current palette with a live preview; save built-in edits as custom copies
   - Keep built-in presets fixed and fall back to Pitch Black when the active custom theme is deleted
 
+## Phase 10: Model Calibration & Mathematical Perfection (`v1.3.0-calibrated`)
+
+- [x] **Phase A: Dixon-Coles Optimization & Empirical Rho**
+  - Grid search across historical matches optimizing low-scoring scoreline covariance (&rho; = -0.10)
+  - Eliminates bivariate Poisson draw probability underestimation on 0-0 and 1-1 scorelines
+- [x] **Phase B: Sustainable xG Ratio Elevation (&alpha; = 0.85)**
+  - Raised sustainable xG weight from 0.70 to 0.85 (15% actual goals) to filter noisy finishing variance
+  - Focuses team ratings strictly on underlying shot generation and suppression
+- [x] **Phase C: Form Momentum Factor Integration**
+  - Implemented 5-match rolling points differential factor (weight = 0.010, clamped [0.85, 1.15])
+  - Dynamically scales expected goals (&lambda;) based on recent momentum without data leakage
+- [x] **Phase D: Post-Grid Temperature Scaling (T = 1.08)**
+  - Applied post-grid temperature calibration to soften extreme favorite overconfidence
+  - Aligns predicted probabilities to empirical match outcomes within 0.1%–1.5% calibration error across all 10 bins
+- [x] **Phase E: Walk-Forward Backtesting & Documentation Synchronization**
+  - 760-match walk-forward backtest on held-out seasons (2023, 2024): 55.3% accuracy, 0.9658 Log Loss, 0.5727 Brier Score
+  - Synced documentation, interactive technical manual, changelog, and settings references
+
+## Phase 11: Commercial SaaS Dashboard Audit, Restructuring & Rebuild
+
+- [x] **Comprehensive Application & Technical Audit**
+  - Generated full audit and reference reports in `docs/`: `CANDYCUTZ-AUDIT-REPORT.md`, `DASHBOARD-AUDIT-REPORT.md`, `DASHBOARD-IMPLEMENTATION-PLAN.md`, `DESIGN-SYSTEM.md`, `ROUTE-INVENTORY.md`, `ROLE-PERMISSIONS.md`, `API-INTEGRATION-REPORT.md`, `TESTING-REPORT.md`
+- [x] **Responsive Layout & Mobile Drawer Architecture**
+  - Added slide-over off-canvas mobile drawer with backdrop blur `#sidebar-backdrop` for screens &le; 1024px
+  - Connected `#sidebar-toggle-btn`, close button `#sidebar-close-btn`, backdrop dismiss, and `Escape` key listeners
+  - Cleaned navigation grouping into Overview, Intelligence, Competitions, and Administration with micro-badges
+- [x] **Dashboard Experience Restructuring & Polish**
+  - High-density Executive Provenance Trust Strip with live status dot, model versioning, zero leakage badge, and database statistics
+  - 4-Card Executive KPI Grid (Poisson Engine Calibration, Model Accuracy vs Baselines, Calibration & Risk Brier Score, Competition Matchday Operations)
+  - SportyBet 6-League Horizontal Filter Chips (EPL, UCL, La Liga, Bundesliga, Serie A, Ligue 1) with dynamic counters
+  - SportyBet Day Switcher & confirmed matchdays jump dropdown
+  - Curated Marquee Spotlight card for featured next matchday game
+  - SportyBet 1-X-2 odds tiles with glowing favored pick, implied fair odds, 3 analytical systems breakdown, match history & MOTM/player ratings, and mathematical breakdown
+  - Purged legacy `#FF6B00` hexes in favor of canonical `var(--xp-orange)` / `#D94E00`
+- [x] **Verification & Regression Testing**
+  - All 180 unit and feature tests passing with 982 assertions (0 failures)
+- [x] **Action & Preactivity Dedicated Preloader System**
+  - `<x-activity-preloader />` component with orbital rings, ambient radial glow, dynamic operation labels, and safety dismiss
+  - `window.XpectPreloader` JavaScript API and action event interception for predictions, AI previews, audits, syncs, simulations, MOTM, and API tests
+  - Distinct separation: skeletal transitions for GET page filters, rich preloader for background actions and mutations
+
 ---
 
 ## Open items
 
+- [x] Add targeted SQLite indexes for dashboard, track-record, and verified
+      MOTM query paths.
+- [x] Dedicated action & preactivity preloader alongside active skeletal loading system.
 - Confirm football-data.org free-tier history depth (Phase 0).
 - Confirm API-Football daily quota, reset time and season access (Phase 0).
 - Decide the Elo source after checking availability.

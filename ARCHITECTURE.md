@@ -73,11 +73,13 @@ app/
     SyncMatches.php            sync:matches {competition} {--season=}
     RebuildStandings.php       standings:rebuild {competition}  (from matches, no API cost)
     BackfillHistory.php        backfill:history {competition} {--seasons=} {--from-cache}
-    Predict.php                predict {match_id|--next=}
+    Predict.php                predict {match_id|--next=|--due}
     Backtest.php               backtest {competition} {--seasons=} {--model=}
     EvaluatePredictions.php    evaluate:predictions
     ImportOdds.php             odds:import {competition?} {--seasons=}
     GeneratePreview.php        preview:generate {prediction_id}
+    SourcesProbe.php           sources:probe  (due-only cheap probes, no calls before next_check_at)
+    RefreshRun.php             refresh:run {--force}  (applies stored responses, zero new HTTP)
     Backup.php                 app:backup
   Http/
     Controllers/Dev/ApiInspectorController.php   read-only inspector (section 10)
@@ -246,14 +248,58 @@ docs").
 Implementation: Blade + plain vanilla JavaScript (native fetch polling and DOM rendering) over a
 JSON endpoint `/dev/api/calls`. No build step, no CDN, and no new dependencies needed. The inspector UI is styled using the `UI_GUIDELINES.md` tokens.
 
-## 11. Scheduling (Laravel scheduler, local machine)
+## 11. Freshness and auto-refresh (Phase 2D)
 
-- Daily: `sync:matches` for active competitions.
-- Matchday: shorter-interval result sync.
-- Daily: `evaluate:predictions`.
+Xpect watches external data sources cheaply, records what changed, and refreshes the database automatically once significant new data has arrived.
+
+### How it works:
+- **Probes (cheap, due-only).** Only two sources are probed for changes:
+  football-data.org and the CSVs. API-Football is NEVER probed (preserves quota);
+  it is used only inside `verify:run`.
+  - Cadence: a competition is "active" if a match kicked off in the last 8 hours
+    or kicks off within 2 hours. Active: probe every 120 minutes. Otherwise
+    every 24 hours. CSVs: every 12 hours. `source_checks.next_check_at` strictly
+    enforces this.
+  - football-data.org probe: one windowed matches call per active competition
+    (`dateFrom` today minus 3 days, `dateTo` today plus 7 days). The response is
+    stored in `api_calls` and diffed against the DB.
+  - CSV probe: `HEAD` request or conditional GET (`If-None-Match`, `If-Modified-Since`);
+    if the server gives no usable headers, download and content-hash.
+- **Diff engine.** Compares the stored response against existing DB state. Each
+  difference is logged as an append-only row in `source_changes`: `new_finished`,
+  `result_correction`, `kickoff_change`, `postponed`, `new_fixture`, `new_season`,
+  `csv_new_rows`, or `csv_correction`. Nothing is written to `matches` yet.
+- **Refresh (`refresh:run`).** Replays stored responses from `api_calls` with ZERO
+  new HTTP calls. Triggers when any significance rule is met:
+  1. 5 or more unapplied `new_finished` or `result_correction` changes;
+  2. Any `kickoff_change`, `postponed`, `new_fixture`, or `new_season` touching a
+     match in the next 7 days;
+  3. At least 1 unapplied change and the last refresh is older than 24 hours.
+  - Minimum gap between refreshes: 2 hours (unless `--force`).
+  - Action: applies updates to `matches` with merge rules, runs `standings:rebuild`,
+    creates or recomputes `match_verifications`, marks changes applied with
+    `applied_at` and `refresh_run_id`, and writes a `sync_runs` row. It never
+    touches existing predictions.
+- **Predict due (`predict --due`).** Predicts matches kicking off within
+  `prediction_lead_hours` = 24 hours that have no prediction yet, but refuses if
+  the competition's data is older than `max_data_age_hours` = 12 hours. If stale,
+  it runs a probe first (within quota) or skips and logs a warning. Existing
+  predictions are never regenerated.
+- **Visibility.** The API inspector includes a read-only "Sources" tab showing per
+  resource: last checked, next check, last changed, unapplied changes by kind,
+  last refresh, and data age. The verification page (`/verify`) displays a "Data
+  last refreshed at ..." timestamp.
+
+## 12. Scheduling (Laravel scheduler, local machine)
+
+- Every 30 minutes: `sources:probe` (checks whether any `next_check_at` has passed; does nothing otherwise).
+- Every 30 minutes: `refresh:run` (evaluates significance rules against unapplied `source_changes`; replays stored responses with zero new HTTP).
+- Daily: `verify:run` (at `verification.run_at`, verifies completed matches past their eligibility window; only fetches fields still missing after refresh).
+- Daily: `evaluate:predictions` (pure DB evaluation of finished matches).
+- Manual: `sync:matches` remains as the manual command that `refresh:run` reuses.
 - All commands are idempotent and quota-aware.
 
-## 12. Backups
+## 13. Backups
 
 `php artisan app:backup` copies the SQLite file to
 `storage/backups/xpect-YYYYmmdd-HHMM.sqlite` and keeps the last N copies (N in
@@ -262,14 +308,14 @@ changes existing tables. Reason: `api_calls` holds raw data that costs API quota
 to fetch again (API-Football allows about 100 calls/day), so losing the file is
 expensive. Backups stay out of git.
 
-## 13. Error handling
+## 14. Error handling
 
 - Adapter failures never crash a run. Log, record in `sync_runs`, continue.
 - Unknown team names: skip the row, record in `sync_runs.summary`, never
   auto-create teams.
 - Parser errors are fixable via replay without new API calls.
 
-## 14. Security
+## 15. Security
 
 - Secrets only in `.env`; `.env.example` committed without values.
 - Redaction before persistence (see section 4).
@@ -279,7 +325,7 @@ expensive. Backups stay out of git.
 - Validate all command inputs; use Eloquent/query builder only (no raw SQL with
   user input).
 
-## 15. Testing
+## 16. Testing
 
 - Unit tests: features, Poisson, metrics (hand-checked values).
 - Mandatory leakage test.
@@ -289,7 +335,7 @@ expensive. Backups stay out of git.
 - The backtest command is itself a regression check: record the metrics per
   `model_version` in `CHANGELOG.md`.
 
-## 16. Appearance preferences
+## 17. Appearance preferences
 
 - `/themes` manages the four built-in palettes and browser-local custom palettes.
 - Built-in palettes are fixed. Custom palettes support creation, color editing,
@@ -301,3 +347,24 @@ expensive. Backups stay out of git.
   the selected palette before rendering page styles. The default is Pitch Black.
 - Palette changes affect presentation only; they do not change prediction
   calculations, match data, or model configuration.
+
+## 18. Date navigation defaults
+
+- The shared date navigator displays the current UTC date on every application
+  page without applying a date filter by itself.
+- The dashboard match feed defaults to today's UTC fixtures, including an empty
+  today's state when no fixtures are scheduled. Explicit date, status, season,
+  and time filters continue to take precedence.
+- The `/today` fixtures hub already defaults its data to today's UTC date.
+- Historical analysis pages such as `/motm` and `/ai-reasoning` retain their
+  existing content until the user applies a date filter.
+
+## 19. Verified MOTM research
+
+`motm:research` runs at the end of the UTC day for finished matches, prioritizing
+configured high-interest teams and respecting `football.motm.daily_limit`.
+Gemini is called through `LoggedHttpClient` with Google Search grounding. The
+application stores a MOTM only when the structured response explicitly names the
+winner, gives a reason, identifies one of the fixture teams, and includes at
+least one valid source URL. The `/motm` page never falls back to the algorithmic
+evaluator and shows only `verification_status=verified` rows.

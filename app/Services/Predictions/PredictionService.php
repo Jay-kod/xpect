@@ -20,6 +20,35 @@ class PredictionService
     }
 
     /**
+     * Determine the prediction lifecycle stage (pre_match, matchday, final) for a match.
+     */
+    public function determineStage(FootballMatch $match, ?CarbonImmutable $asOf = null): string
+    {
+        $cutoff = $asOf ?? CarbonImmutable::now('UTC');
+
+        // 1. Final stage: 2 or more confirmed starting lineups
+        $hasConfirmedLineups = $match->relationLoaded('lineups')
+            ? $match->lineups->where('confirmed', true)->count() >= 2
+            : $match->lineups()->where('confirmed', true)->count() >= 2;
+
+        if ($hasConfirmedLineups) {
+            return 'final';
+        }
+
+        // 2. Matchday stage: kickoff is today (UTC) or within 24 hours of kickoff
+        if ($match->kickoff_at) {
+            $kickoff = CarbonImmutable::parse($match->kickoff_at);
+            $hoursDiff = $cutoff->diffInHours($kickoff, false);
+
+            if ($cutoff->isSameDay($kickoff) || ($hoursDiff <= 24 && $hoursDiff >= -6)) {
+                return 'matchday';
+            }
+        }
+
+        return 'pre_match';
+    }
+
+    /**
      * Generate and store an immutable prediction for a match.
      */
     public function predict(
@@ -27,10 +56,29 @@ class PredictionService
         ?CarbonImmutable $asOf = null,
         bool $isBacktest = false,
         string $modelVersion = PoissonModel::MODEL_VERSION,
-        string $stage = 'pre_match'
+        ?string $stage = null
     ): Prediction {
-        // Cutoff MUST be strictly <= kickoff
-        $cutoff = $asOf ?? CarbonImmutable::parse($match->kickoff_at);
+        // Cutoff MUST be strictly <= kickoff (Mandatory Zero Leakage Guard)
+        $kickoff = $match->kickoff_at ? CarbonImmutable::parse($match->kickoff_at) : null;
+        $cutoff = $asOf ?? $kickoff ?? CarbonImmutable::now('UTC');
+        if ($kickoff && $cutoff->gt($kickoff)) {
+            $cutoff = $kickoff;
+        }
+
+        if ($stage === null) {
+            $stage = $isBacktest ? 'pre_match' : $this->determineStage($match, $cutoff);
+        }
+
+        // Immutability guard: Return existing prediction if already computed for this model/stage
+        $existing = Prediction::where('match_id', $match->id)
+            ->where('model_version', $modelVersion)
+            ->where('is_backtest', $isBacktest)
+            ->where('stage', $stage)
+            ->first();
+
+        if ($existing) {
+            return $existing;
+        }
 
         $homeFeatures = $this->featureBuilder->build($match->homeTeam, $cutoff);
         $awayFeatures = $this->featureBuilder->build($match->awayTeam, $cutoff);
@@ -48,7 +96,7 @@ class PredictionService
         $lineupsConfirmed = $match->lineups()->where('confirmed', true)->count() >= 2;
 
         $h2hModifier = null;
-        if ($modelVersion === PoissonModel::MODEL_V1_H2H) {
+        if (in_array($modelVersion, [PoissonModel::MODEL_V1_H2H, PoissonModel::MODEL_V1_CALIBRATED], true)) {
             $h2hModifier = $this->calculateH2HModifier($match->home_team_id, $match->away_team_id, $cutoff);
         }
 

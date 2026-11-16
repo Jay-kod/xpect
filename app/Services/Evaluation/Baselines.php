@@ -11,6 +11,16 @@ use Carbon\CarbonImmutable;
 class Baselines
 {
     /**
+     * @var array<string, array{p_home: float, p_draw: float, p_away: float, predicted: string}>
+     */
+    protected static array $baseRatesCache = [];
+
+    public static function clearCache(): void
+    {
+        self::$baseRatesCache = [];
+    }
+
+    /**
      * Always Home baseline: Predict 100% Home Win (smoothed slightly for numeric log loss).
      */
     public function alwaysHome(): array
@@ -42,16 +52,28 @@ class Baselines
      */
     public function historicalBaseRates(Competition $competition, CarbonImmutable $asOf): array
     {
-        $matches = FootballMatch::where('competition_id', $competition->id)
+        $cacheKey = "{$competition->id}_{$asOf->toIso8601String()}";
+        if (isset(self::$baseRatesCache[$cacheKey])) {
+            return self::$baseRatesCache[$cacheKey];
+        }
+
+        $row = FootballMatch::where('competition_id', $competition->id)
             ->where('status', 'finished')
             ->where('kickoff_at', '<', $asOf)
             ->whereNotNull('home_goals')
             ->whereNotNull('away_goals')
-            ->get();
+            ->selectRaw('
+                COUNT(*) as total,
+                SUM(CASE WHEN home_goals > away_goals THEN 1 ELSE 0 END) as home_wins,
+                SUM(CASE WHEN home_goals < away_goals THEN 1 ELSE 0 END) as away_wins,
+                SUM(CASE WHEN home_goals = away_goals THEN 1 ELSE 0 END) as draws
+            ')
+            ->first();
 
-        if ($matches->count() < 10) {
+        $total = (int) ($row->total ?? 0);
+        if ($total < 10) {
             // Sensible historical Premier League base rates fallback
-            return [
+            return self::$baseRatesCache[$cacheKey] = [
                 'p_home' => 0.45,
                 'p_draw' => 0.25,
                 'p_away' => 0.30,
@@ -59,20 +81,9 @@ class Baselines
             ];
         }
 
-        $total = $matches->count();
-        $homeWins = 0;
-        $draws = 0;
-        $awayWins = 0;
-
-        foreach ($matches as $m) {
-            if ($m->home_goals > $m->away_goals) {
-                $homeWins++;
-            } elseif ($m->home_goals < $m->away_goals) {
-                $awayWins++;
-            } else {
-                $draws++;
-            }
-        }
+        $homeWins = (int) ($row->home_wins ?? 0);
+        $draws = (int) ($row->draws ?? 0);
+        $awayWins = (int) ($row->away_wins ?? 0);
 
         $pH = $homeWins / $total;
         $pD = $draws / $total;
@@ -82,7 +93,7 @@ class Baselines
         if ($pD > $pH && $pD > $pA) $predicted = 'D';
         elseif ($pA > $pH && $pA > $pD) $predicted = 'A';
 
-        return [
+        return self::$baseRatesCache[$cacheKey] = [
             'p_home' => $pH,
             'p_draw' => $pD,
             'p_away' => $pA,

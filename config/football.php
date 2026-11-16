@@ -20,7 +20,11 @@ return [
     |--------------------------------------------------------------------------
     */
     'models' => [
-        'dixon_coles_rho' => (float) env('DIXON_COLES_RHO', -0.06),
+        'default_model' => env('FOOTBALL_DEFAULT_MODEL', 'v1.3.0-calibrated'),
+        'dixon_coles_rho' => (float) env('DIXON_COLES_RHO', -0.10),
+        'xg_weight' => (float) env('FOOTBALL_XG_WEIGHT', 0.85),
+        'form_momentum_weight' => (float) env('FOOTBALL_FORM_WEIGHT', 0.010),
+        'temperature' => (float) env('FOOTBALL_TEMPERATURE', 1.08),
     ],
 
     /*
@@ -83,6 +87,14 @@ return [
     */
     'backups' => [
         'keep_count' => (int) env('FOOTBALL_BACKUP_KEEP_COUNT', 10),
+    ],
+
+    'motm' => [
+        'daily_limit' => (int) env('MOTM_DAILY_LIMIT', 12),
+        'priority_team_names' => array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) env('MOTM_PRIORITY_TEAMS', 'Arsenal,Chelsea,Liverpool,Manchester City,Manchester United,Tottenham,Real Madrid,Barcelona,Bayern Munich,Paris Saint-Germain,Juventus,Inter Milan,AC Milan'))
+        ))),
     ],
 ];
 

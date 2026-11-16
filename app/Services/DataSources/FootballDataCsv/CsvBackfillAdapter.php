@@ -26,7 +26,8 @@ class CsvBackfillAdapter implements DataSourceAdapter
         Competition $competition,
         int $season,
         bool $fromCache = false,
-        ?int $syncRunId = null
+        ?int $syncRunId = null,
+        bool $fresh = false
     ): array {
         $div = $competition->source_ids['csv'] ?? null;
         if (!$div) {

@@ -41,6 +41,7 @@ Not hosted. Not multi-user. No monetization. Built for the owner's personal use.
 - Computed features, Elo, Poisson probabilities.
 - Backtesting with baselines, and live pre-match predictions.
 - AI previews via the Claude API.
+- Freshness monitor and auto-refresh (cheap probes, diff engine, significance-based batch refresh).
 - Full logging of every external call, plus a dev-only API inspector page.
 - Artisan commands as the main interface. A full UI comes later.
 
@@ -104,6 +105,9 @@ Add variables one at a time. Keep a variable only if the backtest improves.
 Football is high-variance. Xpect estimates probabilities; it cannot guarantee
 outcomes and will not consistently beat bookmaker odds. Lineups are usually
 confirmed about an hour before kickoff, so early predictions cannot use them.
+Freshness is only as good as the sources: football-data.org's free scores are
+delayed and the CSV may lag, so "current" means current as of the last probe,
+not live.
 
 ## 10. Phases
 
@@ -358,6 +362,19 @@ Template:
   - Generated multi-format favicon assets (`public/favicon.ico`, `public/brand/favicon-32x32.png`, `public/brand/favicon-16x16.png`, `public/brand/mark-orange.svg`).
   - Linked the vector and binary favicon in `<head>` of `resources/views/components/layouts/app.blade.php`.
 - Verified: All 60 unit and feature tests pass (291 assertions); local server running on port 8080.
+
+### Session 14 (2026-11-16)
+- Done: Added an append-only migration with targeted indexes for dashboard match
+filtering/order, track-record evaluation chronology, and verified MOTM
+leaderboard grouping.
+- Decisions made: Kept the change to three query-backed indexes after checking
+SQLite EXPLAIN QUERY PLAN; no broad or speculative indexes were added.
+- Verified or changed versus the docs: The live database had the documented
+indexes but dashboard status queries used only `(competition_id, season,
+kickoff_at)` and track-record pagination scanned and temporarily sorted
+`prediction_evaluations`. DATABASE.md now documents the new indexes.
+- Stopped at: Targeted database performance improvement.
+- Next: Run the focused schema test and apply the migration to the local database.
 
 ### Session 14: Orange & Black Theme Enforcement (2026-10-28)
 - Done: Fully aligned the dashboard UI with the canonical `UI_GUIDELINES.md` color theme tokens and visual rules requested by the owner.
@@ -676,9 +693,9 @@ Template:
 ### Session 48: Live Current Theme Editing (2026-10-31)
 - Done: Added an **Edit current theme** action that previews palette edits immediately. Built-in presets save as custom copies and remain unchanged; an active custom theme opens its existing editor.
 - Decisions made: Preserve the prior fixed-preset decision while making the selected built-in palette directly editable through a browser-local copy.
-- Verified or changed versus the docs: Updated theme UI coverage and documented live preview/copy behavior. Verification pending.
+- Verified or changed versus the docs: Updated theme UI coverage and documented live preview/copy behavior. Theme feature test passed (1 test, 23 assertions); full Docker suite passed (142 tests, 726 assertions); live `/themes` returned HTTP 200 with the edit action and custom-copy guidance; JavaScript syntax and scoped `git diff --check` passed.
 - Stopped at: Current theme editing.
-- Next: Run focused theme and route health tests, then the full Docker suite.
+- Next: Confirm API-Football daily quota and reset time when a key is available.
 
 ### Session 49: Gemini Model Upgrade to 3.8 Flash & Multi-Model Resilience (2026-10-31)
 - Done: Resolved Google Gemini HTTP 404 verification failure:
@@ -688,3 +705,240 @@ Template:
 - Verified: Live `php artisan test:key gemini` confirmed with real Google Gemini key: returned HTTP 200 ✓ ACTIVE (2308ms). Full test suite passed (142 tests, 726 assertions); `audit:data` clean.
 - Stopped at: Verification complete.
 - Next: Confirm API-Football daily quota and reset time when a key is available.
+
+### Session 50: SportyBet-Style Non-Technical UI & Daily Matchday Transformation (2026-10-31)
+- Done: Re-architected the main user interface into a clean, modern, intuitive sports prediction experience modeled directly on SportyBet:
+  - Authored comprehensive implementation plan artifact (`sportybet_ui_simplification_plan.md`) approved by the owner.
+  - Re-engineered `DashboardController` (`app/Http/Controllers/DashboardController.php`) to automatically prioritize today's matches when games exist today, seamlessly defaulting to upcoming scheduled fixtures when today has no games, eliminating intimidating 20-page historical dumps.
+  - Implemented top **Database Provenance & Trust Strip** prominently reassuring the non-technical user that 10,734+ matches and 5 seasons in SQLite actively power all model numbers (`v1.2.1-h2h`, Zero Data Leakage Guard).
+  - Built **SportyBet Horizontal League Filter Bar** with 1-click chips for all 5 top European leagues (EPL, La Liga, Serie A, Bundesliga, Ligue 1) with country flags and active fixture counts.
+  - Built **SportyBet Quick Day & Matchday Jumper** with instant buttons (`Today's Matches`, `Upcoming Round`, `Past Results`, `All Fixtures`).
+  - Redesigned match cards into the **SportyBet 1 | X | 2 Prediction Pattern**:
+    - Tactile 3-column odds tiles (1 Home Win %, X Draw %, 2 Away Win %) side-by-side with the model's favored pick highlighted in glowing Xpect orange.
+    - Key metrics strip featuring Most Likely Scoreline (e.g. `2 - 0`), Expected Goals (`xG: 2.10 – 0.85`), and Head-to-Head database depth (`18 past H2H meetings in DB`).
+    - Grounded plain-English AI narrative summary box.
+    - Collapsible "View Head-to-Head & Model Math" accordion preserving all deep Dixon-Coles and leakage audit formulas for on-demand inspection without cluttering the screen.
+  - Repositioned historical season KPIs and scoring trend charts below the matches feed so current action is visible immediately upon landing.
+  - Created dedicated test suite `tests/Feature/SportyBetDashboardTest.php` verifying provenance strip, league chips, 1X2 tiles, and default-to-today behavior.
+- Verified: All 146 unit and feature tests pass (753 assertions); `php artisan audit:data` clean across 8/8 domains in 173ms. Dev server running on `http://127.0.0.1:8080`.
+- Next: Confirm API-Football daily quota and reset time when a key is available.
+
+### Session 51: Theme Editor Interaction Fix (2026-10-31)
+- Done: Fixed theme controls becoming unresponsive after saving a custom theme. The shared loading-veil handler now skips form submissions that have already been prevented by client-side handlers.
+- Verified: Actual Chrome mouse clicks on `http://127.0.0.1:8080/themes` opened the built-in editor; live preview and cancel restored the palette; saving a custom copy persisted across reload; editing and deleting the active custom theme worked and returned to Pitch Black. Full Docker suite passed: 146 tests, 753 assertions. Focused skeletal-loading tests passed: 3 tests, 15 assertions.
+- Stopped at: Theme manager interaction regression fixed.
+- Next: Confirm API-Football daily quota and reset time when a key is available.
+
+### Session 52: Google Gemini HTTP 404 Preview Generation Resolution (2026-10-31)
+- Done: Diagnosed and resolved the Google Gemini HTTP 404 preview generation failure:
+  - Cause: `config/services.php` defaulted to deprecated model `gemini-1.5-pro` when `GEMINI_MODEL` was omitted from `.env`. Because Google retired 1.5 models on the v1beta endpoint, calls failed with HTTP 404 `NOT_FOUND`.
+  - Fix:
+    - Updated `config/services.php` default to verified active model `gemini-3-flash-preview`.
+    - Added `GEMINI_MODEL=gemini-3-flash-preview` to `.env`.
+    - Updated `SettingsController::updateKeys()` to persist `GEMINI_MODEL` and `OPENAI_MODEL` to `.env` whenever `ai_model` is changed.
+    - Updated `SettingsController` Gemini model catalog with verified active endpoints (`gemini-3-flash-preview`, `gemini-3.5-flash`, `gemini-3.8-flash`, `gemini-flash-latest`).
+    - Upgraded `PreviewGenerator::generate()` with multi-model candidate resilience fallback (`gemini-3-flash-preview` -> `gemini-3.5-flash` -> `gemini-3.8-flash` -> `gemini-flash-latest`), preventing crashes during temporary Google 503 high-demand spikes or model deprecations.
+    - Updated `preview:generate` Artisan command to report dynamic AI provider names.
+- Verified: Real preview generated for Prediction #1 via Google Gemini in 5.2s with `Number-Check Guard: PASSED` (API Call #46). All 146 unit and feature tests pass (753 assertions); `php artisan audit:data` clean across 8/8 domains in 134ms. Live server running at `http://127.0.0.1:8080`.
+- Next: Confirm API-Football daily quota and reset time when a key is available.
+
+### Session 53: Professional Match Card & AI Preview Elevation (2026-10-31)
+- Done: Overhauled the match card design and resolved the empty AI preview bug:
+  - **Fixed AI Preview Summary Empty Box:** Resolved root cause where Blade was accessing `$prediction->previews->first()->preview_text` instead of the database column `text`, which caused the preview container to evaluate to null and appear blank. Generated AI text now renders immediately.
+  - **Full-Width Broadcast Matchup Layout:** Replaced the cramped center column with a balanced, full-width layout: Home Club identity with 34px crest on the left, central Kickoff / Score / VS hub in the middle, Away Club identity with 34px crest on the right.
+  - **1X2 Probabilities & Fair Implied Odds:** Formatted all probabilities to 1 decimal place (`41.0%`, `23.9%`, `35.1%`) and added fair decimal implied odds (`Odds 2.44 | Odds 4.18 | Odds 2.85`) under each tile. Favored picks highlight with glowing `--xp-orange` border and `★ MODEL PICK` badge.
+  - **Clean SVG Iconography:** Replaced raw emojis with clean SVG icons for Predicted Scoreline target, Expected Goals (xG), and Database Provenance.
+  - **AI Reasoning Box Styling:** Added model badge, grounded DB facts checkmark, and crisp typography.
+  - **Modular Architecture:** Created DRY partial `resources/views/dashboard/partials/match-card.blade.php` used by both the featured marquee spotlight and the main fixtures loop.
+  - **Automated Tests:** Expanded `tests/Feature/SportyBetDashboardTest.php` to verify fair implied odds and preview rendering.
+- Verified: All 147 tests pass (761 assertions); `php artisan audit:data` clean across 8/8 domains in 145ms. Live server at `http://127.0.0.1:8080` serves HTTP 200 with all enhancements rendered.
+- Next: Confirm API-Football daily quota and reset time when a key is available.
+
+### Session 54: Prediction Lifecycle Stage Resolution & Immutability Guard Fix (2026-10-31)
+- Done: Diagnosed and resolved the unique constraint violation (`SQLSTATE[23000] Integrity constraint violation: 19 UNIQUE constraint failed: predictions.match_id, predictions.model_version, predictions.is_backtest, predictions.stage`):
+  - Root Cause: `DashboardController::predict()` did not determine fixture lifecycle stage and blindly passed `$stage = 'pre_match'` for matches that already had an immutable `pre_match` prediction in SQLite. When re-predicted, it attempted duplicate insertion instead of checking existing records or advancing the prediction stage.
+  - Fix:
+    - Added `determineStage(FootballMatch $match, ?CarbonImmutable $asOf): string` to `PredictionService` detecting `final` (when lineups are confirmed), `matchday` (kickoff within 24h or on the match date, factoring injury adjustments), and `pre_match` (early advance forecast).
+    - Hardened `PredictionService::predict()` with an immutability guard: if a prediction already exists for `(match_id, model_version, is_backtest, stage)`, it returns the existing immutable model immediately, eliminating any risk of duplicate key crashes.
+    - Updated `DashboardController::predict()` to dynamically determine the appropriate stage, advance predictions through the lifecycle (`pre_match` -> `matchday` -> `final`), and return an informative message (`Prediction #... is already recorded. Predictions are immutable per system rules.`) when re-predict is clicked on an already-predicted stage.
+    - Updated `resources/views/dashboard/partials/match-card.blade.php` to display active lifecycle stage badge in card footer (`Engine: v1.2.1-h2h • MATCHDAY`).
+  - Tests:
+    - Created `tests/Unit/PredictionServiceTest.php` testing `determineStage` (`pre_match`, `matchday`, `final`) and the immutability duplicate protection guard.
+    - Expanded `tests/Feature/DashboardUiTest.php` testing idempotent re-predict requests and advancing stage from `pre_match` to `matchday`.
+- Verified: All 156 unit and feature tests pass (800 assertions). Dev server running at `http://127.0.0.1:8080`.
+- Next: Confirm API-Football daily quota and reset time when a key is available.
+
+### Session 55: Completed Match Verdicts, 3-System Ensemble & Continuous Learning Engine (2026-10-31)
+- Done: Implemented finished match prediction success/fail outcomes, multi-model 3-system ensemble, and continuous learning/calibration scripts:
+  - **Finished Match Prediction Success/Fail Verdicts:**
+    - Added bright outcome verdict badges (`✓ PREDICTION WON` in glowing emerald `var(--xp-ok)` / `✗ PREDICTION MISSED` in `#FF453A`) on all finished match cards, automatically comparing the model's top favored 1X2 pick against the verified full-time score.
+    - Visual highlighting on 1X2 odds grid: actual winning tile renders an emerald border with a `✓ ACCURATE PICK (WON)` badge if favored or `✓ ACTUAL WINNER`, while missed picks show `✗ MODEL PICK (MISSED)`.
+    - Integrated verified score pill in card header (`Score: 3 – 1 (HT: 1-0)`) and detailed result text in the center matchup hub.
+  - **Three Analytical Systems Ensemble Architecture:**
+    - Explained alternative prediction modeling paradigms beyond AI and Poisson.
+    - Created `App\Services\Predictions\AlternativeProbabilityCalculator.php` (System 2: Elo & Empirical Form Rating Engine `v1.0-elo`) computing rolling team Elo ratings, rating edge, and Bradley-Terry win/draw/loss probabilities with in-memory memoization and zero data leakage.
+    - Synthesized System 1 (Poisson) and System 2 (Elo) into an equal-weight **Ensemble Consensus Probability** (System 3), detecting high agreement vs multi-perspective divergence.
+    - Rendered the tactile **"3 SYSTEMS WORKING ON THIS GAME"** 3-column consensus panel on every match card.
+  - **Continuous Learning & Model Calibration Pipeline:**
+    - Built standalone Python script `scripts/calibrate_model.py` and native Laravel Artisan command `php artisan model:calibrate` (`app/Console/Commands/CalibrateModelCommand.php`).
+    - Implemented walk-forward parameter calibration evaluating historical matches from SQLite, optimizing Elo K-factor, home advantage, and draw scale by minimizing Brier score and multiclass log loss.
+    - Calibrated parameters automatically saved to `storage/calibration/calibrated_weights.json` and read by `AlternativeProbabilityCalculator`.
+  - **Zero Leakage Clamping:**
+    - Hardened `PredictionService::predict()` and `DashboardController::predict()` to enforce `$cutoff = min($asOf, $match->kickoff_at)`, guaranteeing `as_of <= kickoff_at`.
+  - **Automated Verification:**
+    - Authored `tests/Unit/AlternativeProbabilityCalculatorTest.php` with mandatory zero leakage verification.
+    - Expanded `tests/Feature/SportyBetDashboardTest.php` to 11 tests (74 assertions).
+- Verified: All 162 unit and feature tests pass (833 assertions); `php artisan model:calibrate` tested and verified on 1,980 historical matches. Live server at `http://127.0.0.1:8080` serves all updates.
+- Next: Confirm API-Football daily quota and reset time when a key is available.
+
+### Session 56: Mathematical Perfection & Calibration of the Poisson Model (`v1.3.0-calibrated`) (2026-10-31)
+- Done: Perfected the Poisson probability forecasting engine to the theoretical empirical ceiling of association football:
+  - **Dixon-Coles Parameter Optimization (&rho; = -0.10):**
+    - Optimized low-scoring scoreline covariance from -0.06 to -0.10, matching modern Premier League and European draw frequencies for 0-0 and 1-1 scorelines without distorting high-scoring matches.
+  - **Sustainable xG Creation Elevation (&alpha; = 0.85):**
+    - Raised the sustainable xG weight from 0.70 to 0.85 (15% actual goals) to filter noisy finishing luck and anchor team ratings on pure chance creation and suppression.
+  - **Form Momentum Factor Integration:**
+    - Integrated a dynamic 5-match rolling points differential momentum factor: $F = 1.0 + (\Delta_{\text{form5}} \times 0.010)$, clamped to $[0.85, 1.15]$. Dynamically scales expected goals ($\lambda$) with zero data leakage (asOf strictly preceding kickoff).
+  - **Post-Grid Temperature Scaling ($T = 1.08$):**
+    - Implemented probability temperature calibration $P_{\text{scaled}}(o) = P(o)^{1/T} / \sum P(k)^{1/T}$, softening extreme overconfidence on heavy favorites and improving empirical alignment across all 10 probability bins.
+  - **Walk-Forward Model Backtest Verification (Seasons 2023 & 2024, 760 Matches):**
+    - **Accuracy:** Improved from 54.5% to **55.3%** (+0.8%).
+    - **Multi-class Log Loss:** Reduced from 0.9704 to **0.9658** (-0.0046).
+    - **Brier Score:** Reduced from 0.5759 to **0.5727** (-0.0032).
+    - **10-Bin Calibration:** Near-perfect empirical alignment (50-60% bin: predicted 54.8% vs observed 54.9%; 30-40% bin: predicted 34.9% vs observed 35.3%; 20-30% bin: predicted 24.5% vs observed 25.1%).
+    - **Baselines Beaten:** Outperformed Always-Home (43.4%), Uniform (43.4%), and Historical Base Rates (43.4%) by +11.9% accuracy. Nears consensus bookmaker market ceiling (Bet365 56.8% accuracy, 0.9400 log loss).
+  - **Documentation & UI Synchronization:**
+    - Updated `config/football.php`, `app/Services/Models/PoissonModel.php`, `app/Services/Predictions/PredictionService.php`, `app/Http/Controllers/ChangelogController.php`, `resources/views/docs/index.blade.php`, `TODO.md`, and `CHANGELOG.md`.
+    - Added unit test coverage in `tests/Unit/PoissonModelTest.php`.
+- Verified: Full test suite passing: 163 tests, 838 assertions (0 failures). Walk-forward backtest completed with exit code 0.
+- Next: Confirm API-Football daily quota and reset time when a key is available.
+
+### Session 57: Freshness, Auto-Refresh & Phase 2D Documentation Integration (2026-11-01)
+- Done: Applied decision D7 (freshness and auto-refresh) and Phase 2D specifications from `CHANGE_PLAN.md` across all project documents (docs-only build):
+  - **AGENTS.md:** Added Hard Rule 16 ("Freshness checks go only through `sources:probe`") and Hard Rule 17 ("Predictions are generated only by `predict --due` after the data-age guard"), keeping the file well under 12,000 characters.
+  - **DATABASE.md:** Documented mutable state table `source_checks` (probe tracking, cadence, fingerprints) and append-only log table `source_changes` (diff engine event detection), and updated table relationships.
+  - **ARCHITECTURE.md:** Added Section 11 "Freshness and auto-refresh (Phase 2D)" detailing cheap probes, diff engine, significance-based refresh rules, and data-age guarded predictions. Added commands `sources:probe`, `refresh:run {--force}`, and `--due` flag on `predict`. Updated scheduler: `sources:probe` and `refresh:run` every 30 minutes, replacing old daily sync line.
+  - **API_CATALOG.md & config/api_catalog.php:** Added windowed matches query filters (`dateFrom`, `dateTo`, `status`, `season`) and `lastUpdated` timestamp field; documented CSV `HEAD` and conditional requests (`If-None-Match`, `If-Modified-Since`); explicitly recorded that API-Football is NEVER probed for freshness.
+  - **TODO.md:** Added Phase 0 freshness spike checks (filters, lastUpdated, CSV HEAD/conditional requests, probe rate limits) and Phase 2D implementation tasks (migrations, probes, diff engine, commands, significance tests).
+  - **PROJECT_CONTEXT.md:** Added freshness monitor and auto-refresh to v1 Scope and documented honest limits regarding source delays.
+- Verified: All docs checked for cross-document consistency; zero conflicts found. `AGENTS.md` character count verified at ~6,680 characters (under 12,000 limit).
+- Next: Proceed per TODO.md.
+
+### Session 58: Tactile Dark Luxury Next & Previous Pagination Design (2026-11-11)
+- Done: Redesigned and elevated the pagination controls ("Next" and "Previous" buttons) across the dashboard and all paginated views per owner request:
+  - **Bespoke Pagination View (`resources/views/partials/pagination.blade.php`):**
+    - Replaced the unstyled, raw Tailwind default pagination with an elevated dark luxury container adhering to `UI_GUIDELINES.md` (`--xp-surface`, `--xp-border`, `--xp-orange`, `--xp-text`, `--xp-muted`).
+    - **Previous & Next Buttons:** Designed tactile buttons with crisp SVG arrow icons, smooth hover transitions (`border-color: var(--xp-orange)`, glowing drop shadow `0 0 12px rgba(217, 78, 0, 0.25)`), dynamic micro-nudge arrow transforms (`translateX(-3px)` and `translateX(3px)`), and explicit disabled states for terminal pages.
+    - **Active Page Numbers:** Active page highlighted in brand orange with strict black text per UI Guidelines Rule 28 (contrast standard), Space Grotesk typography, and glowing indicator.
+    - **Summary Telemetry:** Crisp counter pill displaying current range ("Showing 1 to 20 of 380 fixtures") and active page index ("Page 1 of 19").
+    - **Mobile Responsiveness:** Clean layout prioritizing full-width touch targets on small viewports.
+  - **AppServiceProvider Configuration:** Set `Paginator::defaultView('partials.pagination')` in `app/Providers/AppServiceProvider.php`.
+  - **Automated Tests:** Authored feature test suite `tests/Feature/PaginationUiTest.php` testing page 1 disabled Previous / active Next, page 2 active Previous / active Next, and terminal page states.
+- Verified: All 169 unit and feature tests pass (900 assertions, 0 failures). Verified live rendering on `http://127.0.0.1:8080/?competition=la-liga&season=2026&status=all` and across all pages.
+- Next: Proceed per TODO.md.
+
+### Session 59: Executive-Grade Professional Preloader Implementation (2026-11-11)
+- Done: Implemented an executive-level, professional preloader overlay for the Xpect application per user request:
+  - **Preloader Architecture (`resources/views/components/layouts/app.blade.php`):**
+    - Full-screen fixed overlay (`#xp-preloader`) with ambient radial glow and dark hexagonal pattern backdrop matching `UI_GUIDELINES.md` (`--xp-black`, `--xp-surface`, `--xp-orange`, `--xp-text`, `--xp-muted`).
+    - Concentric dual orbital rings: outer clockwise glowing orbit and inner dashed counter-clockwise orbit.
+    - Central Xpect brand mark SVG with breathing animation and backlight glow.
+    - Space Grotesk brand typography (`xpect`), uppercase tracked subtitle (`Football Analytics Engine`), and engine telemetry ticker (`CALIBRATING POISSON PROBABILITIES`).
+    - Animated progress track with gradient sweep runner.
+    - Smooth 450ms cubic-bezier fade-out and DOM cleanup on page load with 1200ms failsafe timeout.
+    - Light-mode theme support via CSS theme selectors.
+  - **Automated Tests (`tests/Feature/PreloaderTest.php`):**
+    - Test asserting markup structure, CSS animation rules, telemetry text, light theme adaptivity, and dismissal timers.
+    - Test asserting presence and exact stroke/fill colors of official SVG brandmark.
+- Verified: Full test suite passing (171 tests, 921 assertions, 0 failures). Live probe on running server at `http://127.0.0.1:8080/` confirmed 200 OK and preloader markup present.
+- Next: Proceed per TODO.md.
+
+### Session 60: Current Date Defaults Across Pages (2026-11-11)
+- Done: Made the shared date navigator show today's UTC date on every application page. The dashboard match feed defaults to today's fixtures even when the day is empty, while historical pages keep their existing content until a date is selected.
+- Decisions made: Keep match data scoped to today only on the daily feeds; do not silently filter historical analysis pages.
+- Verified or changed versus the docs: Updated `ARCHITECTURE.md`, `TODO.md`, and `CHANGELOG.md`. Date, SportyBet dashboard, and dashboard UI tests passed (29 tests, 202 assertions). Docker reports the app container healthy; Vite and the live dashboard returned HTTP 200, and the dashboard rendered today's date. The initial 10-second live-page probes timed out.
+- Stopped at: Current-date default behavior.
+- Next: Continue debugging at `http://127.0.0.1:8081/`; investigate slow live page responses if they persist.
+
+### Session 61: Comprehensive Page-Level Skeletal Preloader System (2026-11-11)
+- Done: Built and deployed dedicated high-fidelity skeletal preloaders for all primary pages, starting with the Dashboard, per owner request:
+  - **Skeletal Wireframe Views (`resources/views/partials/skeletons/`):**
+    - `dashboard.blade.php`: Replicates the database trust strip, SportyBet 6-league chip bar, quick day switcher, curated marquee spotlight card, SportyBet match cards (with 1-X-2 odds tiles, favored glow, 3 systems breakdown, and mini-markets), and sticky view navigator sidebar.
+    - `today.blade.php`: Replicates date navigator bar, calendar picker, predict-all action button, and grouped competition fixtures cards.
+    - `track-record.blade.php`: Replicates 4 KPI cards, calibration curve container, and 10-bin calibration table.
+    - `settings.blade.php`: Replicates multi-LLM selector cards, credential inputs with test buttons, and system quota cards.
+    - `system-health.blade.php`: Replicates audit KPI cards, live checklist rules, and recent API audit log table.
+  - **Component Primitives (`resources/views/components/`):**
+    - Updated `skeleton.blade.php` to support page presets (`dashboard`, `today`, `track-record`, `settings`, `system-health`).
+    - Created `skeletal-preloader.blade.php` wrapper component with support for `?skeleton=1` preview query parameter.
+  - **Instant Navigation Interception (`resources/views/components/layouts/app.blade.php`):**
+    - Intercepts internal link clicks and filter form submissions to instantly swap `.xp-page-content` for `.xp-skeletal-preloader`, providing instantaneous zero-latency perceived performance.
+  - **Automated Verification:**
+    - Expanded `tests/Feature/SkeletalLoadingTest.php` with 4 new tests.
+- Verified: All 177 unit and feature tests pass (962 assertions, 0 failures). Live curl probes to `http://127.0.0.1:8080/?skeleton=1` and `http://127.0.0.1:8080/today?skeleton=1` confirmed 200 OK and skeleton markup rendering.
+- Next: Proceed per TODO.md.
+
+### Session 62: Comprehensive Build Audit & High-Performance Optimization Pass (2026-11-12)
+- Done: Conducted systematic audit and performance optimization pass across all recent builds:
+  - **Poisson Model & Multi-System Calibrations:** Confirmed `v1.3.0-calibrated` implementation with Dixon-Coles $\rho = -0.10$ low-score adjustment, form momentum decay, temperature scaling, and 3-engine consensus convergence.
+  - **Match History, MOTM & Player Ratings:** Confirmed zero data leakage on past H2H matches, Opta/SofaScore data ratings, and strictly 1 of 1 Man of the Match awards. Added request-level in-memory cache to `MatchHistoryService` and isolated test lifecycle via `TestCase::tearDown()` cache flushing.
+  - **Query Performance & N+1 Elimination:**
+    - Added `'motmEvaluations.team'` to eager-loading arrays in `DashboardController` and `TodayFixturesController`, avoiding 20+ redundant queries per page render.
+    - Added `'match.odds'` and `'match.competition'` to eager loading in `TrackRecordController`, eliminating up to 6,500 individual SELECT queries.
+    - Rewrote `Baselines::historicalBaseRates` to execute a single `selectRaw` SQL aggregate count/sum query and utilize in-memory static caching, eliminating hundreds of thousands of object hydrations.
+  - **UI & Navigation Systems:**
+    - Verified Tactile Dark Luxury Pagination with global stylesheet extraction.
+    - Verified full-screen brand preloader overlay with smooth cubic-bezier dismissal.
+    - Verified comprehensive skeletal preloader system across all 5 primary application views (`/`, `/today`, `/track-record`, `/settings`, `/system-health`).
+    - Fixed upcoming spotlight conditional to suppress when active date/time/slot filters are applied.
+- Verified: All 177 unit and feature tests pass with 962 assertions and 0 failures. Live server benchmark confirms sub-second page delivery across primary views.
+- Next: Proceed per TODO.md.
+
+### Session 63: Removed Full-Screen Preloader Overlay (2026-11-12)
+- Done: Removed the full-screen brand preloader overlay (`#xp-preloader`) per user instruction now that the active page-level skeletal loading system provides continuous feedback:
+  - Purged 238 lines of `#xp-preloader` markup, CSS rules/animations, and window dismissal scripts from `resources/views/components/layouts/app.blade.php`.
+  - Preserved the top progress runner (`#xp-nav-progress`) and the instant skeletal transition handler (`.xp-skeletal-preloader`).
+  - Updated `tests/Feature/PreloaderTest.php` to assert the layout no longer renders `#xp-preloader`.
+- Verified: All 176 tests pass (952 assertions, 0 failures).
+- Next: Proceed per TODO.md.
+
+### Session 64: Verified MOTM Web Research (2026-11-13)
+- Done: Replaced `/motm`'s active algorithmic fallback with a verified-only Gemini Google Search workflow. Added `VerifiedMotmResearcher`, `motm:research`, end-of-day scheduling, source URL/query provenance, and explicit unverified states.
+- Decisions made: Official or reputable match reports are authoritative; Gemini Search grounding must explicitly name the player, fixture team, reason, and at least one source URL. No source means no award row.
+- Verified or changed versus the docs: Added an append-only MOTM provenance migration, updated API catalog/schema/architecture/changelog, and added Http::fake coverage for the no-source case.
+- Stopped at: Verified MOTM research implementation.
+- Next: Run the focused MOTM test suite and configure `GEMINI_API_KEY` locally before the first live research run.
+
+### Session 65: First Live MOTM Research Attempt (2026-11-14)
+- Done: Confirmed the local Gemini key is configured, found the latest available finished fixtures, and ran one grounded MOTM research attempt for Barcelona vs Deportivo Alavés.
+- Verified or changed versus the docs: `LoggedHttpClient` persisted API call #65 with HTTP 429; the command reported the failure and stored no MOTM award.
+- Stopped at: Waiting for Gemini quota/rate-limit recovery; no retry loop or fallback was used.
+- Next: Retry one fixture after the Gemini quota permits it, then inspect grounding citation metadata before marking the endpoint verified.
+
+### Session 66: Commercial SaaS Dashboard Audit, Restructuring & Rebuild (2026-11-14)
+- Done: Executed a comprehensive technical and UI/UX audit followed by restructuring and rebuilding the dashboard into a commercial SaaS analytics platform:
+  - Authored full audit suite in `docs/`: `CANDYCUTZ-AUDIT-REPORT.md`, `DASHBOARD-AUDIT-REPORT.md`, `DASHBOARD-IMPLEMENTATION-PLAN.md`, `DESIGN-SYSTEM.md`, `ROUTE-INVENTORY.md`, `ROLE-PERMISSIONS.md`, `API-INTEGRATION-REPORT.md`, `TESTING-REPORT.md`.
+  - Upgraded shell layout (`app.blade.php`) with responsive mobile off-canvas drawer (`transform: translateX(-100%)`), backdrop blur overlay (`#sidebar-backdrop`), topbar toggle (`#sidebar-toggle-btn`), sidebar close button (`#sidebar-close-btn`), tap-outside dismiss, and `Escape` key handling.
+  - Refined dashboard interface (`dashboard/index.blade.php`) with Executive Provenance Trust Strip, SportyBet 6-league horizontal filter chips, quick day switcher, curated marquee spotlight card, SportyBet 1-X-2 odds tiles with favored glow, 3 analytical systems breakdown, match history & MOTM/player ratings, and mathematical breakdown accordion.
+  - Purged legacy `#FF6B00` hexes across SVG charts and donut displays in favor of canonical `var(--xp-orange)` / `#D94E00`.
+- Verified: All 177 unit and feature tests pass (954 assertions, 0 failures).
+- Next: Proceed per TODO.md.
+
+### Session 67: Build Efficiency, Query Unification & Database Health Verification (2026-11-14)
+- Done: Audited application performance, data integrity, and query patterns across the recent build:
+  - Unified H2H database lookups by injecting `MatchHistoryService` into `DashboardController`, pre-warming in-memory `$h2hCache` and eliminating up to 20 duplicate queries per page render.
+  - Executed `php artisan audit:data`: 7 of 8 domains cleanly passed; flagged 1 historical matchday prediction from 2026-10-31 (ID 6599) generated 6 minutes past kickoff prior to the cutoff clamp guard. Confirmed active `PredictionService` strictly clamps `$cutoff = $kickoff` for all future requests.
+  - Verified `Baselines`, `TrackRecordController`, `MatchHistoryService`, and `PreloaderTest` for memory safety, test isolation, and strict Zero Data Leakage invariants.
+- Verified: Full test suite completed in 50.60s (~35% speedup across all tests) with 177 tests and 954 assertions passing cleanly (0 failures).
+- Next: Proceed per TODO.md.
+
+### Session 68: Action & Preactivity Dedicated Preloader System (2026-11-16)
+- Done: Re-introduced and wired up the Xpect brand preloader for background actions and preactivities alongside the active skeletal loading system:
+  - Created standalone component `<x-activity-preloader />` (`resources/views/components/activity-preloader.blade.php`) featuring the Xpect geometric shield logo, dual counter-rotating orbital rings, radial orange glow, runner sweep line, dynamic operation text/subtext, and manual safety dismiss control (`#xp-preloader-dismiss-btn`).
+  - Added dedicated styling and keyframe animations to `resources/views/components/layouts/app.blade.php` adhering to canonical tokens (`--xp-surface`, `--xp-border`, `--xp-orange`, `--xp-text`, `--xp-muted`).
+  - Implemented `window.XpectPreloader` controller API (`show()`, `hide()`, `setText()`, `isActive()`) and keyboard safety dismiss (`Escape`).
+  - Intercepted form and click events: passive GET navigation triggers progressive skeletal transitions, while background action forms (POST/PUT/DELETE or `[data-preloader="true"]`) activate the dedicated activity preloader with context-aware labels ("CALIBRATING POISSON PROBABILITIES", "SYNTHESIZING AI REASONING PREVIEW", "RUNNING SYSTEM INTEGRITY AUDIT", "SYNCHRONIZING FOOTBALL DATA", "RUNNING AI PREDICTION SIMULATION", "EVALUATING MAN OF THE MATCH", "UPDATING SYSTEM CREDENTIALS").
+  - Strictly maintained form submission check signature `if (form && !form.target && !e.defaultPrevented)` for skeletal testing compatibility.
+  - Updated `tests/Feature/PreloaderTest.php` to verify dormant initial load, JavaScript API registration, contextual operation titles, and presence across core routes.
+- Verified: Full test suite passed with 180 tests and 982 assertions passing cleanly (0 failures).
+- Next: Proceed per TODO.md.

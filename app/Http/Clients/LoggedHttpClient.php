@@ -92,7 +92,7 @@ class LoggedHttpClient
         $outputTokens = null;
 
         try {
-            $httpClient = Http::withHeaders($headers)->timeout(30);
+            $httpClient = Http::withHeaders($headers)->connectTimeout(30)->timeout(45);
 
             $response = match ($method) {
                 'GET' => $httpClient->get($url, $params),

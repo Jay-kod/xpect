@@ -20,13 +20,13 @@
             <div>
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
                     <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--xp-orange); box-shadow: 0 0 10px var(--xp-orange);"></span>
-                    <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--xp-orange); font-weight: 700;">Stats + Story Decision Engine &bull; Strictly 1 Winner Per Match</span>
+                    <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--xp-orange); font-weight: 700;">AI Web Research &bull; Verified Sources Only</span>
                 </div>
                 <h1 style="font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.02em;">
-                    Man of the Match &amp; Squad Performance Hub
+                    Man of the Match &amp; Verified Research Hub
                 </h1>
                 <p style="font-size: 13px; color: var(--xp-muted); margin-top: 4px;">
-                    Partly a stats question (Opta/SofaScore data ratings), partly a story question (decisive actions &amp; winning-team moments).
+                    The AI checks official or reputable match reports, records citations, and explains why the award was given.
                 </p>
             </div>
 
@@ -34,7 +34,7 @@
             <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                 <div style="background: rgba(61,220,132,0.1); border: 1px solid rgba(61,220,132,0.3); border-radius: 6px; padding: 6px 12px; display: flex; align-items: center; gap: 8px;">
                     <span style="color:var(--xp-ok); font-size: 14px;">✓</span>
-                    <span style="font-size: 12px; font-weight: 600; color: var(--xp-ok);">Strictly 1 MOTM Per Fixture Guaranteed</span>
+                    <span style="font-size: 12px; font-weight: 600; color: var(--xp-ok);">Only Explicitly Verified Awards</span>
                 </div>
 
                 <form method="POST" action="{{ route('motm.batch') }}">
@@ -43,32 +43,32 @@
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                         </svg>
-                        <span>Evaluate All Finished Matches</span>
+                        <span>Research Finished Matches</span>
                     </button>
                 </form>
             </div>
         </div>
 
-        {{-- MOTM PHILOSOPHY EXPLAINER BANNER (Stats vs Story) --}}
+        {{-- Verified-source workflow --}}
         <div style="background: linear-gradient(135deg, rgba(255,107,0,0.08) 0%, rgba(22,22,24,0.95) 100%); border: 1px solid rgba(255,107,0,0.25); border-radius: 10px; padding: 16px 20px; margin-bottom: 24px;">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div style="background: rgba(0,0,0,0.35); border: 1px solid var(--xp-border); border-radius: 8px; padding: 14px 16px;">
                     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
                         <span style="color:var(--xp-orange); font-size: 15px;">📊</span>
-                        <span style="font-size: 12px; font-weight: 700; color: var(--xp-orange); text-transform: uppercase;">1. The Stats Question: Data Rating (0 to 10)</span>
+                        <span style="font-size: 12px; font-weight: 700; color: var(--xp-orange); text-transform: uppercase;">1. Search and verify</span>
                     </div>
                     <p style="font-size: 12px; color: var(--xp-muted); line-height: 1.4; margin: 0;">
-                        Opta/SofaScore action scores measuring total 90-minute output: key passes, chances created, tackles, clearances, passing accuracy, xG, and defensive clean sheets. <em>The truest measure of performance.</em>
+                        Gemini searches for an official competition or club report, then reputable match coverage that explicitly names the award winner.
                     </p>
                 </div>
 
                 <div style="background: rgba(0,0,0,0.35); border: 1px solid var(--xp-border); border-radius: 8px; padding: 14px 16px;">
                     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
                         <span style="color:#3DDC84; font-size: 15px;">🏆</span>
-                        <span style="font-size: 12px; font-weight: 700; color: #3DDC84; text-transform: uppercase;">2. The Story Question: MOTM Award Decision</span>
+                        <span style="font-size: 12px; font-weight: 700; color: #3DDC84; text-transform: uppercase;">2. Explain with citations</span>
                     </div>
                     <p style="font-size: 12px; color: var(--xp-muted); line-height: 1.4; margin: 0;">
-                        How panels, broadcasters and sponsors decide the award: winning-team consensus, decisive match-winning goals, braces, hat-tricks, and goalkeepers under heavy siege. <em>The defining moment of the match.</em>
+                        The page stores the raw AI call and source URLs. If no source explicitly names a MOTM, the match remains unverified.
                     </p>
                 </div>
             </div>
@@ -143,14 +143,14 @@
                 <div class="stat-meta">{{ number_format($uniqueMatchesWithMotm) }} matches &bull; Exactly 1 winner each</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Player Roster Fidelity</div>
-                <div class="stat-value" style="font-size: 1.3rem; color: #FFFFFF;">Confirmed Names</div>
-                <div class="stat-meta">Verified starting XIs &amp; canonical club rosters</div>
+                <div class="stat-label">Source Fidelity</div>
+                <div class="stat-value" style="font-size: 1.3rem; color: #FFFFFF;">Cited Awards</div>
+                <div class="stat-meta">Official or reputable source URLs stored</div>
             </div>
             <div class="stat-card">
                 <div class="stat-label">Squad Ratings Tracked</div>
                 <div class="stat-value">{{ number_format($totalEvaluationsCount) }}</div>
-                <div class="stat-meta">Starting XI performance records</div>
+                <div class="stat-meta">Verified award records only</div>
             </div>
         </div>
 
@@ -231,14 +231,14 @@
                                     <div style="text-align: right; background: rgba(0,0,0,0.4); border: 1px solid var(--xp-border); border-radius: 8px; padding: 8px 12px;">
                                         <div style="font-size: 11px; color: var(--xp-muted); text-transform: uppercase;">Opta/Data</div>
                                         <div style="font-size: 22px; font-weight: 800; color: #FFFFFF; font-family: 'Space Grotesk', sans-serif;">
-                                            {{ number_format((float)($motmWinner->data_rating ?? $motmWinner->rating), 1) }}
+                                            {{ $motmWinner->data_rating !== null ? number_format((float) $motmWinner->data_rating, 1) : 'n/a' }}
                                         </div>
                                     </div>
 
                                     <div style="text-align: right; background: rgba(255,107,0,0.15); border: 1px solid var(--xp-orange); border-radius: 8px; padding: 8px 14px;">
                                         <div style="font-size: 11px; color: var(--xp-orange); text-transform: uppercase; font-weight: 700;">Decision Score</div>
                                         <div style="font-size: 26px; font-weight: 900; color: var(--xp-orange); font-family: 'Space Grotesk', sans-serif; line-height: 1;">
-                                            {{ number_format((float)($motmWinner->decision_score ?? $motmWinner->rating), 1) }} ★
+                                            {{ $motmWinner->decision_score !== null ? number_format((float) $motmWinner->decision_score, 1) . ' ★' : 'n/a' }}
                                         </div>
                                     </div>
                                 </div>
@@ -288,6 +288,16 @@
                                 <p style="font-size: 13px; color: #FFFFFF; line-height: 1.6; margin: 0; font-style: normal;">
                                     {{ $motmWinner->performance_summary }}
                                 </p>
+                                @if (!empty($motmWinner->source_urls))
+                                    <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--xp-border);">
+                                        <div style="font-size: 11px; color: var(--xp-muted); margin-bottom: 5px;">Verified sources</div>
+                                        @foreach ($motmWinner->source_urls as $sourceUrl)
+                                            <a href="{{ $sourceUrl }}" target="_blank" rel="noopener noreferrer" style="display:block; color:var(--xp-orange); font-size:12px; margin-top:3px;">
+                                                {{ $motmWinner->source_titles[$loop->index] ?? $sourceUrl }}
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                @endif
                             </div>
 
                         </div>
@@ -296,9 +306,9 @@
                         <div style="background: #101012; border: 1px solid var(--xp-border); border-radius: 8px; padding: 18px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                                 <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 700; color: #FFFFFF;">
-                                    Squad Ratings Breakdown ({{ $matchEvaluations->count() }} Players)
+                                    Verified Award Record
                                 </h3>
-                                <span style="font-size: 11px; color: var(--xp-muted);">Opta vs Decision</span>
+                                <span style="font-size: 11px; color: var(--xp-muted);">No synthetic ratings</span>
                             </div>
 
                             <div class="table-container" style="max-height: 400px; overflow-y: auto;">
@@ -333,10 +343,10 @@
                                                     {{ $me->goals }}/{{ $me->assists }}
                                                 </td>
                                                 <td style="text-align: right; font-weight: 600; font-family: monospace; color: #FFFFFF;">
-                                                    {{ number_format((float)($me->data_rating ?? $me->rating), 1) }}
+                                                    {{ $me->data_rating !== null ? number_format((float) $me->data_rating, 1) : 'n/a' }}
                                                 </td>
                                                 <td style="text-align: right; font-weight: 700; font-family: monospace; color: {{ $me->is_motm ? 'var(--xp-orange)' : 'var(--xp-muted)' }};">
-                                                    {{ number_format((float)($me->decision_score ?? $me->rating), 1) }}
+                                                    {{ $me->decision_score !== null ? number_format((float) $me->decision_score, 1) : 'n/a' }}
                                                     @if ($me->is_motm)
                                                         <span style="color:var(--xp-orange);">★</span>
                                                     @endif
@@ -459,10 +469,10 @@
                                             </span>
                                         @endif
                                         <span class="badge" style="background: rgba(255,255,255,0.06); color: #FFFFFF; font-size: 11px; font-family: monospace;">
-                                            Opta: {{ number_format((float)($evalWinner->data_rating ?? $evalWinner->rating), 1) }}
+                                            Source rating: {{ $evalWinner->data_rating !== null ? number_format((float) $evalWinner->data_rating, 1) : 'n/a' }}
                                         </span>
                                         <span class="badge" style="background: rgba(255,107,0,0.25); color: var(--xp-orange); font-size: 12.5px; font-weight: 800; font-family: monospace;">
-                                            {{ number_format((float)($evalWinner->decision_score ?? $evalWinner->rating), 1) }} Decision ★
+                                            {{ $evalWinner->decision_score !== null ? number_format((float) $evalWinner->decision_score, 1) . ' Decision ★' : 'Verified source' }}
                                         </span>
                                     </div>
                                 </div>
@@ -474,10 +484,10 @@
                             </div>
                         @else
                             <div style="display: flex; justify-content: space-between; align-items: center; color: var(--xp-muted); font-size: 12px;">
-                                <span>No Man of the Match evaluated yet.</span>
+                                <span>No explicitly verified Man of the Match source found yet.</span>
                                 <form method="POST" action="{{ route('motm.evaluate', $fm->id) }}">
                                     @csrf
-                                    <button type="submit" class="btn btn-primary btn-sm">Evaluate MOTM Now</button>
+                                    <button type="submit" class="btn btn-primary btn-sm">Research MOTM Sources</button>
                                 </form>
                             </div>
                         @endif

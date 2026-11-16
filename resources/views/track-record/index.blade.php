@@ -1,4 +1,9 @@
 <x-layouts.app title="Track Record & Analytics">
+    <!-- Track Record Skeletal Preloader (Active during navigation or ?skeleton=1) -->
+    <x-skeletal-preloader page="track-record" />
+
+    <!-- Track Record Real Content Stream -->
+    <div id="track-record-real-content" class="xp-page-content" style="{{ request()->has('skeleton') ? 'display: none;' : '' }}">
     <div class="page-header">
         <div>
             <h1 class="page-title">Track Record & Model Analytics</h1>
@@ -244,8 +249,9 @@
         </div>
 
         <div style="margin-top:1rem;">
-            {{ $evaluations->links() }}
+            {{ $evaluations->links('partials.pagination') }}
         </div>
     </div>
+    </div> <!-- /#track-record-real-content -->
 </x-layouts.app>
 

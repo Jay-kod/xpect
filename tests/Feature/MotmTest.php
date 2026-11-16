@@ -12,6 +12,7 @@ use App\Models\Team;
 use App\Services\Motm\MotmEvaluator;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class MotmTest extends TestCase
@@ -21,6 +22,7 @@ class MotmTest extends TestCase
     protected FootballMatch $match;
     protected Team $homeTeam;
     protected Team $awayTeam;
+    protected bool $fakeResearchVerified = true;
 
     protected function setUp(): void
     {
@@ -47,6 +49,52 @@ class MotmTest extends TestCase
             'home_goals' => 2,
             'away_goals' => 0,
         ]);
+
+        config(['services.gemini.key' => 'test-key']);
+        Http::fake(function ($request) {
+            $payload = json_decode($request->body(), true);
+            $prompt = json_encode($payload['contents'] ?? []);
+            if (!$this->fakeResearchVerified) {
+                $result = ['verified' => false, 'sources' => []];
+            } elseif (str_contains($prompt, 'Aston Villa')) {
+                $result = [
+                    'verified' => true,
+                    'player_name' => 'Verified Villa Player',
+                    'team_name' => 'Aston Villa',
+                    'reason' => 'The official report named the player for a decisive performance.',
+                    'sources' => [['title' => 'Official report', 'url' => 'https://example.test/villa-report']],
+                ];
+            } else {
+                $result = [
+                    'verified' => true,
+                    'player_name' => 'Verified Player',
+                    'team_name' => 'Liverpool',
+                    'reason' => 'The official match report named the player for a decisive performance.',
+                    'sources' => [[
+                        'title' => 'Official match report',
+                        'url' => 'https://example.test/match-report',
+                        'publisher' => 'Official source',
+                    ]],
+                    'search_queries' => ['Liverpool Everton Man of the Match'],
+                ];
+            }
+
+            return Http::response([
+                'candidates' => [[
+                    'content' => ['parts' => [[
+                        'text' => json_encode($result),
+                    ]]],
+                    'groundingMetadata' => [
+                        'groundingChunks' => [[
+                            'web' => [
+                                'uri' => $result['sources'][0]['url'] ?? 'https://example.test/match-report',
+                                'title' => $result['sources'][0]['title'] ?? 'Official report',
+                            ],
+                        ]],
+                    ],
+                ]],
+            ], 200);
+        });
     }
 
     public function test_motm_page_renders_successfully(): void
@@ -54,8 +102,8 @@ class MotmTest extends TestCase
         $response = $this->get('/motm');
 
         $response->assertStatus(200);
-        $response->assertSee('Man of the Match &amp; Squad Performance Hub', false);
-        $response->assertSee('Strictly 1 MOTM Per Fixture Guaranteed');
+        $response->assertSee('Man of the Match &amp; Verified Research Hub', false);
+        $response->assertSee('Only Explicitly Verified Awards');
         $response->assertSee('Top Players &bull; Most MOTM Decisions', false);
         $response->assertSee('Top Clubs &bull; Total MOTM Tally', false);
         $response->assertSee('Confirmed Match-by-Match Man of the Match Feed');
@@ -134,6 +182,19 @@ class MotmTest extends TestCase
         // Assert strictly 1 MOTM in database
         $count = MotmEvaluation::where('match_id', $this->match->id)->where('is_motm', true)->count();
         $this->assertEquals(1, $count);
+    }
+
+    public function test_verified_research_does_not_create_award_without_explicit_source(): void
+    {
+        $this->fakeResearchVerified = false;
+
+        $response = $this->post(route('motm.evaluate', $this->match->id));
+
+        $response->assertSessionHas('success', 'No source explicitly named a Man of the Match for this fixture.');
+        $this->assertDatabaseMissing('motm_evaluations', [
+            'match_id' => $this->match->id,
+            'verification_status' => 'verified',
+        ]);
     }
 
     public function test_batch_evaluate_route_processes_unevaluated_matches(): void

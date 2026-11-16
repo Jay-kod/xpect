@@ -40,6 +40,7 @@ class TodayFixturesController extends Controller
             'awayTeam',
             'predictions' => fn($q) => $q->where('is_backtest', false)->latest(),
             'predictions.previews' => fn($q) => $q->latest(),
+            'motmEvaluations.team',
         ])
         ->whereBetween('kickoff_at', [$startOfDay, $endOfDay])
         ->orderBy('kickoff_at', 'asc')

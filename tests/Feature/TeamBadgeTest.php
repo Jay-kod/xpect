@@ -42,7 +42,7 @@ class TeamBadgeTest extends TestCase
             'away_team_id' => $away->id,
             'season' => 2026,
             'matchday' => 1,
-            'kickoff_at' => CarbonImmutable::now('UTC')->addDays(1),
+            'kickoff_at' => CarbonImmutable::now('UTC'),
             'status' => 'scheduled',
         ]);
 

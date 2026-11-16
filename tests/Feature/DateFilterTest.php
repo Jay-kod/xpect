@@ -83,6 +83,29 @@ class DateFilterTest extends TestCase
         $response2->assertSee('Fixtures on Monday, 24 Aug 2026');
     }
 
+    public function test_dashboard_defaults_to_today_without_hiding_its_date_when_no_matches_exist(): void
+    {
+        $today = CarbonImmutable::now('UTC');
+
+        FootballMatch::create([
+            'competition_id' => $this->comp->id,
+            'home_team_id' => $this->teamC->id,
+            'away_team_id' => $this->teamD->id,
+            'season' => (int) $today->format('Y'),
+            'kickoff_at' => $today->subDay(),
+            'status' => 'scheduled',
+        ]);
+
+        $response = $this->get(route('dashboard'));
+
+        $response->assertStatus(200);
+        $response->assertSee("Today's Matches", false);
+        $response->assertSee('No matches kicking off today');
+        $response->assertSee('value="' . $today->format('Y-m-d') . '"', false);
+        $response->assertDontSee('Liverpool FC');
+        $response->assertDontSee('Manchester City FC');
+    }
+
     public function test_dashboard_handles_invalid_date_gracefully(): void
     {
         $response = $this->get(route('dashboard', ['date' => 'not-a-valid-date']));
@@ -125,6 +148,28 @@ class DateFilterTest extends TestCase
         $response->assertSee('Arsenal FC');
         $response->assertSee('Monday, 17 Aug 2026');
         $response->assertDontSee('Manchester City FC');
+    }
+
+    public function test_historical_match_page_keeps_its_content_while_topbar_defaults_to_today(): void
+    {
+        FootballMatch::create([
+            'competition_id' => $this->comp->id,
+            'home_team_id' => $this->teamA->id,
+            'away_team_id' => $this->teamB->id,
+            'season' => 2026,
+            'matchday' => 1,
+            'kickoff_at' => CarbonImmutable::now('UTC')->subDays(7),
+            'status' => 'finished',
+            'home_goals' => 2,
+            'away_goals' => 0,
+        ]);
+
+        $response = $this->get(route('motm'));
+
+        $response->assertStatus(200);
+        $response->assertSee('Arsenal FC');
+        $response->assertSee('Chelsea FC');
+        $response->assertSee('Today, ' . CarbonImmutable::now('UTC')->format('d M'));
     }
 
     public function test_ai_reasoning_studio_filters_available_matches_by_date(): void
@@ -235,11 +280,13 @@ class DateFilterTest extends TestCase
 
     public function test_dashboard_filters_by_preset(): void
     {
+        $now = CarbonImmutable::now('UTC');
         $responseToday = $this->get(route('dashboard', ['preset' => 'today']));
         $responseToday->assertStatus(200);
 
         $responseYesterday = $this->get(route('dashboard', ['preset' => 'yesterday']));
         $responseYesterday->assertStatus(200);
+        $responseYesterday->assertSee($now->subDay()->format('D, d M Y'));
     }
 
     public function test_topbar_renders_universal_date_filter_input(): void

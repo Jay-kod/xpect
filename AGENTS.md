@@ -82,6 +82,11 @@ If two docs disagree, stop and report it. Do not pick one silently.
 14. **The API inspector is read-only and local-only.** It never shows unredacted
     headers and is never registered outside the local environment.
 15. **All UI colours come from the tokens in `UI_GUIDELINES.md`.** No hard-coded colours.
+16. **Freshness checks go only through `sources:probe`.** No other code polls a
+    source to see whether it changed, and a probe never runs before its
+    `next_check_at`.
+17. **Predictions are generated only by `predict --due` after the data-age guard.**
+    Existing predictions are never regenerated.
 
 ## 3. Stop-and-ask conditions
 

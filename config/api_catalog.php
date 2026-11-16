@@ -34,7 +34,13 @@ return [
                     'purpose' => 'Fixtures and results for a competition and season',
                     'status' => 'VERIFIED',
                     'verified_at' => '2026-10-28',
-                    'notes' => 'Confirmed with PL. Free tier supports 2026 and 2023; <=2022 returns 403 Forbidden.',
+                    'notes' => 'Confirmed with PL. Free tier supports 2026 and 2023; <=2022 returns 403 Forbidden. Supports dateFrom, dateTo, status, season query filters and lastUpdated match field for freshness probes (MEM).',
+                ],
+                [
+                    'method' => 'GET',
+                    'path' => '/matches/{id}',
+                    'purpose' => 'Single match detail including goals and goalscorers',
+                    'status' => 'DOC',
                 ],
                 [
                     'method' => 'GET',
@@ -172,6 +178,7 @@ return [
                     'path' => '/models/{model}:generateContent',
                     'purpose' => 'Generate AI match preview via Gemini (3.8 Flash, 3 Pro, etc.)',
                     'status' => 'DOC',
+                    'notes' => 'Verified MOTM research sends the google_search grounding tool and stores returned source URLs.',
                 ],
             ],
         ],

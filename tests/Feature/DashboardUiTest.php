@@ -53,7 +53,7 @@ class DashboardUiTest extends TestCase
             'features' => [],
         ]);
 
-        $response = $this->get('/');
+        $response = $this->get('/?status=all');
 
         $response->assertStatus(200);
         $response->assertSee('Fixtures & Predictions');
@@ -117,7 +117,7 @@ class DashboardUiTest extends TestCase
             ],
         ]);
 
-        $response = $this->get('/?competition=premier-league');
+        $response = $this->get('/?competition=premier-league&status=all');
 
         $response->assertStatus(200);
         $response->assertSee('Next Matchday &amp; Upcoming Predictions', false);
@@ -163,6 +163,103 @@ class DashboardUiTest extends TestCase
         $this->assertDatabaseHas('predictions', [
             'match_id' => $match->id,
             'is_backtest' => 0,
+        ]);
+    }
+
+    public function test_predict_action_handles_already_predicted_match_without_violating_unique_constraint(): void
+    {
+        $comp = Competition::create([
+            'slug' => 'premier-league',
+            'name' => 'Premier League',
+            'country' => 'England',
+            'is_active' => true,
+        ]);
+
+        $home = Team::create(['name' => 'Manchester City FC', 'short_name' => 'Man City']);
+        $away = Team::create(['name' => 'Tottenham Hotspur FC', 'short_name' => 'Tottenham']);
+
+        $match = FootballMatch::create([
+            'competition_id' => $comp->id,
+            'home_team_id' => $home->id,
+            'away_team_id' => $away->id,
+            'season' => 2026,
+            'matchday' => 12,
+            'kickoff_at' => CarbonImmutable::now('UTC')->addDays(5),
+            'status' => 'scheduled',
+        ]);
+
+        // First predict: creates pre_match prediction
+        $res1 = $this->post(route('matches.predict', $match->id));
+        $res1->assertRedirect();
+        $res1->assertSessionHas('success');
+
+        $this->assertDatabaseCount('predictions', 1);
+
+        // Second predict: must not crash with SQL 23000 UNIQUE constraint error
+        $res2 = $this->post(route('matches.predict', $match->id));
+        $res2->assertRedirect();
+        $res2->assertSessionHas('info');
+        $res2->assertSessionMissing('error');
+
+        // Total count remains exactly 1 (immutable)
+        $this->assertDatabaseCount('predictions', 1);
+    }
+
+    public function test_predict_action_advances_stage_from_pre_match_to_matchday(): void
+    {
+        $comp = Competition::create([
+            'slug' => 'premier-league',
+            'name' => 'Premier League',
+            'country' => 'England',
+            'is_active' => true,
+        ]);
+
+        $home = Team::create(['name' => 'Chelsea FC', 'short_name' => 'Chelsea']);
+        $away = Team::create(['name' => 'Manchester United FC', 'short_name' => 'Man United']);
+
+        $match = FootballMatch::create([
+            'competition_id' => $comp->id,
+            'home_team_id' => $home->id,
+            'away_team_id' => $away->id,
+            'season' => 2026,
+            'matchday' => 9,
+            'kickoff_at' => CarbonImmutable::now('UTC')->addHours(2),
+            'status' => 'scheduled',
+        ]);
+
+        // Existing pre_match prediction generated days in advance
+        Prediction::create([
+            'match_id' => $match->id,
+            'model_version' => \App\Services\Models\PoissonModel::MODEL_VERSION,
+            'stage' => 'pre_match',
+            'is_backtest' => false,
+            'as_of' => CarbonImmutable::now('UTC')->subDays(3),
+            'p_home' => 0.40,
+            'p_draw' => 0.25,
+            'p_away' => 0.35,
+            'exp_home_goals' => 1.7,
+            'exp_away_goals' => 1.5,
+            'top_scorelines' => [['home' => 1, 'away' => 1, 'prob' => 0.11]],
+            'features' => [],
+        ]);
+
+        $this->assertDatabaseCount('predictions', 1);
+
+        // Now predicting on matchday: successfully creates matchday stage prediction
+        $response = $this->post(route('matches.predict', $match->id));
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+        $response->assertSessionMissing('error');
+
+        // Both pre_match and matchday predictions now exist
+        $this->assertDatabaseCount('predictions', 2);
+        $this->assertDatabaseHas('predictions', [
+            'match_id' => $match->id,
+            'stage' => 'pre_match',
+        ]);
+        $this->assertDatabaseHas('predictions', [
+            'match_id' => $match->id,
+            'stage' => 'matchday',
         ]);
     }
 
@@ -342,4 +439,3 @@ class DashboardUiTest extends TestCase
         $response->assertSee('MD 2');
     }
 }
-

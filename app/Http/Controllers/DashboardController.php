@@ -8,6 +8,9 @@ use App\Models\Competition;
 use App\Models\FootballMatch;
 use App\Models\Prediction;
 use App\Models\Preview;
+use App\Services\DataSources\FootballData\FootballDataAdapter;
+use App\Services\Matches\MatchHistoryService;
+use App\Services\Models\PoissonModel;
 use App\Services\Predictions\PredictionService;
 use App\Services\Previews\PreviewGenerator;
 use App\Services\Temporal\TemporalFilterService;
@@ -19,7 +22,11 @@ use Throwable;
 
 class DashboardController extends Controller
 {
-    public function index(Request $request, TemporalFilterService $temporalService): View
+    public function index(
+        Request $request,
+        TemporalFilterService $temporalService,
+        MatchHistoryService $historyService
+    ): View
     {
         $competitions = Competition::where('is_active', true)->get();
         $selectedComp = $request->get('competition', 'premier-league');
@@ -31,6 +38,7 @@ class DashboardController extends Controller
             ->pluck('season');
 
         $selectedSeason = (int) $request->get('season', $seasons->first() ?? 2026);
+        $hasExplicitStatus = $request->has('status');
         $rawStatus = (string) $request->get('status', 'all');
         $statusFilter = match ($rawStatus) {
             'today' => 'today',
@@ -82,6 +90,19 @@ class DashboardController extends Controller
             'all' => (int) ($statsRow->total_matches ?? 0),
         ];
 
+        // Keep the landing match feed on today's fixtures unless the user chose another view.
+        if (
+            !$hasExplicitStatus
+            && !$request->filled('date')
+            && !$request->filled('preset')
+            && !$request->filled('time_slot')
+            && !$request->filled('time')
+            && !$request->has('season')
+        ) {
+            $statusFilter = 'today';
+            $selectedDate = $nowUtc->format('Y-m-d');
+        }
+
         $currentViewLabel = match ($statusFilter) {
             'today' => "Today's Matches",
             'future' => 'Future Matches',
@@ -95,6 +116,7 @@ class DashboardController extends Controller
             'awayTeam',
             'predictions' => fn($q) => $q->where('is_backtest', false)->latest(),
             'predictions.previews' => fn($q) => $q->latest(),
+            'motmEvaluations.team',
         ];
 
         // 1. Next Day & Upcoming Matches spotlight — only when visible (suppressed when date filter is active)
@@ -265,6 +287,41 @@ class DashboardController extends Controller
             'total_finished' => $finishedMatches,
         ];
 
+        // Global database trust & provenance statistics
+        $dbStats = [
+            'total_matches' => FootballMatch::count(),
+            'finished_matches' => FootballMatch::where('status', 'finished')->count(),
+            'scheduled_matches' => FootballMatch::where('status', 'scheduled')->count(),
+            'total_predictions' => Prediction::count(),
+            'total_seasons' => FootballMatch::distinct()->count('season'),
+            'active_model' => config('football.default_model', 'v1.2.1-h2h'),
+            'today_all_leagues_count' => FootballMatch::whereBetween('kickoff_at', [$todayStart, $todayEnd])->count(),
+        ];
+
+        // League-level active counts for the SportyBet horizontal bar
+        $todayLeagueCounts = FootballMatch::whereBetween('kickoff_at', [$todayStart, $todayEnd])
+            ->groupBy('competition_id')
+            ->selectRaw('competition_id, COUNT(*) as count')
+            ->pluck('count', 'competition_id')
+            ->all();
+
+        $upcomingLeagueCounts = FootballMatch::where('status', 'scheduled')
+            ->groupBy('competition_id')
+            ->selectRaw('competition_id, COUNT(*) as count')
+            ->pluck('count', 'competition_id')
+            ->all();
+
+        // Calculate Head-to-Head database depth per displayed match (delegates to MatchHistoryService, warming in-memory cache)
+        $h2hCounts = [];
+        $allDisplayedMatches = $matches->getCollection()->merge($upcomingMatches)->unique('id');
+        foreach ($allDisplayedMatches as $m) {
+            if ($m->home_team_id && $m->away_team_id) {
+                $h2hCounts[$m->id] = $historyService->getHeadToHead($m)['total_played'];
+            } else {
+                $h2hCounts[$m->id] = 0;
+            }
+        }
+
         return view('dashboard.index', [
             'competitions' => $competitions,
             'selectedComp' => $selectedComp,
@@ -284,24 +341,47 @@ class DashboardController extends Controller
             'availableMatchDates' => $availableMatchDates,
             'compStats' => $compStats,
             'summary' => $summary,
+            'dbStats' => $dbStats,
+            'todayLeagueCounts' => $todayLeagueCounts,
+            'upcomingLeagueCounts' => $upcomingLeagueCounts,
+            'h2hCounts' => $h2hCounts,
         ]);
     }
 
     public function predict(FootballMatch $match, PredictionService $predictionService): RedirectResponse
     {
         try {
-            $asOf = CarbonImmutable::now('UTC');
-            if ($match->status === 'finished' && $match->kickoff_at) {
-                $asOf = CarbonImmutable::parse($match->kickoff_at);
-            }
+            $now = CarbonImmutable::now('UTC');
+            $kickoff = $match->kickoff_at ? CarbonImmutable::parse($match->kickoff_at) : null;
+            $asOf = ($kickoff && $now->gt($kickoff)) ? $kickoff : $now;
+
+            $stage = $predictionService->determineStage($match, $asOf);
+
+            // Check if prediction for this model and stage already exists
+            $existing = Prediction::where('match_id', $match->id)
+                ->where('model_version', PoissonModel::MODEL_VERSION)
+                ->where('is_backtest', false)
+                ->where('stage', $stage)
+                ->first();
 
             $prediction = $predictionService->predict(
                 match: $match,
                 asOf: $asOf,
-                isBacktest: false
+                isBacktest: false,
+                stage: $stage
             );
 
-            return back()->with('success', "Prediction #{$prediction->id} computed successfully for {$match->homeTeam?->name} vs {$match->awayTeam?->name}.");
+            $stageLabel = match ($prediction->stage) {
+                'final' => 'Final Lineups',
+                'matchday' => 'Matchday',
+                default => 'Pre-Match',
+            };
+
+            if ($existing) {
+                return back()->with('info', "Prediction #{$existing->id} ({$stageLabel}) is already recorded for {$match->homeTeam?->name} vs {$match->awayTeam?->name}. Predictions are immutable per system rules.");
+            }
+
+            return back()->with('success', "Prediction #{$prediction->id} ({$stageLabel}) computed successfully for {$match->homeTeam?->name} vs {$match->awayTeam?->name}.");
         } catch (Throwable $e) {
             return back()->with('error', "Prediction failed: " . $e->getMessage());
         }
@@ -328,5 +408,28 @@ class DashboardController extends Controller
             return back()->with('error', "Failed generating preview: " . $e->getMessage());
         }
     }
-}
 
+    public function syncLiveScores(Request $request, FootballDataAdapter $adapter): RedirectResponse
+    {
+        try {
+            $compSlug = (string) $request->get('competition', 'premier-league');
+            $competition = Competition::where('slug', $compSlug)->first() ?? Competition::where('is_active', true)->first();
+
+            if (!$competition) {
+                return back()->with('error', "Competition not found.");
+            }
+
+            $season = (int) $request->get('season', 2026);
+            $result = $adapter->importMatches(
+                competition: $competition,
+                season: $season,
+                fromCache: false,
+                fresh: true
+            );
+
+            return back()->with('success', "⚡ Live matchday sync complete for {$competition->name}: {$result['imported']} match(es) refreshed with verified live and final scores.");
+        } catch (Throwable $e) {
+            return back()->with('error', "Live score refresh failed: " . $e->getMessage());
+        }
+    }
+}
